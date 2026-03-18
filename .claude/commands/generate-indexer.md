@@ -66,14 +66,13 @@ Update the import in `src/index.ts` to use the implementation ABI. Keep the prox
 
 ### 5. Create Validation Script
 
-Create `validate.ts` that:
-- Imports `dotenv/config` for ClickHouse auth from `.env`
-- Connects to ClickHouse with username and password
-- Checks row count > 0
-- Verifies schema (correct table, columns, types)
-- Spot-checks known data points
-- Validates value ranges
-- Exits 0 on pass, 1 on fail with details
+Create `validate.ts` with three phases (see CLAUDE.md for full spec and `evm/001-aave-v3/validate.ts` as reference):
+
+**Phase 1 — Structural:** row count, schema columns, timestamp range, non-negative amounts, non-empty addresses
+**Phase 2 — Portal cross-reference:** query SQD Portal API for event count in a 10K block sample, compare with ClickHouse (must match within 5%)
+**Phase 3 — Transaction spot-checks:** pick 3 txs from ClickHouse, query Portal for same blocks, verify field-level match (contract, event sig, indexed params)
+
+Must use `dotenv/config` for ClickHouse auth. Exits 0 on pass, 1 on fail.
 
 ### 6. Create Dashboard
 
@@ -93,11 +92,12 @@ Create `validate.ts` that:
 
 ### 7. Create README
 
-Create `README.md` with:
+Create `README.md` with (see `evm/001-aave-v3/README.md` as reference):
 - Protocol name and angle at the top
 - `![Dashboard](dashboard/screenshot.png)` embedded image
+- **Verification Report** — paste the full output of `npx tsx validate.ts` in a code block. This shows people the data was checked against Portal. Add a brief explanation of what the checks mean.
 - Run instructions: `docker compose up -d && npm install && npm start`
-- Validate: `npx tsx validate.ts`
+- "Re-run verification yourself" section with `npx tsx validate.ts`
 - View dashboard: open `dashboard/index.html`
 - Sample ClickHouse query with expected output shape
 

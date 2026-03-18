@@ -34,7 +34,7 @@ Every generated example MUST include:
 - [ ] `OUTPUT.md` — brief narrative: what happened, key decisions, issues resolved
 - [ ] `IMPROVEMENTS.md` — feedback on how CLAUDE.md, generate-indexer command, and templates should improve based on this experience. Agent-skills specific issues go here too.
 - [ ] `META.json` — date, pipes_sdk_version, agent_skills_version, claude_model, angle, runtime_status, validation_status
-- [ ] `README.md` — with dashboard screenshot at top, run instructions, sample ClickHouse query
+- [ ] `README.md` — with dashboard screenshot at top, **verification report** (full validate.ts output), run instructions, sample ClickHouse query
 - [ ] `package.json` — with pinned Pipes SDK version
 - [ ] `src/` — indexer source code
 - [ ] `docker-compose.yml` — ClickHouse with persistent volume and CORS config
