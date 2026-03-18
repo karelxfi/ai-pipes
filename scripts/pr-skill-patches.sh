@@ -1,105 +1,127 @@
 #!/bin/bash
 set -e
 
-# Creates a PR to subsquid-labs/agent-skills with local skill patches.
+# Creates a PR to subsquid-labs/agent-skills with ONLY the skill files
+# that were intentionally modified during indexer generation.
+#
 # Usage: ./scripts/pr-skill-patches.sh "brief description of changes"
 #
 # How it works:
-# 1. Clones karelxfi/agent-skills fork to a temp dir
-# 2. Copies patched skill files from .agents/skills/ into the clone
-# 3. Creates a branch, commits, pushes, and opens a PR to subsquid-labs/agent-skills
+# 1. Checks git diff for .agents/skills/ — only files changed since last commit
+# 2. If no changes, exits cleanly
+# 3. Clones karelxfi/agent-skills fork
+# 4. Copies ONLY the changed files into the upstream structure
+# 5. Opens a PR to subsquid-labs/agent-skills
 
-DESCRIPTION="${1:-Auto-patch from ai-pipes indexer generation}"
-SKILLS_DIR="$(cd "$(dirname "$0")/.." && pwd)/.agents/skills"
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+DESCRIPTION="${1:?Usage: $0 \"brief description of changes\"}"
+SKILLS_DIR="$REPO_ROOT/.agents/skills"
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 BRANCH="ai-pipes-patch-${TIMESTAMP}"
 
-if [ ! -d "$SKILLS_DIR" ]; then
-  echo "No local skills found at $SKILLS_DIR"
-  exit 1
+# Step 1: Find which skill files were actually changed
+cd "$REPO_ROOT"
+CHANGED_FILES=$(git diff --name-only HEAD -- .agents/skills/ 2>/dev/null)
+
+if [ -z "$CHANGED_FILES" ]; then
+  # Also check staged changes
+  CHANGED_FILES=$(git diff --cached --name-only -- .agents/skills/ 2>/dev/null)
 fi
 
-# Clone the fork
-TMPDIR=$(mktemp -d)
-echo "Cloning karelxfi/agent-skills to $TMPDIR..."
-gh repo clone karelxfi/agent-skills "$TMPDIR" -- --depth=1 -q
-
-cd "$TMPDIR"
-git checkout -b "$BRANCH"
-
-# Map local skill dirs to upstream paths
-# Local: .agents/skills/pipes-new-indexer/ → Upstream: pipes-sdk/pipes-new-indexer/
-# Local: .agents/skills/portal-query-*/ → Upstream: portal/portal-query-*/
-for skill_dir in "$SKILLS_DIR"/*/; do
-  skill_name=$(basename "$skill_dir")
-
-  # Determine upstream path
-  if [[ "$skill_name" == pipes-* ]]; then
-    upstream_dir="pipes-sdk/$skill_name"
-  elif [[ "$skill_name" == portal-* ]]; then
-    upstream_dir="portal/$skill_name"
-  else
-    echo "Unknown skill category: $skill_name, skipping"
-    continue
-  fi
-
-  if [ ! -d "$upstream_dir" ]; then
-    echo "Upstream dir $upstream_dir not found, skipping $skill_name"
-    continue
-  fi
-
-  # Copy patched files over
-  cp -R "$skill_dir"/* "$upstream_dir/"
-  echo "Patched: $upstream_dir"
-done
-
-# Check if there are changes
-if git diff --quiet && git diff --cached --quiet; then
-  echo "No changes to submit — skills match upstream."
-  rm -rf "$TMPDIR"
+if [ -z "$CHANGED_FILES" ]; then
+  echo "No skill files were modified. Nothing to PR."
   exit 0
 fi
 
-# Commit and push
+echo "Changed skill files:"
+echo "$CHANGED_FILES"
+echo ""
+
+# Step 2: Clone the fork
+TMPDIR=$(mktemp -d)
+trap "rm -rf $TMPDIR" EXIT
+echo "Cloning karelxfi/agent-skills..."
+gh repo clone karelxfi/agent-skills "$TMPDIR" -- --depth=1 -q
+cd "$TMPDIR"
+git checkout -b "$BRANCH"
+
+# Step 3: Copy ONLY the changed files, mapping to upstream paths
+COPIED=0
+while IFS= read -r file; do
+  # file looks like: .agents/skills/pipes-new-indexer/SKILL.md
+  # Strip .agents/skills/ prefix to get: pipes-new-indexer/SKILL.md
+  rel_path="${file#.agents/skills/}"
+  skill_name="${rel_path%%/*}"
+  file_in_skill="${rel_path#*/}"
+
+  # Map to upstream directory
+  if [[ "$skill_name" == pipes-* ]]; then
+    upstream_file="pipes-sdk/$skill_name/$file_in_skill"
+  elif [[ "$skill_name" == portal-* ]]; then
+    upstream_file="portal/$skill_name/$file_in_skill"
+  else
+    echo "  Skip: $rel_path (unknown skill category)"
+    continue
+  fi
+
+  # Only copy if upstream file exists (don't create new files in upstream)
+  upstream_dir=$(dirname "$upstream_file")
+  if [ ! -d "$upstream_dir" ]; then
+    echo "  Skip: $upstream_file (upstream dir doesn't exist)"
+    continue
+  fi
+
+  cp "$REPO_ROOT/$file" "$upstream_file"
+  echo "  Copy: $rel_path → $upstream_file"
+  COPIED=$((COPIED + 1))
+done <<< "$CHANGED_FILES"
+
+if [ "$COPIED" -eq 0 ]; then
+  echo "No files could be mapped to upstream. Nothing to PR."
+  exit 0
+fi
+
+# Step 4: Check if there are actual content changes (not just formatting)
+if git diff --quiet; then
+  echo "Files were copied but content is identical to upstream. Nothing to PR."
+  exit 0
+fi
+
+# Show what will be PR'd
+echo ""
+echo "Changes to submit:"
+git diff --stat
+echo ""
+echo "Diff preview:"
+git diff
+
+# Step 5: Commit and push
 git add -A
-git commit -m "fix: patches from ai-pipes indexer generation
+git commit -m "fix: $DESCRIPTION
 
-$DESCRIPTION
-
-These patches were automatically generated during indexer creation
-in https://github.com/karelxfi/ai-pipes. Each patch addresses an
-issue encountered while using the skills to build real DeFi indexers."
+Patches from building DeFi indexers in https://github.com/karelxfi/ai-pipes
+Each change addresses a real issue encountered during indexer generation."
 
 git push origin "$BRANCH"
 
-# Create PR to upstream
+# Step 6: Create PR
 PR_URL=$(gh pr create \
   --repo subsquid-labs/agent-skills \
   --head "karelxfi:$BRANCH" \
-  --title "fix: skill patches from ai-pipes indexer generation" \
+  --title "fix: $DESCRIPTION" \
   --body "$(cat <<EOF
-## Summary
-
-Patches from building DeFi indexers in [ai-pipes](https://github.com/karelxfi/ai-pipes).
-
-$DESCRIPTION
-
 ## Context
 
-These changes were discovered while using the agent skills to generate real, working indexers. Each patch addresses a concrete issue encountered during generation — not theoretical improvements.
+Patches from building real DeFi indexers in [ai-pipes](https://github.com/karelxfi/ai-pipes). Each change addresses a concrete issue encountered during generation.
 
 ## Changes
 
 $(git diff HEAD~1 --stat)
 
 ---
-
-Generated automatically by [ai-pipes](https://github.com/karelxfi/ai-pipes)
+Generated by [ai-pipes](https://github.com/karelxfi/ai-pipes)
 EOF
 )")
 
 echo ""
 echo "PR created: $PR_URL"
-
-# Cleanup
-rm -rf "$TMPDIR"

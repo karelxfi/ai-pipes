@@ -149,13 +149,13 @@ Review what you learned during this generation and decide if any agent skill fil
 
 If nothing needs patching, write "No skill patches needed" in IMPROVEMENTS.md.
 
-**After patching, create a PR to upstream:**
+**After patching, commit the skill changes first, then PR to upstream:**
 ```bash
-npm run pr-skills -- "Brief description: what was fixed and why"
+git add .agents/skills/
+git commit -m "fix(skills): <what you changed and why>"
+npm run pr-skills -- "<protocol-name>: <what was fixed and why>"
 ```
-This clones the `karelxfi/agent-skills` fork, copies the patched skill files, and opens a PR to `subsquid-labs/agent-skills`. The PR includes context about which indexer triggered the change.
-
-If no skills were patched, skip this step.
+The script only PRs files that have actual git changes — it won't create noise. If you didn't change any skill files, skip this step entirely.
 
 ### 12. Auto-update CLAUDE.md (if needed)
 
