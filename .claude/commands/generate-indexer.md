@@ -2,7 +2,7 @@
 description: Generate a new AI-powered DeFi indexer example
 ---
 
-Generate a new indexer example for the ai-pipes repo.
+Generate a new indexer example for the ai-pipes repo. Read CLAUDE.md first for all rules.
 
 ## Protocol Selection
 
@@ -18,16 +18,37 @@ If no protocol is specified above, read `protocols.json` and pick the next proto
 - Identify a compelling, protocol-specific angle (see CLAUDE.md)
 - The angle should NOT be generic "index Transfer events"
 - Think about what makes this protocol unique and what data story would look great as a chart
+- **Check if the contract is a proxy** — look on Etherscan for "Read as Proxy" tab. If so, note the implementation address for step 2b.
 
 ### 2. Scaffold the Indexer
 
+- **Patch the CLI first** (it crashes without this — see CLAUDE.md "Known Issues")
 - Use the `pipes-new-indexer` skill from agent-skills
 - Place in the correct VM directory based on `protocols.json`
+- Use `npm` as package manager (not bun)
 - Pin the Pipes SDK version in `package.json`
+- Use a **dedicated ClickHouse database** named after the protocol slug
 
-### 3. Create Metadata Files
+### 2b. Fix Proxy ABI (if applicable)
 
-**PROMPT.md** — Write the exact prompt that describes what this indexer does. This is the prompt that would be used to reproduce this example. It should be specific enough that running it through `/generate-indexer` would produce an equivalent result.
+If the contract is a proxy:
+```bash
+npx @subsquid/evm-typegen@latest <project>/src/contracts <IMPLEMENTATION_ADDRESS> --chain-id 1
+```
+Update the import in `src/index.ts` to use the implementation ABI. Keep the proxy address in the `contracts` array.
+
+### 3. Create Infrastructure Files
+
+**docker-compose.yml** must include:
+- Persistent volume: `clickhouse-data:/var/lib/clickhouse`
+- CORS config: `./clickhouse-cors.xml:/etc/clickhouse-server/config.d/cors.xml:ro`
+- Dedicated database name in environment
+
+**clickhouse-cors.xml** — copy from any existing example or CLAUDE.md.
+
+### 4. Create Metadata Files
+
+**PROMPT.md** — The exact prompt that describes what this indexer does. Specific enough that running it through `/generate-indexer` would produce an equivalent result.
 
 **META.json:**
 ```json
@@ -43,68 +64,78 @@ If no protocol is specified above, read `protocols.json` and pick the next proto
 }
 ```
 
-### 4. Create Validation Script
+### 5. Create Validation Script
 
 Create `validate.ts` that:
-- Connects to ClickHouse at `http://localhost:8123`
+- Imports `dotenv/config` for ClickHouse auth from `.env`
+- Connects to ClickHouse with username and password
 - Checks row count > 0
 - Verifies schema (correct table, columns, types)
 - Spot-checks known data points
-- Validates value ranges (no negatives where inappropriate, timestamps in range)
+- Validates value ranges
 - Exits 0 on pass, 1 on fail with details
 
-### 5. Create Dashboard
+### 6. Create Dashboard
 
 - Copy `shared/dashboard-template/index.html` to `dashboard/index.html`
+- Use **Apache ECharts** (already in template) — NOT TradingView Lightweight Charts
 - Customize: protocol name, angle, ClickHouse queries, chart types
 - Use 2-4 charts that tell the data story
-- Keep the dark theme and 1200x675 layout
+- Follow CLAUDE.md dashboard rules strictly:
+  - Counts over time → vertical bar with gradient
+  - Rankings → horizontal bar
+  - Composition → treemap (NEVER pie/donut)
+  - Continuous values → area/line
+  - Always include legends on categorical charts
+  - Use counts not raw token amounts
+  - Include summary stats in header
+  - Set `window.__DASHBOARD_READY__ = true` after data loads
 
-### 6. Create README
+### 7. Create README
 
 Create `README.md` with:
 - Protocol name and angle at the top
 - `![Dashboard](dashboard/screenshot.png)` embedded image
-- Run instructions: `docker compose up -d && npm start`
+- Run instructions: `docker compose up -d && npm install && npm start`
 - Validate: `npx tsx validate.ts`
 - View dashboard: open `dashboard/index.html`
 - Sample ClickHouse query with expected output shape
 
-### 7. Test & Validate
+### 8. Test & Validate (MANDATORY — never skip)
 
 1. `docker compose up -d` — start ClickHouse
-2. `npm install && npm start` — run the indexer, wait for initial sync
-3. `npx tsx validate.ts` — verify data
-4. Open `dashboard/index.html` in browser — verify charts render
-5. Capture `dashboard/screenshot.png` (1200x675)
+2. `npm install && npm start` — run the indexer
+3. **Wait for 500+ rows** — check with: `curl -s 'http://localhost:8123/?user=default&password=password' --data-binary "SELECT count() FROM <db>.<table>"`
+4. Kill the indexer once enough data is collected
+5. `npx tsx validate.ts` — all assertions must pass
+6. Open `dashboard/index.html` in browser — verify charts render with REAL data
+7. Capture `dashboard/screenshot.png` — use Chrome DevTools or screenshot script
+8. **Visually inspect the screenshot** — charts must have data, legends must be readable, no empty panels
 
-### 8. Write OUTPUT.md
+### 9. Write OUTPUT.md
 
 Document what happened during generation:
 - What angle was chosen and why
 - Any issues encountered and how they were resolved
 - Key decisions made
 
-### 8b. Write IMPROVEMENTS.md
+### 10. Write IMPROVEMENTS.md
 
-Document what should improve in the generation rules based on this experience:
-- What was missing from CLAUDE.md that would have helped?
-- What instructions were unclear or wrong?
-- What new patterns were discovered that should be documented?
-- What CLI workarounds were needed?
-- What dashboard patterns worked well / poorly?
-- Suggest specific additions or changes to CLAUDE.md, this command, or the dashboard template
+Document what should improve based on this experience:
+- Agent-skills issues (CLI bugs, missing docs, workflow gaps)
+- CLAUDE.md improvements needed
+- Dashboard patterns that worked/didn't
+- New workarounds discovered
 
-This creates a feedback loop — each indexer teaches us how to make the next one better.
+### 11. Update Status
 
-### 9. Update Status
+- Update `META.json`: set `runtime_status: "working"` and `validation_status: "passed"`
+- Update `protocols.json`: set status to `"done"` and fill in the `angle`
+- Run `npm run update-readme` from repo root to refresh the protocol table
 
-- Update `META.json`: set `runtime_status` and `validation_status`
-- Update `protocols.json`: set status to "done" (or "failed" with reason)
-
-### 10. Commit
+### 12. Commit
 
 ```bash
-git add <example-directory>/
+git add <example-directory>/ protocols.json README.md
 git commit -m "feat(<vm>): add <protocol-name> indexer — <angle>"
 ```

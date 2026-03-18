@@ -32,24 +32,25 @@ Every generated example MUST include:
 
 - [ ] `PROMPT.md` — exact verbatim prompt used (nothing more)
 - [ ] `OUTPUT.md` — brief narrative: what happened, key decisions, issues resolved
-- [ ] `IMPROVEMENTS.md` — feedback on how CLAUDE.md, generate-indexer command, and templates should improve based on this experience
+- [ ] `IMPROVEMENTS.md` — feedback on how CLAUDE.md, generate-indexer command, and templates should improve based on this experience. Agent-skills specific issues go here too.
 - [ ] `META.json` — date, pipes_sdk_version, agent_skills_version, claude_model, angle, runtime_status, validation_status
 - [ ] `README.md` — with dashboard screenshot at top, run instructions, sample ClickHouse query
 - [ ] `package.json` — with pinned Pipes SDK version
 - [ ] `src/` — indexer source code
-- [ ] `docker-compose.yml` — ClickHouse for local development
-- [ ] `validate.ts` — data validation (row count, schema, spot checks, range checks)
-- [ ] `dashboard/index.html` — standalone dark-themed dashboard with TradingView Lightweight Charts
-- [ ] `dashboard/screenshot.png` — captured screenshot of populated dashboard (1200x675, X-optimized)
+- [ ] `docker-compose.yml` — ClickHouse with persistent volume and CORS config
+- [ ] `clickhouse-cors.xml` — CORS headers for browser dashboard access
+- [ ] `validate.ts` — data validation using dotenv for ClickHouse auth
+- [ ] `dashboard/index.html` — standalone dark-themed dashboard with Apache ECharts
+- [ ] `dashboard/screenshot.png` — captured screenshot of populated dashboard with REAL data
 
 ## Validation (MANDATORY — never skip)
 
-**You MUST run the indexer, validate the output, and capture a real screenshot before committing.** An example without a working screenshot with real data is not done.
+**You MUST run the indexer, validate the output, and capture a real screenshot before committing.** An example without a working screenshot with real data is not done. An example with empty charts is not done. Period.
 
 Before marking an example as done:
 
 1. `docker compose up -d` — start ClickHouse
-2. `npm install && npm start` — run the indexer, wait until data appears in ClickHouse
+2. `npm install && npm start` — run the indexer, wait until 500+ rows appear
 3. `npx tsx validate.ts` — all assertions must pass
 4. Open `dashboard/index.html` in browser — verify charts render with REAL data (not empty)
 5. Capture `dashboard/screenshot.png` — must show populated charts, not empty panels
@@ -57,10 +58,95 @@ Before marking an example as done:
 7. Update META.json: `runtime_status: "working"`, `validation_status: "passed"`
 8. Update `protocols.json` status to "done"
 
-**If charts are empty:** Check browser console for errors. Common issues:
-- ClickHouse CORS: mount `clickhouse-cors.xml` in docker-compose.yml
-- Lightweight Charts v5 API: use `chart.addSeries(LightweightCharts.LineSeries, ...)` NOT `chart.addLineSeries(...)`
-- Auth: include `user=default&password=password` in ClickHouse query URLs
+**How to check for data during sync:**
+```bash
+curl -s 'http://localhost:8123/?user=default&password=password' --data-binary "SELECT count() FROM <database>.<table>"
+```
+
+## Known Issues & Workarounds
+
+### Pipes CLI `ora` crash
+The CLI crashes with `(0, import_ora.default) is not a function`. Patch before running `init`:
+```bash
+CLI_PATH=$(find ~/.npm/_npx -name "index.cjs" -path "*pipes-cli*" 2>/dev/null | head -1)
+sed -i.bak 's/var import_ora = __toESM(require("ora"), 1);/var import_ora = { default: function(opts) { var t = typeof opts === "string" ? opts : (opts \&\& opts.text) || ""; return { start: function(m) { console.log(m || t); return this; }, succeed: function(m) { console.log(m || t); return this; }, fail: function(m) { console.log(m || t); return this; }, stop: function() { return this; }, text: t }; } };/' "$CLI_PATH"
+```
+
+### Proxy contracts
+Many DeFi protocol contracts are proxies. The CLI will fetch the proxy ABI (only `Upgraded` event). Always check:
+```bash
+grep "export const events" <project>/src/contracts/*.ts
+```
+If you only see `Upgraded`, find the implementation address on Etherscan ("Read as Proxy" tab) and regenerate:
+```bash
+npx @subsquid/evm-typegen@latest <project>/src/contracts <IMPL_ADDRESS> --chain-id 1
+```
+Then update the import in `src/index.ts`. Keep the proxy address in the `contracts` array.
+
+### ClickHouse data persistence
+Always add a named volume in docker-compose.yml so data survives container restarts:
+```yaml
+volumes:
+  - clickhouse-data:/var/lib/clickhouse
+  - ./clickhouse-cors.xml:/etc/clickhouse-server/config.d/cors.xml:ro
+```
+
+### ClickHouse CORS for dashboards
+Every example needs `clickhouse-cors.xml` mounted for the browser dashboard to query ClickHouse:
+```xml
+<clickhouse>
+    <http_options_response>
+        <header><name>Access-Control-Allow-Origin</name><value>*</value></header>
+        <header><name>Access-Control-Allow-Methods</name><value>GET, POST, OPTIONS</value></header>
+        <header><name>Access-Control-Allow-Headers</name><value>*</value></header>
+    </http_options_response>
+</clickhouse>
+```
+
+### validate.ts must use dotenv
+Always import `dotenv/config` and read credentials from `.env`:
+```typescript
+import 'dotenv/config'
+const client = createClient({
+  url: process.env.CLICKHOUSE_URL ?? 'http://localhost:8123',
+  database: process.env.CLICKHOUSE_DATABASE,
+  username: process.env.CLICKHOUSE_USER ?? 'default',
+  password: process.env.CLICKHOUSE_PASSWORD ?? 'password',
+});
+```
+
+### Node.js version
+Use Node.js LTS (v20 or v22). Node v25+ has zstd bugs that crash on large syncs. For small syncs it usually works.
+
+## Dashboard Design — IMPORTANT RULES
+
+### Use Apache ECharts, NOT TradingView Lightweight Charts
+- TradingView Lightweight Charts v5 broke the API, has watermarks, and is designed for candlestick data not BI dashboards
+- Use `https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js`
+
+### Pick the right chart for the data
+- **Time-series counts** (liquidations per day, swaps per hour) → vertical bar chart with gradient fill
+- **Rankings** (top assets, top users) → horizontal bar chart with colored bars and value labels
+- **Proportional composition** (debt breakdown, asset share) → treemap
+- **Continuous values over time** (TVL, price) → area chart or line chart
+- **NEVER use pie or donut charts**
+
+### Be smart about data
+- Use **counts** not raw token amounts — different tokens have different decimals, summing raw amounts across tokens is meaningless without price feeds
+- If you need volume, normalize to a single denomination (e.g., ETH or USD) — don't just divide by 1e18
+- Always include **legends** on categorical charts
+- Summary stats in the header (total count, unique users, unique assets, date range)
+
+### Visual standards
+- Dark theme: background `#0d1117`, panels `#161b22`, borders `#30363d`
+- Gradient fills on bar charts (e.g., `#58a6ff` → `#1f6feb` for blue, `#f78166` → `#da3633` for red)
+- Color palette: `['#58a6ff','#f78166','#3fb950','#d2a8ff','#f0883e','#79c0ff','#7ee787','#d29922','#ff7b72','#a5d6ff']`
+- Footer: `Built with ai-pipes + SQD Pipes SDK | github.com/karelxfi | x.com/karelxfi`
+- 1200x675 viewport (X card ratio)
+- Set `window.__DASHBOARD_READY__ = true` when data is loaded (for screenshot script)
+
+### Token address resolution
+Include a lookup map for common token addresses → symbols. For unknown addresses, show `0xABCD..EF12` format.
 
 ## Conventions
 
@@ -68,11 +154,5 @@ Before marking an example as done:
 - Record installed agent-skills commit SHA in META.json
 - Pipes SDK version pinning is the primary reproducibility mechanism
 - Each example is a self-contained commit
-
-## Dashboard Design
-
-- Dark theme, optimized for 1200x675 (X card ratio)
-- Self-contained single HTML file, CDN dependencies only
-- TradingView Lightweight Charts for time-series data
-- Subtle "Built with ai-pipes + SQD Pipes SDK" watermark
-- Use `shared/dashboard-template/` as starting point (copy, don't import)
+- Use `npm` as package manager (not bun — for wider compatibility)
+- Use dedicated ClickHouse database per indexer (avoid sync table conflicts)
