@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200">
+  <title>wBETH Oracle Health Monitor</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      width: 1200px;
+      height: 675px;
+      overflow: hidden;
+    }
+    .header {
+      padding: 14px 24px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .header h1 { font-size: 20px; font-weight: 600; color: #e6edf3; }
+    .header .angle { font-size: 12px; color: #8b949e; margin-top: 2px; }
+    .stats { display: flex; gap: 2px; align-items: stretch; }
+    .stat { text-align: center; white-space: nowrap; padding: 4px 12px; background: #161b22; border-radius: 4px; }
+    .stat-value { font-size: 15px; font-weight: 700; color: #e6edf3; line-height: 1.3; }
+    .stat-label { font-size: 7px; color: #6e7681; text-transform: uppercase; letter-spacing: 0.8px; }
+    .stat:first-child .stat-value { color: #58a6ff; }
+    .stat:nth-child(3) .stat-value { color: #3fb950; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 8px;
+      padding: 6px 16px;
+      height: calc(100% - 62px - 22px);
+    }
+    .panel {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      position: relative;
+    }
+    .chart { width: 100%; height: 100%; }
+    .footer {
+      padding: 2px 24px 4px;
+      text-align: right;
+      font-size: 9px;
+      color: #484f58;
+    }
+    .footer a { color: #58a6ff; text-decoration: none; opacity: 0.5; }
+    .footer a:hover { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>wBETH Oracle Health Monitor</h1>
+      <div class="angle">Binance staked ETH exchange rate updates from ExchangeRateUpdated events | Ethereum Mainnet</div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="grid">
+    <div class="panel"><div class="chart" id="chart1"></div></div>
+    <div class="panel"><div class="chart" id="chart2"></div></div>
+    <div class="panel"><div class="chart" id="chart3"></div></div>
+    <div class="panel"><div class="chart" id="chart4"></div></div>
+  </div>
+  <div class="footer">
+    Built with ai-pipes + SQD Pipes SDK |
+    <a href="https://github.com/karelxfi">github.com/karelxfi</a> |
+    <a href="https://x.com/karelxfi">x.com/karelxfi</a>
+  </div>
+
+  <script>
+    var CH = 'http://localhost:8123';
+    var DB = 'wbeth';
+    var T = 'wbeth_exchange_rate_updated';
+
+    function q(sql) {
+      return fetch(CH + '/?database=' + DB + '&user=default&password=password&query=' + encodeURIComponent(sql + ' FORMAT JSON'))
+        .then(function(r) { return r.json(); })
+        .then(function(j) { return j.data; });
+    }
+
+    function fmtNum(n) {
+      if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+      return String(n);
+    }
+
+    function darkOpts(title) {
+      return {
+        backgroundColor: 'transparent',
+        title: { text: title, textStyle: { color: '#8b949e', fontSize: 11, fontWeight: 'normal' }, left: 10, top: 8 },
+        textStyle: { color: '#8b949e', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial' },
+        tooltip: { backgroundColor: '#1c2128', borderColor: '#30363d', textStyle: { color: '#e6edf3', fontSize: 11 } },
+        grid: { left: 56, right: 16, top: 36, bottom: 28 },
+      };
+    }
+
+    async function init() {
+      // Summary stats
+      var totalCount = await q('SELECT count() as total FROM ' + T);
+      var latest = await q(
+        'SELECT toFloat64(new_exchange_rate) / 1e18 as latest_rate ' +
+        'FROM ' + T + ' ORDER BY block_number DESC LIMIT 1'
+      );
+      var dateRange = await q('SELECT min(toDate(timestamp)) as from_date, max(toDate(timestamp)) as to_date FROM ' + T);
+      var dr = dateRange[0] || {};
+      var total = totalCount[0]?.total || '0';
+      var latestRate = Number(latest[0]?.latest_rate || 0);
+
+      // Compute implied APR from latest two data points
+      var aprData = await q(
+        'SELECT toFloat64(new_exchange_rate) / 1e18 as rate, timestamp ' +
+        'FROM ' + T + ' ORDER BY block_number DESC LIMIT 2'
+      );
+      var impliedApr = 0;
+      if (aprData.length >= 2) {
+        var r1 = Number(aprData[0].rate);
+        var r0 = Number(aprData[1].rate);
+        var t1 = new Date(aprData[0].timestamp).getTime() / 1000;
+        var t0 = new Date(aprData[1].timestamp).getTime() / 1000;
+        var dt = t1 - t0;
+        if (dt > 0 && r0 > 0) {
+          impliedApr = ((r1 - r0) / r0) * (365.25 * 86400 / dt) * 100;
+        }
+      }
+
+      // Format dates shorter: "May 23" instead of "2023-05-07"
+      function shortDate(d) {
+        if (!d) return '?';
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var parts = d.split('-');
+        return months[parseInt(parts[1])-1] + ' \'' + parts[0].slice(2);
+      }
+
+      var statsEl = document.getElementById('stats');
+      [
+        {v: total, l: 'Updates'},
+        {v: latestRate.toFixed(6), l: 'Rate'},
+        {v: impliedApr.toFixed(2) + '%', l: 'APR'},
+        {v: shortDate(dr.from_date) + ' \u2192 ' + shortDate(dr.to_date), l: 'Period'},
+      ].forEach(function(s) {
+        var d = document.createElement('div'); d.className = 'stat';
+        var vl = document.createElement('div'); vl.className = 'stat-value'; vl.textContent = s.v;
+        var lb = document.createElement('div'); lb.className = 'stat-label'; lb.textContent = s.l;
+        d.appendChild(vl); d.appendChild(lb); statsEl.appendChild(d);
+      });
+
+      // Chart 1: Exchange Rate Over Time (area chart)
+      var rates = await q(
+        'SELECT toDate(timestamp) as day, ' +
+        'avg(toFloat64(new_exchange_rate) / 1e18) as rate ' +
+        'FROM ' + T + ' GROUP BY day ORDER BY day'
+      );
+      var ch1 = echarts.init(document.getElementById('chart1'));
+      ch1.setOption(Object.assign(darkOpts('wBETH/ETH Exchange Rate Over Time'), {
+        xAxis: {
+          type: 'category',
+          data: rates.map(function(d) { return d.day; }),
+          axisLabel: { color: '#6e7681', fontSize: 9 },
+          axisLine: { lineStyle: { color: '#30363d' } },
+          splitLine: { show: false },
+        },
+        yAxis: {
+          type: 'value',
+          min: function(v) { return (v.min - 0.001).toFixed(3); },
+          axisLabel: { color: '#6e7681', fontSize: 9, formatter: function(v) { return v.toFixed(3); } },
+          axisLine: { show: false },
+          splitLine: { lineStyle: { color: '#21262d' } },
+        },
+        series: [{
+          type: 'line',
+          name: 'Exchange Rate',
+          data: rates.map(function(d) { return Number(d.rate); }),
+          smooth: true,
+          showSymbol: false,
+          lineStyle: { color: '#3fb950', width: 2 },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(63,185,80,0.3)' },
+              { offset: 1, color: 'rgba(63,185,80,0.02)' },
+            ]),
+          },
+        }],
+        tooltip: {
+          trigger: 'axis',
+          formatter: function(p) { return p[0].axisValue + '<br/>Rate: <b>' + Number(p[0].value).toFixed(6) + '</b> ETH/wBETH'; },
+        },
+      }));
+
+      // Chart 2: Daily Rate Change in Basis Points (bar chart)
+      var changes = await q(
+        'SELECT toDate(timestamp) as day, ' +
+        'toFloat64(new_exchange_rate) / 1e18 as rate, ' +
+        'lagInFrame(toFloat64(new_exchange_rate) / 1e18) OVER (ORDER BY block_number) as prev_rate ' +
+        'FROM ' + T
+      );
+      // Filter out first row (no prev) and compute bps change
+      var bpsData = [];
+      for (var i = 0; i < changes.length; i++) {
+        var row = changes[i];
+        var prev = Number(row.prev_rate);
+        var curr = Number(row.rate);
+        if (prev > 0) {
+          var bps = ((curr - prev) / prev) * 10000;
+          bpsData.push({ day: row.day, bps: Math.round(bps * 100) / 100 });
+        }
+      }
+      var ch2 = echarts.init(document.getElementById('chart2'));
+      ch2.setOption(Object.assign(darkOpts('Daily Rate Change (basis points)'), {
+        xAxis: {
+          type: 'category',
+          data: bpsData.map(function(d) { return d.day; }),
+          axisLabel: { color: '#6e7681', fontSize: 9 },
+          axisLine: { lineStyle: { color: '#30363d' } },
+          splitLine: { show: false },
+        },
+        yAxis: {
+          type: 'value',
+          axisLabel: { color: '#6e7681', fontSize: 9, formatter: function(v) { return v.toFixed(1) + ' bps'; } },
+          axisLine: { show: false },
+          splitLine: { lineStyle: { color: '#21262d' } },
+        },
+        series: [{
+          type: 'bar',
+          name: 'Rate Change',
+          data: bpsData.map(function(d) {
+            return {
+              value: d.bps,
+              itemStyle: {
+                color: d.bps >= 0
+                  ? new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                      { offset: 0, color: '#3fb950' },
+                      { offset: 1, color: '#238636' },
+                    ])
+                  : new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                      { offset: 0, color: '#f78166' },
+                      { offset: 1, color: '#da3633' },
+                    ]),
+              },
+            };
+          }),
+          barMaxWidth: 6,
+        }],
+        tooltip: {
+          trigger: 'axis',
+          formatter: function(p) { return p[0].axisValue + '<br/>Change: <b>' + p[0].value + ' bps</b>'; },
+        },
+      }));
+
+      // Chart 3: Oracle Update Frequency — updates per week (bar chart)
+      var weekly = await q(
+        'SELECT toMonday(timestamp) as week, count() as n FROM ' + T + ' GROUP BY week ORDER BY week'
+      );
+      var ch3 = echarts.init(document.getElementById('chart3'));
+      ch3.setOption(Object.assign(darkOpts('Oracle Update Frequency (per week)'), {
+        xAxis: {
+          type: 'category',
+          data: weekly.map(function(d) { return d.week; }),
+          axisLabel: { color: '#6e7681', fontSize: 9 },
+          axisLine: { lineStyle: { color: '#30363d' } },
+          splitLine: { show: false },
+        },
+        yAxis: {
+          type: 'value',
+          min: 0,
+          max: function(v) { return Math.max(v.max + 1, 10); },
+          axisLabel: { color: '#6e7681', fontSize: 9 },
+          axisLine: { show: false },
+          splitLine: { lineStyle: { color: '#21262d' } },
+        },
+        series: [{
+          type: 'bar',
+          name: 'Updates/Week',
+          data: weekly.map(function(d) {
+            var n = parseInt(d.n);
+            return {
+              value: n,
+              itemStyle: {
+                color: n >= 6
+                  ? new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                      { offset: 0, color: '#d2a8ff' },
+                      { offset: 1, color: '#8957e5' },
+                    ])
+                  : new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                      { offset: 0, color: '#f78166' },
+                      { offset: 1, color: '#da3633' },
+                    ]),
+              },
+            };
+          }),
+          barMaxWidth: 12,
+          markLine: {
+            silent: true,
+            symbol: 'none',
+            lineStyle: { color: '#6e7681', type: 'dashed', width: 1 },
+            data: [{ yAxis: 7, label: { show: true, formatter: 'expected: 7/wk', color: '#6e7681', fontSize: 9, position: 'insideEndTop' } }],
+          },
+        }],
+        tooltip: {
+          trigger: 'axis',
+          formatter: function(p) {
+            var n = p[0].value;
+            var status = n >= 6 ? 'Healthy' : 'Missed updates!';
+            return 'Week of ' + p[0].axisValue + '<br/>Updates: <b>' + n + '</b> (' + status + ')';
+          },
+        },
+      }));
+
+      // Chart 4: Implied APR Over Time (line chart)
+      // Compute rolling APR from consecutive rate changes
+      var aprSeries = [];
+      for (var i = 0; i < bpsData.length; i++) {
+        // APR = bps_change * 365.25 / 10000 * 100 (assuming daily updates)
+        var annualized = bpsData[i].bps * 365.25 / 100;
+        aprSeries.push({ day: bpsData[i].day, apr: Math.round(annualized * 100) / 100 });
+      }
+      // Smooth with 7-day moving average
+      var smoothedApr = [];
+      for (var i = 0; i < aprSeries.length; i++) {
+        var windowStart = Math.max(0, i - 6);
+        var sum = 0;
+        var count = 0;
+        for (var j = windowStart; j <= i; j++) {
+          sum += aprSeries[j].apr;
+          count++;
+        }
+        smoothedApr.push({ day: aprSeries[i].day, apr: Math.round((sum / count) * 100) / 100 });
+      }
+      var ch4 = echarts.init(document.getElementById('chart4'));
+      ch4.setOption(Object.assign(darkOpts('Implied APR (7-day moving average)'), {
+        legend: {
+          show: true,
+          top: 6,
+          right: 16,
+          textStyle: { color: '#8b949e', fontSize: 9 },
+          data: ['Daily', '7d MA'],
+        },
+        grid: { left: 56, right: 16, top: 36, bottom: 28 },
+        xAxis: {
+          type: 'category',
+          data: aprSeries.map(function(d) { return d.day; }),
+          axisLabel: { color: '#6e7681', fontSize: 9 },
+          axisLine: { lineStyle: { color: '#30363d' } },
+          splitLine: { show: false },
+        },
+        yAxis: {
+          type: 'value',
+          axisLabel: { color: '#6e7681', fontSize: 9, formatter: function(v) { return v.toFixed(1) + '%'; } },
+          axisLine: { show: false },
+          splitLine: { lineStyle: { color: '#21262d' } },
+        },
+        series: [
+          {
+            type: 'scatter',
+            name: 'Daily',
+            data: aprSeries.map(function(d) { return d.apr; }),
+            symbolSize: 3,
+            itemStyle: { color: 'rgba(88,166,255,0.3)' },
+          },
+          {
+            type: 'line',
+            name: '7d MA',
+            data: smoothedApr.map(function(d) { return d.apr; }),
+            smooth: true,
+            showSymbol: false,
+            lineStyle: { color: '#58a6ff', width: 2 },
+            areaStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: 'rgba(88,166,255,0.2)' },
+                { offset: 1, color: 'rgba(88,166,255,0.02)' },
+              ]),
+            },
+          },
+        ],
+        tooltip: {
+          trigger: 'axis',
+          formatter: function(p) {
+            var result = p[0].axisValue;
+            for (var i = 0; i < p.length; i++) {
+              result += '<br/>' + p[i].seriesName + ': <b>' + p[i].value + '%</b>';
+            }
+            return result;
+          },
+        },
+      }));
+
+      window.__DASHBOARD_READY__ = true;
+    }
+
+    init().catch(function(err) {
+      console.error('Dashboard error:', err);
+      var e = document.createElement('div');
+      e.style.cssText = 'color:#f78166;padding:24px;font-size:14px';
+      e.textContent = 'Error: ' + err.message;
+      document.body.appendChild(e);
+    });
+  </script>
+</body>
+</html>

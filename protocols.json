@@ -67,9 +67,9 @@
         "Ethereum",
         "Binance"
       ],
-      "angle": null,
+      "angle": "Oracle health monitor \u2014 wBETH exchange rate tracking and anomaly detection",
       "directory": "evm/003-binance-staked-eth",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Sky Lending",
