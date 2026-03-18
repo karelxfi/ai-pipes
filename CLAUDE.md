@@ -178,6 +178,9 @@ const client = createClient({
 });
 ```
 
+### ClickHouse: can't mix aggregates with non-aggregated columns
+`SELECT count(), non_agg_col FROM table ORDER BY col LIMIT 1` fails. Use separate queries for aggregates vs latest-row lookups.
+
 ### Node.js version
 Use Node.js LTS (v20 or v22). Node v25+ has zstd bugs that crash on large syncs. For small syncs it usually works.
 
@@ -198,7 +201,7 @@ Use Node.js LTS (v20 or v22). Node v25+ has zstd bugs that crash on large syncs.
 - Use **counts** not raw token amounts — different tokens have different decimals, summing raw amounts across tokens is meaningless without price feeds
 - If you need volume, normalize to a single denomination (e.g., ETH or USD) — don't just divide by 1e18
 - Always include **legends** on categorical charts
-- Summary stats in the header (total count, unique users, unique assets, date range)
+- Summary stats in the header: total row count, key metrics, **and the time period** (e.g., "2023-05-16 → 2024-03-14")
 
 ### Visual standards
 - Dark theme: background `#0d1117`, panels `#161b22`, borders `#30363d`

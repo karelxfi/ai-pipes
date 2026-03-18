@@ -53,9 +53,9 @@
         "Moonriver",
         "Terra"
       ],
-      "angle": null,
+      "angle": "stETH rebase tracker \u2014 exchange rate evolution, TVL growth, fee revenue",
       "directory": "evm/002-lido",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Binance staked ETH",
