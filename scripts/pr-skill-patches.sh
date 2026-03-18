@@ -68,19 +68,26 @@ while IFS= read -r file; do
     continue
   fi
 
+  # Check if the key added lines already exist in upstream
+  # Extract the first non-trivial added line from the patch
+  KEY_LINE=$(echo "$FILE_PATCH" | grep "^+" | grep -v "^+++" | grep -v "^+$" | head -1 | sed 's/^+//')
+  if [ -n "$KEY_LINE" ] && grep -qF "$KEY_LINE" "$upstream_file" 2>/dev/null; then
+    echo "  SKIP: $upstream_file — key content already in upstream"
+    continue
+  fi
+
   # Try to apply. If context doesn't match (upstream changed), skip gracefully.
   if echo "$FILE_PATCH" | git apply --check 2>/dev/null; then
     echo "$FILE_PATCH" | git apply
     echo "  Applied: $upstream_file"
     APPLIED=$((APPLIED + 1))
   else
-    # Try with fuzz
     if echo "$FILE_PATCH" | git apply --check -C0 2>/dev/null; then
       echo "$FILE_PATCH" | git apply -C0
       echo "  Applied (fuzzy): $upstream_file"
       APPLIED=$((APPLIED + 1))
     else
-      echo "  SKIP: $upstream_file — patch conflicts with upstream changes (already addressed?)"
+      echo "  SKIP: $upstream_file — patch conflicts with upstream (already addressed?)"
     fi
   fi
 done <<< "$CHANGED_FILES"
