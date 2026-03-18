@@ -1,43 +1,47 @@
 #!/bin/bash
 set -e
 
-# Creates a PR to subsquid-labs/agent-skills with ONLY the skill files
-# that were intentionally modified during indexer generation.
+# Creates a PR to subsquid-labs/agent-skills by applying a specific commit's
+# diff to the upstream repo. Only the actual changes are applied — no install
+# artifacts or formatting differences.
 #
-# Usage: ./scripts/pr-skill-patches.sh "brief description of changes"
-#
-# How it works:
-# 1. Checks git diff for .agents/skills/ — only files changed since last commit
-# 2. If no changes, exits cleanly
-# 3. Clones karelxfi/agent-skills fork
-# 4. Copies ONLY the changed files into the upstream structure
-# 5. Opens a PR to subsquid-labs/agent-skills
+# Usage: ./scripts/pr-skill-patches.sh <commit-sha> "brief description"
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-DESCRIPTION="${1:?Usage: $0 \"brief description of changes\"}"
-SKILLS_DIR="$REPO_ROOT/.agents/skills"
+COMMIT="${1:?Usage: $0 <commit-sha> \"description\"}"
+DESCRIPTION="${2:?Usage: $0 <commit-sha> \"description\"}"
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 BRANCH="ai-pipes-patch-${TIMESTAMP}"
 
-# Step 1: Find which skill files were actually changed
 cd "$REPO_ROOT"
-CHANGED_FILES=$(git diff --name-only HEAD -- .agents/skills/ 2>/dev/null)
 
+# Verify the commit touches skill files
+CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r "$COMMIT" -- .agents/skills/ 2>/dev/null)
 if [ -z "$CHANGED_FILES" ]; then
-  # Also check staged changes
-  CHANGED_FILES=$(git diff --cached --name-only -- .agents/skills/ 2>/dev/null)
-fi
-
-if [ -z "$CHANGED_FILES" ]; then
-  echo "No skill files were modified. Nothing to PR."
+  echo "Commit $COMMIT has no changes to .agents/skills/. Nothing to PR."
   exit 0
 fi
 
-echo "Changed skill files:"
+echo "Skill files changed in commit ${COMMIT:0:7}:"
 echo "$CHANGED_FILES"
 echo ""
 
-# Step 2: Clone the fork
+# Generate a patch, rewriting paths from .agents/skills/ to upstream structure
+# .agents/skills/pipes-* → pipes-sdk/pipes-*
+# .agents/skills/portal-* → portal/portal-*
+PATCH=$(git diff-tree --no-commit-id -p "$COMMIT" -- .agents/skills/)
+REMAPPED_PATCH=$(echo "$PATCH" | sed \
+  -e 's|a/\.agents/skills/pipes-|a/pipes-sdk/pipes-|g' \
+  -e 's|b/\.agents/skills/pipes-|b/pipes-sdk/pipes-|g' \
+  -e 's|a/\.agents/skills/portal-|a/portal/portal-|g' \
+  -e 's|b/\.agents/skills/portal-|b/portal/portal-|g')
+
+if [ -z "$REMAPPED_PATCH" ]; then
+  echo "No patch content. Nothing to PR."
+  exit 0
+fi
+
+# Clone the fork
 TMPDIR=$(mktemp -d)
 trap "rm -rf $TMPDIR" EXIT
 echo "Cloning karelxfi/agent-skills..."
@@ -45,74 +49,37 @@ gh repo clone karelxfi/agent-skills "$TMPDIR" -- --depth=1 -q
 cd "$TMPDIR"
 git checkout -b "$BRANCH"
 
-# Step 3: Copy ONLY the changed files, mapping to upstream paths
-COPIED=0
-while IFS= read -r file; do
-  # file looks like: .agents/skills/pipes-new-indexer/SKILL.md
-  # Strip .agents/skills/ prefix to get: pipes-new-indexer/SKILL.md
-  rel_path="${file#.agents/skills/}"
-  skill_name="${rel_path%%/*}"
-  file_in_skill="${rel_path#*/}"
+# Apply the remapped patch
+echo "$REMAPPED_PATCH" | git apply --3way 2>&1 || {
+  echo "Patch failed to apply cleanly. May need manual intervention."
+  echo "$REMAPPED_PATCH" | git apply --stat
+  exit 1
+}
 
-  # Map to upstream directory
-  if [[ "$skill_name" == pipes-* ]]; then
-    upstream_file="pipes-sdk/$skill_name/$file_in_skill"
-  elif [[ "$skill_name" == portal-* ]]; then
-    upstream_file="portal/$skill_name/$file_in_skill"
-  else
-    echo "  Skip: $rel_path (unknown skill category)"
-    continue
-  fi
-
-  # Only copy if upstream file exists (don't create new files in upstream)
-  upstream_dir=$(dirname "$upstream_file")
-  if [ ! -d "$upstream_dir" ]; then
-    echo "  Skip: $upstream_file (upstream dir doesn't exist)"
-    continue
-  fi
-
-  cp "$REPO_ROOT/$file" "$upstream_file"
-  echo "  Copy: $rel_path → $upstream_file"
-  COPIED=$((COPIED + 1))
-done <<< "$CHANGED_FILES"
-
-if [ "$COPIED" -eq 0 ]; then
-  echo "No files could be mapped to upstream. Nothing to PR."
+if git diff --quiet && git diff --cached --quiet; then
+  echo "Patch applied but no changes (already in upstream). Nothing to PR."
   exit 0
 fi
 
-# Step 4: Check if there are actual content changes (not just formatting)
-if git diff --quiet; then
-  echo "Files were copied but content is identical to upstream. Nothing to PR."
-  exit 0
-fi
-
-# Show what will be PR'd
-echo ""
-echo "Changes to submit:"
+echo "Applied patch:"
 git diff --stat
 echo ""
-echo "Diff preview:"
-git diff
 
-# Step 5: Commit and push
 git add -A
 git commit -m "fix: $DESCRIPTION
 
-Patches from building DeFi indexers in https://github.com/karelxfi/ai-pipes
-Each change addresses a real issue encountered during indexer generation."
+Source: https://github.com/karelxfi/ai-pipes/commit/$COMMIT"
 
 git push origin "$BRANCH"
 
-# Step 6: Create PR
 PR_URL=$(gh pr create \
   --repo subsquid-labs/agent-skills \
   --head "karelxfi:$BRANCH" \
   --title "fix: $DESCRIPTION" \
   --body "$(cat <<EOF
-## Context
+Patch from [ai-pipes](https://github.com/karelxfi/ai-pipes) indexer generation.
 
-Patches from building real DeFi indexers in [ai-pipes](https://github.com/karelxfi/ai-pipes). Each change addresses a concrete issue encountered during generation.
+Source commit: [\`${COMMIT:0:7}\`](https://github.com/karelxfi/ai-pipes/commit/$COMMIT)
 
 ## Changes
 

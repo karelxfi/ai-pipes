@@ -149,13 +149,16 @@ Review what you learned during this generation and decide if any agent skill fil
 
 If nothing needs patching, write "No skill patches needed" in IMPROVEMENTS.md.
 
-**After patching, commit the skill changes first, then PR to upstream:**
+**After patching, commit the skill changes SEPARATELY, then PR that specific commit to upstream:**
 ```bash
 git add .agents/skills/
 git commit -m "fix(skills): <what you changed and why>"
-npm run pr-skills -- "<protocol-name>: <what was fixed and why>"
+# Get the commit SHA you just created
+SKILL_COMMIT=$(git rev-parse HEAD)
+# PR only that commit's changes to upstream
+npm run pr-skills -- "$SKILL_COMMIT" "<protocol-name>: <what was fixed and why>"
 ```
-The script only PRs files that have actual git changes — it won't create noise. If you didn't change any skill files, skip this step entirely.
+The script only PRs files from that specific commit — no noise from other changes. If you didn't change any skill files, skip this entirely.
 
 ### 12. Auto-update CLAUDE.md (if needed)
 

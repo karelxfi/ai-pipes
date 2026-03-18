@@ -7,6 +7,7 @@
     "update-readme": "tsx scripts/update-readme.ts",
     "screenshot": "tsx scripts/screenshot.ts",
     "pr-skills": "bash scripts/pr-skill-patches.sh"
+
   },
   "devDependencies": {
     "tsx": "^4.0.0",
