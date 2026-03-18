@@ -209,6 +209,7 @@ Use Node.js LTS (v20 or v22). Node v25+ has zstd bugs that crash on large syncs.
 - Color palette: `['#58a6ff','#f78166','#3fb950','#d2a8ff','#f0883e','#79c0ff','#7ee787','#d29922','#ff7b72','#a5d6ff']`
 - Footer: `Built with ai-pipes + SQD Pipes SDK | github.com/karelxfi | x.com/karelxfi`
 - 1200x675 viewport (X card ratio)
+- **Screenshots must be cropped tight** — resize browser to exactly 1200x675 before capturing. No extra whitespace below the dashboard.
 - Set `window.__DASHBOARD_READY__ = true` when data is loaded (for screenshot script)
 
 ### Token address resolution
