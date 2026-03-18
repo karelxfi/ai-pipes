@@ -85,6 +85,18 @@ Document what happened during generation:
 - Any issues encountered and how they were resolved
 - Key decisions made
 
+### 8b. Write IMPROVEMENTS.md
+
+Document what should improve in the generation rules based on this experience:
+- What was missing from CLAUDE.md that would have helped?
+- What instructions were unclear or wrong?
+- What new patterns were discovered that should be documented?
+- What CLI workarounds were needed?
+- What dashboard patterns worked well / poorly?
+- Suggest specific additions or changes to CLAUDE.md, this command, or the dashboard template
+
+This creates a feedback loop — each indexer teaches us how to make the next one better.
+
 ### 9. Update Status
 
 - Update `META.json`: set `runtime_status` and `validation_status`

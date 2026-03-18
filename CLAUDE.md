@@ -32,6 +32,7 @@ Every generated example MUST include:
 
 - [ ] `PROMPT.md` — exact verbatim prompt used (nothing more)
 - [ ] `OUTPUT.md` — brief narrative: what happened, key decisions, issues resolved
+- [ ] `IMPROVEMENTS.md` — feedback on how CLAUDE.md, generate-indexer command, and templates should improve based on this experience
 - [ ] `META.json` — date, pipes_sdk_version, agent_skills_version, claude_model, angle, runtime_status, validation_status
 - [ ] `README.md` — with dashboard screenshot at top, run instructions, sample ClickHouse query
 - [ ] `package.json` — with pinned Pipes SDK version
