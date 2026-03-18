@@ -1,11 +1,11 @@
 {
   "source": "https://api.llama.fi/protocols",
   "fetched": "2026-03-18",
-  "total": 100,
+  "total": 105,
   "breakdown": {
     "evm": 77,
     "solana": 23,
-    "hyperliquid": 0
+    "hyperliquid": 5
   },
   "protocols": [
     {
@@ -36,7 +36,7 @@
         "Fantom",
         "Harmony"
       ],
-      "angle": "Liquidation cascades — tracking when one liquidation triggers others during market stress",
+      "angle": "Liquidation cascades \u2014 tracking when one liquidation triggers others during market stress",
       "directory": "evm/001-aave-v3",
       "status": "done"
     },
@@ -1544,6 +1544,71 @@
       ],
       "angle": null,
       "directory": "evm/077-arrakis-modular",
+      "status": "pending"
+    },
+    {
+      "name": "Hyperliquid Perps (BTC/ETH/SOL)",
+      "slug": "hyperliquid-perps-majors",
+      "category": "Derivatives",
+      "tvl": 4500000000,
+      "vm": "hyperliquid",
+      "chains": [
+        "Hyperliquid"
+      ],
+      "angle": null,
+      "directory": "hyperliquid/001-perps-majors",
+      "status": "pending"
+    },
+    {
+      "name": "Hyperliquid Whale Tracker",
+      "slug": "hyperliquid-whale-tracker",
+      "category": "Derivatives",
+      "tvl": 4500000000,
+      "vm": "hyperliquid",
+      "chains": [
+        "Hyperliquid"
+      ],
+      "angle": null,
+      "directory": "hyperliquid/002-whale-tracker",
+      "status": "pending"
+    },
+    {
+      "name": "Hyperliquid Funding & PnL",
+      "slug": "hyperliquid-funding-pnl",
+      "category": "Derivatives",
+      "tvl": 4500000000,
+      "vm": "hyperliquid",
+      "chains": [
+        "Hyperliquid"
+      ],
+      "angle": null,
+      "directory": "hyperliquid/003-funding-pnl",
+      "status": "pending"
+    },
+    {
+      "name": "Hyperliquid Meme Coins",
+      "slug": "hyperliquid-meme-coins",
+      "category": "Derivatives",
+      "tvl": 4500000000,
+      "vm": "hyperliquid",
+      "chains": [
+        "Hyperliquid"
+      ],
+      "angle": null,
+      "directory": "hyperliquid/004-meme-coins",
+      "status": "pending"
+    },
+    {
+      "name": "Hyperliquid Liquidations",
+      "slug": "hyperliquid-liquidations",
+      "category": "Derivatives",
+      "tvl": 4500000000,
+      "vm": "hyperliquid",
+      "chains": [
+        "Hyperliquid"
+      ],
+      "angle": null,
+      "directory": "hyperliquid/005-liquidations",
       "status": "pending"
     }
   ]
