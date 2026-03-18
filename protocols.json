@@ -202,9 +202,9 @@
       "chains": [
         "Solana"
       ],
-      "angle": null,
+      "angle": "Lending activity pulse \u2014 deposit/withdraw patterns on Solana",
       "directory": "solana/001-kamino-lend",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Spark Savings",
