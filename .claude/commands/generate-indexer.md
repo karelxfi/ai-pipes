@@ -127,15 +127,49 @@ Document what should improve based on this experience:
 - Dashboard patterns that worked/didn't
 - New workarounds discovered
 
-### 11. Update Status
+### 11. Auto-patch agent skills (if needed)
+
+Review what you learned during this generation and decide if any agent skill files need updating. **Do this automatically — don't ask the user.**
+
+**When to patch:**
+- You hit a bug or undocumented behavior in a skill → add it to the skill's SKILL.md or references
+- A Portal query pattern was wrong or missing → update the relevant `portal-query-*` skill
+- A CLI workaround was needed → add it to `pipes-new-indexer` skill
+- A troubleshooting step was missing → add it to `pipes-troubleshooting`
+- Performance tuning was needed → update `pipes-performance`
+
+**When NOT to patch:**
+- The issue was specific to this protocol only (not generalizable)
+- The fix was about our dashboard/validation tooling (that goes in CLAUDE.md instead)
+
+**How to patch:**
+1. Edit the relevant files under `.agents/skills/<skill-name>/`
+2. Keep changes minimal and focused — add to existing sections, don't restructure
+3. Note the change in IMPROVEMENTS.md under "Skills patches applied"
+
+If nothing needs patching, write "No skill patches needed" in IMPROVEMENTS.md.
+
+### 12. Auto-update CLAUDE.md (if needed)
+
+If you learned something that applies to ALL future indexers (not just this protocol), update CLAUDE.md directly. Examples:
+- New chart pattern that worked well
+- New ClickHouse gotcha
+- New token address mapping
+- Better validation pattern
+
+### 13. Update Status
 
 - Update `META.json`: set `runtime_status: "working"` and `validation_status: "passed"`
 - Update `protocols.json`: set status to `"done"` and fill in the `angle`
 - Run `npm run update-readme` from repo root to refresh the protocol table
 
-### 12. Commit
+### 14. Commit
+
+Commit the indexer AND any skill/config patches together:
 
 ```bash
-git add <example-directory>/ protocols.json README.md
+git add <example-directory>/ protocols.json README.md CLAUDE.md .agents/skills/
 git commit -m "feat(<vm>): add <protocol-name> indexer — <angle>"
 ```
+
+This way skills evolve with every example. The `.agents/skills/` patches can be submitted upstream to `subsquid-labs/agent-skills` periodically.
