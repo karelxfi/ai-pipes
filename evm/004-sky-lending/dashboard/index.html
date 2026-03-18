@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200">
+  <title>Sky Lending (MakerDAO) Vault Liquidation Monitor</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      width: 1200px;
+      height: 675px;
+      overflow: hidden;
+    }
+    .header {
+      padding: 14px 24px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .header h1 { font-size: 20px; font-weight: 600; color: #e6edf3; }
+    .header .angle { font-size: 12px; color: #8b949e; margin-top: 2px; }
+    .stats { display: flex; gap: 2px; align-items: stretch; }
+    .stat { text-align: center; white-space: nowrap; padding: 4px 12px; background: #161b22; border-radius: 4px; }
+    .stat-value { font-size: 15px; font-weight: 700; color: #e6edf3; line-height: 1.3; }
+    .stat-label { font-size: 7px; color: #6e7681; text-transform: uppercase; letter-spacing: 0.8px; }
+    .stat:first-child .stat-value { color: #58a6ff; }
+    .stat:nth-child(3) .stat-value { color: #3fb950; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 8px;
+      padding: 6px 16px;
+      height: calc(100% - 62px - 22px);
+    }
+    .panel {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      position: relative;
+    }
+    .chart { width: 100%; height: 100%; }
+    .footer {
+      padding: 2px 24px 4px;
+      text-align: right;
+      font-size: 9px;
+      color: #484f58;
+    }
+    .footer a { color: #58a6ff; text-decoration: none; opacity: 0.5; }
+    .footer a:hover { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>Sky Lending (MakerDAO) Vault Liquidation Monitor</h1>
+      <div class="angle">Bark events from MakerDAO Dog contract (Liquidations 2.0) | Ethereum Mainnet</div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="grid">
+    <div class="panel"><div class="chart" id="chart1"></div></div>
+    <div class="panel"><div class="chart" id="chart2"></div></div>
+    <div class="panel"><div class="chart" id="chart3"></div></div>
+    <div class="panel"><div class="chart" id="chart4"></div></div>
+  </div>
+  <div class="footer">
+    Built with ai-pipes + SQD Pipes SDK |
+    <a href="https://github.com/karelxfi">github.com/karelxfi</a> |
+    <a href="https://x.com/karelxfi">x.com/karelxfi</a>
+  </div>
+
+  <script>
+    var CH = 'http://localhost:8123';
+    var DB = 'sky_lending';
+    var T = 'dog_bark';
+
+    function q(sql) {
+      return fetch(CH + '/?database=' + DB + '&user=default&password=password&query=' + encodeURIComponent(sql + ' FORMAT JSON'))
+        .then(function(r) { return r.json(); })
+        .then(function(j) { return j.data; });
+    }
+
+    function fmtNum(n) {
+      if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+      return String(n);
+    }
+
+    // Decode bytes32 ilk to human-readable string (e.g., "ETH-A")
+    function decodeIlk(hex) {
+      if (!hex || hex === '0x') return 'Unknown';
+      // Remove 0x prefix
+      var h = hex.startsWith('0x') ? hex.slice(2) : hex;
+      var str = '';
+      for (var i = 0; i < h.length; i += 2) {
+        var code = parseInt(h.substr(i, 2), 16);
+        if (code === 0) break;
+        str += String.fromCharCode(code);
+      }
+      return str || 'Unknown';
+    }
+
+    function shortDate(d) {
+      if (!d) return '?';
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var parts = d.split('-');
+      return months[parseInt(parts[1])-1] + " '" + parts[0].slice(2);
+    }
+
+    function darkOpts(title) {
+      return {
+        backgroundColor: 'transparent',
+        title: { text: title, textStyle: { color: '#8b949e', fontSize: 11, fontWeight: 'normal' }, left: 10, top: 8 },
+        textStyle: { color: '#8b949e', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial' },
+        tooltip: { backgroundColor: '#1c2128', borderColor: '#30363d', textStyle: { color: '#e6edf3', fontSize: 11 } },
+        grid: { left: 56, right: 16, top: 36, bottom: 28 },
+      };
+    }
+
+    var COLORS = ['#58a6ff','#f78166','#3fb950','#d2a8ff','#f0883e','#79c0ff','#7ee787','#d29922','#ff7b72','#a5d6ff'];
+
+    async function init() {
+      // Summary stats
+      var totalCount = await q('SELECT count() as total FROM ' + T);
+      var uniqueVaults = await q('SELECT count(DISTINCT urn) as cnt FROM ' + T);
+      var uniqueIlks = await q('SELECT count(DISTINCT ilk) as cnt FROM ' + T);
+      var dateRange = await q('SELECT min(toDate(timestamp)) as from_date, max(toDate(timestamp)) as to_date FROM ' + T);
+
+      var dr = dateRange[0] || {};
+      var total = totalCount[0]?.total || '0';
+      var vaults = uniqueVaults[0]?.cnt || '0';
+      var ilks = uniqueIlks[0]?.cnt || '0';
+
+      var statsEl = document.getElementById('stats');
+      [
+        {v: fmtNum(Number(total)), l: 'Liquidations'},
+        {v: fmtNum(Number(vaults)), l: 'Vaults Hit'},
+        {v: ilks, l: 'Collateral Types'},
+        {v: shortDate(dr.from_date) + ' \u2192 ' + shortDate(dr.to_date), l: 'Period'},
+      ].forEach(function(s) {
+        var d = document.createElement('div'); d.className = 'stat';
+        var vl = document.createElement('div'); vl.className = 'stat-value'; vl.textContent = s.v;
+        var lb = document.createElement('div'); lb.className = 'stat-label'; lb.textContent = s.l;
+        d.appendChild(vl); d.appendChild(lb); statsEl.appendChild(d);
+      });
+
+      // ===== Chart 1: Liquidations Per Month =====
+      var monthly = await q(
+        'SELECT toStartOfMonth(timestamp) as month, count() as cnt ' +
+        'FROM ' + T + ' GROUP BY month ORDER BY month'
+      );
+      var ch1 = echarts.init(document.getElementById('chart1'));
+      ch1.setOption(Object.assign(darkOpts('Liquidations Per Month'), {
+        xAxis: {
+          type: 'category',
+          data: monthly.map(function(d) { return d.month.substring(0, 7); }),
+          axisLabel: { color: '#6e7681', fontSize: 9, rotate: 30 },
+          axisLine: { lineStyle: { color: '#30363d' } },
+          splitLine: { show: false },
+        },
+        yAxis: {
+          type: 'value',
+          min: 0,
+          axisLabel: { color: '#6e7681', fontSize: 9 },
+          axisLine: { show: false },
+          splitLine: { lineStyle: { color: '#21262d' } },
+        },
+        series: [{
+          type: 'bar',
+          name: 'Liquidations',
+          data: monthly.map(function(d) { return parseInt(d.cnt); }),
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#f78166' },
+              { offset: 1, color: '#da3633' },
+            ]),
+          },
+          barMaxWidth: 20,
+        }],
+        tooltip: {
+          trigger: 'axis',
+          formatter: function(p) { return p[0].axisValue + '<br/>Liquidations: <b>' + p[0].value + '</b>'; },
+        },
+      }));
+
+      // ===== Chart 2: Top Collateral Types Liquidated (horizontal bar) =====
+      var ilkData = await q(
+        'SELECT ilk, count() as cnt FROM ' + T + ' GROUP BY ilk ORDER BY cnt DESC LIMIT 15'
+      );
+      var ilkNames = ilkData.map(function(d) { return decodeIlk(d.ilk); });
+      var ilkCounts = ilkData.map(function(d) { return parseInt(d.cnt); });
+      // Reverse for horizontal bar (top at top)
+      ilkNames.reverse();
+      ilkCounts.reverse();
+
+      var ch2 = echarts.init(document.getElementById('chart2'));
+      ch2.setOption(Object.assign(darkOpts('Top Collateral Types Liquidated'), {
+        grid: { left: 90, right: 50, top: 36, bottom: 16 },
+        xAxis: {
+          type: 'value',
+          axisLabel: { color: '#6e7681', fontSize: 9 },
+          axisLine: { show: false },
+          splitLine: { lineStyle: { color: '#21262d' } },
+        },
+        yAxis: {
+          type: 'category',
+          data: ilkNames,
+          axisLabel: { color: '#e6edf3', fontSize: 9 },
+          axisLine: { lineStyle: { color: '#30363d' } },
+          splitLine: { show: false },
+        },
+        series: [{
+          type: 'bar',
+          name: 'Liquidations',
+          data: ilkCounts.map(function(v, i) {
+            return {
+              value: v,
+              itemStyle: { color: COLORS[i % COLORS.length] },
+            };
+          }),
+          barMaxWidth: 18,
+          label: {
+            show: true,
+            position: 'right',
+            color: '#8b949e',
+            fontSize: 9,
+            formatter: function(p) { return p.value; },
+          },
+        }],
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: { type: 'shadow' },
+          formatter: function(p) { return p[0].name + '<br/>Count: <b>' + p[0].value + '</b>'; },
+        },
+      }));
+
+      // ===== Chart 3: Cumulative Debt at Risk (due) over time =====
+      // due is in rad (45 decimals), divide by 1e45 to get DAI value
+      // We use String manipulation since JS can't handle 45 decimal precision
+      // ClickHouse can handle the division
+      var debtData = await q(
+        'SELECT toStartOfMonth(timestamp) as month, ' +
+        'sum(toFloat64(due) / 1e45) as total_due ' +
+        'FROM ' + T + ' GROUP BY month ORDER BY month'
+      );
+      // Build cumulative
+      var cumDue = [];
+      var runningTotal = 0;
+      for (var i = 0; i < debtData.length; i++) {
+        runningTotal += Number(debtData[i].total_due);
+        cumDue.push({ month: debtData[i].month.substring(0, 7), value: Math.round(runningTotal) });
+      }
+
+      var ch3 = echarts.init(document.getElementById('chart3'));
+      ch3.setOption(Object.assign(darkOpts('Cumulative Debt at Risk (DAI)'), {
+        xAxis: {
+          type: 'category',
+          data: cumDue.map(function(d) { return d.month; }),
+          axisLabel: { color: '#6e7681', fontSize: 9, rotate: 30 },
+          axisLine: { lineStyle: { color: '#30363d' } },
+          splitLine: { show: false },
+        },
+        yAxis: {
+          type: 'value',
+          axisLabel: {
+            color: '#6e7681', fontSize: 9,
+            formatter: function(v) {
+              if (v >= 1e9) return (v / 1e9).toFixed(1) + 'B';
+              if (v >= 1e6) return (v / 1e6).toFixed(1) + 'M';
+              if (v >= 1e3) return (v / 1e3).toFixed(0) + 'K';
+              return v;
+            },
+          },
+          axisLine: { show: false },
+          splitLine: { lineStyle: { color: '#21262d' } },
+        },
+        series: [{
+          type: 'line',
+          name: 'Cumulative Debt',
+          data: cumDue.map(function(d) { return d.value; }),
+          smooth: true,
+          showSymbol: false,
+          lineStyle: { color: '#d2a8ff', width: 2 },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(210,168,255,0.3)' },
+              { offset: 1, color: 'rgba(210,168,255,0.02)' },
+            ]),
+          },
+        }],
+        tooltip: {
+          trigger: 'axis',
+          formatter: function(p) {
+            var v = p[0].value;
+            var fmt = v >= 1e9 ? (v / 1e9).toFixed(2) + 'B' : v >= 1e6 ? (v / 1e6).toFixed(2) + 'M' : fmtNum(v);
+            return p[0].axisValue + '<br/>Cumulative Debt: <b>' + fmt + ' DAI</b>';
+          },
+        },
+      }));
+
+      // ===== Chart 4: Unique Vaults Liquidated Per Month =====
+      var vaultMonthly = await q(
+        'SELECT toStartOfMonth(timestamp) as month, count(DISTINCT urn) as cnt ' +
+        'FROM ' + T + ' GROUP BY month ORDER BY month'
+      );
+      var ch4 = echarts.init(document.getElementById('chart4'));
+      ch4.setOption(Object.assign(darkOpts('Unique Vaults Liquidated Per Month'), {
+        xAxis: {
+          type: 'category',
+          data: vaultMonthly.map(function(d) { return d.month.substring(0, 7); }),
+          axisLabel: { color: '#6e7681', fontSize: 9, rotate: 30 },
+          axisLine: { lineStyle: { color: '#30363d' } },
+          splitLine: { show: false },
+        },
+        yAxis: {
+          type: 'value',
+          min: 0,
+          axisLabel: { color: '#6e7681', fontSize: 9 },
+          axisLine: { show: false },
+          splitLine: { lineStyle: { color: '#21262d' } },
+        },
+        series: [{
+          type: 'bar',
+          name: 'Unique Vaults',
+          data: vaultMonthly.map(function(d) { return parseInt(d.cnt); }),
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#3fb950' },
+              { offset: 1, color: '#238636' },
+            ]),
+          },
+          barMaxWidth: 20,
+        }],
+        tooltip: {
+          trigger: 'axis',
+          formatter: function(p) { return p[0].axisValue + '<br/>Unique Vaults: <b>' + p[0].value + '</b>'; },
+        },
+      }));
+
+      window.__DASHBOARD_READY__ = true;
+    }
+
+    init().catch(function(err) {
+      console.error('Dashboard error:', err);
+      var e = document.createElement('div');
+      e.style.cssText = 'color:#f78166;padding:24px;font-size:14px';
+      e.textContent = 'Error: ' + err.message;
+      document.body.appendChild(e);
+    });
+  </script>
+</body>
+</html>

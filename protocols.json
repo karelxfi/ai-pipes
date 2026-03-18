@@ -80,9 +80,9 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": null,
+      "angle": "Vault liquidation monitor \u2014 collateral types, debt at risk, liquidation frequency",
       "directory": "evm/004-sky-lending",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Morpho V1",

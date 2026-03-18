@@ -50,7 +50,7 @@ Every generated example MUST include:
 Before marking an example as done:
 
 1. `docker compose up -d` — start ClickHouse
-2. `npm install && npm start` — run the indexer, wait until 500+ rows appear
+2. `npm install && npm start` — run the indexer, **let it sync for years of data, not months**. The dashboard should show long-term trends. For daily events aim for 500+ rows; for rare events (liquidations) let it cover the full history.
 3. `npx tsx validate.ts` — all assertions must pass (structural + truth checks)
 4. Open `dashboard/index.html` in browser — verify charts render with REAL data (not empty)
 5. Capture `dashboard/screenshot.png` — must show populated charts, not empty panels
