@@ -318,6 +318,33 @@ IMPORTANT: Use camelCase for templateId values. Every template requires a `param
 
 ### Step 3: Post-generation Setup (AUTOMATED - Do this AFTER CLI succeeds)
 
+**Known template gaps — the CLI does NOT generate these correctly. You MUST fix them manually after every `init`:**
+
+1. **docker-compose.yml** — The generated file lacks persistent ClickHouse volumes and CORS config. Add:
+   ```yaml
+   volumes:
+     - clickhouse-data:/var/lib/clickhouse
+     - ./clickhouse-cors.xml:/etc/clickhouse-server/config.d/cors.xml:ro
+   ```
+   And at the bottom of docker-compose.yml:
+   ```yaml
+   volumes:
+     clickhouse-data:
+   ```
+
+2. **clickhouse-cors.xml** — Create this file for browser dashboard access:
+   ```xml
+   <clickhouse>
+       <http_options_response>
+           <header><name>Access-Control-Allow-Origin</name><value>*</value></header>
+           <header><name>Access-Control-Allow-Methods</name><value>GET, POST, OPTIONS</value></header>
+           <header><name>Access-Control-Allow-Headers</name><value>*</value></header>
+       </http_options_response>
+   </clickhouse>
+   ```
+
+3. **Database name** — The CLI defaults to `pipes`. Always change to a project-specific name.
+
 **CRITICAL: Use a separate database per indexer project.** All indexers write their sync state to `{database}.sync` with `id = 'stream'`. If two indexers share a database, the second one resumes from the first's position, causing wrong data or missing events.
 
 ```bash
