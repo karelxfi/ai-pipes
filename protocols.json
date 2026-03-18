@@ -36,9 +36,9 @@
         "Fantom",
         "Harmony"
       ],
-      "angle": null,
+      "angle": "Liquidation cascades — tracking when one liquidation triggers others during market stress",
       "directory": "evm/001-aave-v3",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Lido",
