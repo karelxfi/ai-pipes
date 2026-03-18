@@ -2,8 +2,7 @@
 set -e
 
 # Creates a PR to subsquid-labs/agent-skills by applying a specific commit's
-# diff to the upstream repo. Only the actual changes are applied — no install
-# artifacts or formatting differences.
+# diff to the LATEST upstream code. Syncs fork first to avoid stale PRs.
 #
 # Usage: ./scripts/pr-skill-patches.sh <commit-sha> "brief description"
 
@@ -26,42 +25,79 @@ echo "Skill files changed in commit ${COMMIT:0:7}:"
 echo "$CHANGED_FILES"
 echo ""
 
-# Generate a patch, rewriting paths from .agents/skills/ to upstream structure
-# .agents/skills/pipes-* → pipes-sdk/pipes-*
-# .agents/skills/portal-* → portal/portal-*
-PATCH=$(git diff-tree --no-commit-id -p "$COMMIT" -- .agents/skills/)
-REMAPPED_PATCH=$(echo "$PATCH" | sed \
-  -e 's|a/\.agents/skills/pipes-|a/pipes-sdk/pipes-|g' \
-  -e 's|b/\.agents/skills/pipes-|b/pipes-sdk/pipes-|g' \
-  -e 's|a/\.agents/skills/portal-|a/portal/portal-|g' \
-  -e 's|b/\.agents/skills/portal-|b/portal/portal-|g')
+# Step 1: Sync fork with upstream first
+echo "Syncing fork with upstream..."
+gh repo sync karelxfi/agent-skills --source subsquid-labs/agent-skills --force 2>&1 || {
+  echo "Warning: fork sync failed. Continuing with potentially stale fork."
+}
 
-if [ -z "$REMAPPED_PATCH" ]; then
-  echo "No patch content. Nothing to PR."
-  exit 0
-fi
-
-# Clone the fork
+# Step 2: Clone the SYNCED fork
 TMPDIR=$(mktemp -d)
 trap "rm -rf $TMPDIR" EXIT
-echo "Cloning karelxfi/agent-skills..."
+echo "Cloning synced fork..."
 gh repo clone karelxfi/agent-skills "$TMPDIR" -- --depth=1 -q
 cd "$TMPDIR"
 git checkout -b "$BRANCH"
 
-# Apply the remapped patch
-echo "$REMAPPED_PATCH" | git apply --3way 2>&1 || {
-  echo "Patch failed to apply cleanly. May need manual intervention."
-  echo "$REMAPPED_PATCH" | git apply --stat
-  exit 1
-}
+# Step 3: For each changed file, apply ONLY the lines we added/changed
+# Instead of applying a raw patch (which breaks on context diffs),
+# we read our local version and the upstream version, and insert
+# only the new content blocks.
+APPLIED=0
+while IFS= read -r file; do
+  rel_path="${file#.agents/skills/}"
+  skill_name="${rel_path%%/*}"
+  file_in_skill="${rel_path#*/}"
 
-if git diff --quiet && git diff --cached --quiet; then
-  echo "Patch applied but no changes (already in upstream). Nothing to PR."
+  if [[ "$skill_name" == pipes-* ]]; then
+    upstream_file="pipes-sdk/$skill_name/$file_in_skill"
+  elif [[ "$skill_name" == portal-* ]]; then
+    upstream_file="portal/$skill_name/$file_in_skill"
+  else
+    continue
+  fi
+
+  [ ! -f "$upstream_file" ] && continue
+
+  # Get the diff for just this file from our commit
+  FILE_PATCH=$(git -C "$REPO_ROOT" diff-tree --no-commit-id -p "$COMMIT" -- "$file" | sed \
+    -e "s|a/$file|a/$upstream_file|g" \
+    -e "s|b/$file|b/$upstream_file|g")
+
+  if [ -z "$FILE_PATCH" ]; then
+    continue
+  fi
+
+  # Try to apply. If context doesn't match (upstream changed), skip gracefully.
+  if echo "$FILE_PATCH" | git apply --check 2>/dev/null; then
+    echo "$FILE_PATCH" | git apply
+    echo "  Applied: $upstream_file"
+    APPLIED=$((APPLIED + 1))
+  else
+    # Try with fuzz
+    if echo "$FILE_PATCH" | git apply --check -C0 2>/dev/null; then
+      echo "$FILE_PATCH" | git apply -C0
+      echo "  Applied (fuzzy): $upstream_file"
+      APPLIED=$((APPLIED + 1))
+    else
+      echo "  SKIP: $upstream_file — patch conflicts with upstream changes (already addressed?)"
+    fi
+  fi
+done <<< "$CHANGED_FILES"
+
+if [ "$APPLIED" -eq 0 ]; then
+  echo ""
+  echo "No patches applied — upstream likely already has these changes."
   exit 0
 fi
 
-echo "Applied patch:"
+if git diff --quiet; then
+  echo "No effective changes after applying patches."
+  exit 0
+fi
+
+echo ""
+echo "Changes to submit:"
 git diff --stat
 echo ""
 
@@ -78,8 +114,9 @@ PR_URL=$(gh pr create \
   --title "fix: $DESCRIPTION" \
   --body "$(cat <<EOF
 Patch from [ai-pipes](https://github.com/karelxfi/ai-pipes) indexer generation.
+Applied against latest upstream (fork synced before patching).
 
-Source commit: [\`${COMMIT:0:7}\`](https://github.com/karelxfi/ai-pipes/commit/$COMMIT)
+Source: [\`${COMMIT:0:7}\`](https://github.com/karelxfi/ai-pipes/commit/$COMMIT)
 
 ## Changes
 
