@@ -149,6 +149,14 @@ Review what you learned during this generation and decide if any agent skill fil
 
 If nothing needs patching, write "No skill patches needed" in IMPROVEMENTS.md.
 
+**After patching, create a PR to upstream:**
+```bash
+npm run pr-skills -- "Brief description: what was fixed and why"
+```
+This clones the `karelxfi/agent-skills` fork, copies the patched skill files, and opens a PR to `subsquid-labs/agent-skills`. The PR includes context about which indexer triggered the change.
+
+If no skills were patched, skip this step.
+
 ### 12. Auto-update CLAUDE.md (if needed)
 
 If you learned something that applies to ALL future indexers (not just this protocol), update CLAUDE.md directly. Examples:
