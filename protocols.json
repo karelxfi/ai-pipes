@@ -125,9 +125,9 @@
         "Mode",
         "Zircuit"
       ],
-      "angle": null,
+      "angle": "Market activity & lending dynamics \u2014 supply vs borrow flows, top markets, liquidations",
       "directory": "evm/005-morpho-v1",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "JustLend",

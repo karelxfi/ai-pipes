@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200">
+  <title>Morpho Blue — Market Activity & Lending Dynamics</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      width: 1200px;
+      height: 675px;
+      overflow: hidden;
+    }
+    .header {
+      padding: 14px 24px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .header h1 { font-size: 20px; font-weight: 600; color: #e6edf3; }
+    .header .angle { font-size: 12px; color: #8b949e; margin-top: 2px; }
+    .stats { display: flex; gap: 2px; align-items: stretch; }
+    .stat { text-align: center; white-space: nowrap; padding: 4px 12px; background: #161b22; border-radius: 4px; }
+    .stat-value { font-size: 15px; font-weight: 700; color: #e6edf3; line-height: 1.3; }
+    .stat-label { font-size: 7px; color: #6e7681; text-transform: uppercase; letter-spacing: 0.8px; }
+    .stat:first-child .stat-value { color: #58a6ff; }
+    .stat:nth-child(2) .stat-value { color: #3fb950; }
+    .stat:nth-child(3) .stat-value { color: #d2a8ff; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 8px;
+      padding: 6px 16px;
+      height: calc(100% - 62px - 22px);
+    }
+    .panel {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      position: relative;
+    }
+    .chart { width: 100%; height: 100%; }
+    .footer {
+      padding: 2px 24px 4px;
+      text-align: right;
+      font-size: 9px;
+      color: #484f58;
+    }
+    .footer a { color: #58a6ff; text-decoration: none; opacity: 0.5; }
+    .footer a:hover { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>Morpho Blue — Market Activity & Lending Dynamics</h1>
+      <div class="angle">Supply, Borrow & Liquidate events on the permissionless lending protocol | Ethereum Mainnet</div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="grid">
+    <div class="panel"><div class="chart" id="chart1"></div></div>
+    <div class="panel"><div class="chart" id="chart2"></div></div>
+    <div class="panel"><div class="chart" id="chart3"></div></div>
+    <div class="panel"><div class="chart" id="chart4"></div></div>
+  </div>
+  <div class="footer">
+    Built with ai-pipes + SQD Pipes SDK |
+    <a href="https://github.com/karelxfi">github.com/karelxfi</a> |
+    <a href="https://x.com/karelxfi">x.com/karelxfi</a>
+  </div>
+
+  <script>
+    var CH = 'http://localhost:8123';
+    var DB = 'morpho_blue';
+
+    function q(sql) {
+      return fetch(CH + '/?database=' + DB + '&user=default&password=password&query=' + encodeURIComponent(sql + ' FORMAT JSON'))
+        .then(function(r) { return r.json(); })
+        .then(function(j) { return j.data; });
+    }
+
+    function fmtNum(n) {
+      if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+      return String(n);
+    }
+
+    function shortDate(d) {
+      if (!d) return '?';
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var parts = d.split('-');
+      return months[parseInt(parts[1])-1] + " '" + parts[0].slice(2);
+    }
+
+    function shortId(hex) {
+      if (!hex) return '?';
+      var h = hex.startsWith('0x') ? hex : '0x' + hex;
+      return h.slice(0, 10) + '..';
+    }
+
+    function darkOpts(title) {
+      return {
+        backgroundColor: 'transparent',
+        title: { text: title, textStyle: { color: '#8b949e', fontSize: 11, fontWeight: 'normal' }, left: 10, top: 8 },
+        textStyle: { color: '#8b949e', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial' },
+        tooltip: { backgroundColor: '#1c2128', borderColor: '#30363d', textStyle: { color: '#e6edf3', fontSize: 11 } },
+        grid: { left: 50, right: 16, top: 40, bottom: 28 },
+      };
+    }
+
+    var COLORS = ['#58a6ff','#f78166','#3fb950','#d2a8ff','#f0883e','#79c0ff','#7ee787','#d29922','#ff7b72','#a5d6ff'];
+
+    async function init() {
+      // === Summary stats ===
+      var supplyCount = await q('SELECT count() as c FROM morpho_blue_supply');
+      var borrowCount = await q('SELECT count() as c FROM morpho_blue_borrow');
+      var liqCount = await q('SELECT count() as c FROM morpho_blue_liquidate');
+      var totalEvents = Number(supplyCount[0]?.c || 0) + Number(borrowCount[0]?.c || 0) + Number(liqCount[0]?.c || 0);
+
+      var uniqueMarkets = await q(
+        'SELECT count(DISTINCT id) as c FROM (' +
+        '  SELECT id FROM morpho_blue_supply' +
+        '  UNION ALL SELECT id FROM morpho_blue_borrow' +
+        '  UNION ALL SELECT id FROM morpho_blue_liquidate' +
+        ')'
+      );
+
+      var uniqueUsers = await q(
+        'SELECT count(DISTINCT addr) as c FROM (' +
+        '  SELECT caller as addr FROM morpho_blue_supply' +
+        '  UNION ALL SELECT on_behalf as addr FROM morpho_blue_supply' +
+        '  UNION ALL SELECT caller as addr FROM morpho_blue_borrow' +
+        '  UNION ALL SELECT on_behalf as addr FROM morpho_blue_borrow' +
+        '  UNION ALL SELECT caller as addr FROM morpho_blue_liquidate' +
+        '  UNION ALL SELECT borrower as addr FROM morpho_blue_liquidate' +
+        ')'
+      );
+
+      var dateRange = await q(
+        'SELECT min(d) as from_date, max(d) as to_date FROM (' +
+        '  SELECT toDate(timestamp) as d FROM morpho_blue_supply' +
+        '  UNION ALL SELECT toDate(timestamp) as d FROM morpho_blue_borrow' +
+        '  UNION ALL SELECT toDate(timestamp) as d FROM morpho_blue_liquidate' +
+        ')'
+      );
+
+      var dr = dateRange[0] || {};
+      var statsEl = document.getElementById('stats');
+      [
+        {v: fmtNum(totalEvents), l: 'Total Events'},
+        {v: fmtNum(Number(uniqueMarkets[0]?.c || 0)), l: 'Active Markets'},
+        {v: fmtNum(Number(uniqueUsers[0]?.c || 0)), l: 'Unique Users'},
+        {v: shortDate(dr.from_date) + ' \u2192 ' + shortDate(dr.to_date), l: 'Period'},
+      ].forEach(function(s) {
+        var d = document.createElement('div'); d.className = 'stat';
+        var vl = document.createElement('div'); vl.className = 'stat-value'; vl.textContent = s.v;
+        var lb = document.createElement('div'); lb.className = 'stat-label'; lb.textContent = s.l;
+        d.appendChild(vl); d.appendChild(lb); statsEl.appendChild(d);
+      });
+
+      // ===== Chart 1: Supply vs Borrow Activity Over Time (hero chart) =====
+      var supplyDaily = await q(
+        'SELECT toStartOfWeek(timestamp) as week, count() as cnt FROM morpho_blue_supply GROUP BY week ORDER BY week'
+      );
+      var borrowDaily = await q(
+        'SELECT toStartOfWeek(timestamp) as week, count() as cnt FROM morpho_blue_borrow GROUP BY week ORDER BY week'
+      );
+
+      // Merge weeks
+      var weekMap = {};
+      supplyDaily.forEach(function(r) { weekMap[r.week.substring(0,10)] = { supply: parseInt(r.cnt), borrow: 0 }; });
+      borrowDaily.forEach(function(r) {
+        var k = r.week.substring(0,10);
+        if (!weekMap[k]) weekMap[k] = { supply: 0, borrow: 0 };
+        weekMap[k].borrow = parseInt(r.cnt);
+      });
+      var weeks = Object.keys(weekMap).sort();
+      var supplyVals = weeks.map(function(w) { return weekMap[w].supply; });
+      var borrowVals = weeks.map(function(w) { return weekMap[w].borrow; });
+
+      var ch1 = echarts.init(document.getElementById('chart1'));
+      ch1.setOption(Object.assign(darkOpts('Supply vs Borrow Activity (Weekly)'), {
+        legend: { data: ['Supply', 'Borrow'], top: 6, right: 16, textStyle: { color: '#8b949e', fontSize: 10 } },
+        xAxis: {
+          type: 'category',
+          data: weeks,
+          axisLabel: { color: '#6e7681', fontSize: 9, rotate: 0, formatter: function(v) { return v.substring(5,10); } },
+          axisLine: { lineStyle: { color: '#30363d' } },
+          splitLine: { show: false },
+          boundaryGap: false,
+        },
+        yAxis: {
+          type: 'value',
+          axisLabel: { color: '#6e7681', fontSize: 9, formatter: function(v) { return v >= 1000 ? (v/1000).toFixed(0) + 'K' : v; } },
+          axisLine: { show: false },
+          splitLine: { lineStyle: { color: '#21262d' } },
+        },
+        series: [
+          {
+            type: 'line',
+            name: 'Supply',
+            data: supplyVals,
+            smooth: true,
+            showSymbol: false,
+            lineStyle: { color: '#3fb950', width: 1.5 },
+            areaStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: 'rgba(63,185,80,0.3)' },
+                { offset: 1, color: 'rgba(63,185,80,0.02)' },
+              ]),
+            },
+          },
+          {
+            type: 'line',
+            name: 'Borrow',
+            data: borrowVals,
+            smooth: true,
+            showSymbol: false,
+            lineStyle: { color: '#f0883e', width: 1.5 },
+            areaStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: 'rgba(240,136,62,0.3)' },
+                { offset: 1, color: 'rgba(240,136,62,0.02)' },
+              ]),
+            },
+          },
+        ],
+        tooltip: {
+          trigger: 'axis',
+          formatter: function(p) {
+            var s = p[0].axisValue + '<br/>';
+            p.forEach(function(item) {
+              s += '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + item.color + ';margin-right:4px"></span>' +
+                item.seriesName + ': <b>' + item.value + '</b><br/>';
+            });
+            return s;
+          },
+        },
+      }));
+
+      // ===== Chart 2: Top Markets by Activity (horizontal stacked bar) =====
+      var topSupply = await q(
+        'SELECT id, count() as cnt FROM morpho_blue_supply GROUP BY id ORDER BY cnt DESC LIMIT 12'
+      );
+      var topBorrow = await q(
+        'SELECT id, count() as cnt FROM morpho_blue_borrow GROUP BY id ORDER BY cnt DESC LIMIT 12'
+      );
+
+      // Merge top markets
+      var marketActivity = {};
+      topSupply.forEach(function(r) {
+        marketActivity[r.id] = marketActivity[r.id] || { supply: 0, borrow: 0 };
+        marketActivity[r.id].supply = parseInt(r.cnt);
+      });
+      topBorrow.forEach(function(r) {
+        marketActivity[r.id] = marketActivity[r.id] || { supply: 0, borrow: 0 };
+        marketActivity[r.id].borrow = parseInt(r.cnt);
+      });
+
+      // Sort by total and take top 10
+      var marketIds = Object.keys(marketActivity).sort(function(a, b) {
+        return (marketActivity[b].supply + marketActivity[b].borrow) - (marketActivity[a].supply + marketActivity[a].borrow);
+      }).slice(0, 10);
+
+      var marketLabels = marketIds.map(function(id) { return shortId(id); }).reverse();
+      var marketSupply = marketIds.map(function(id) { return marketActivity[id].supply; }).reverse();
+      var marketBorrow = marketIds.map(function(id) { return marketActivity[id].borrow; }).reverse();
+
+      var ch2 = echarts.init(document.getElementById('chart2'));
+      ch2.setOption(Object.assign(darkOpts('Top Markets by Activity'), {
+        legend: { data: ['Supply', 'Borrow'], top: 6, right: 16, textStyle: { color: '#8b949e', fontSize: 10 } },
+        grid: { left: 90, right: 50, top: 36, bottom: 16 },
+        xAxis: {
+          type: 'value',
+          axisLabel: { color: '#6e7681', fontSize: 9, formatter: function(v) { return v >= 1000 ? (v/1000).toFixed(0) + 'K' : v; } },
+          axisLine: { show: false },
+          splitLine: { lineStyle: { color: '#21262d' } },
+        },
+        yAxis: {
+          type: 'category',
+          data: marketLabels,
+          axisLabel: { color: '#e6edf3', fontSize: 9, fontFamily: 'monospace' },
+          axisLine: { lineStyle: { color: '#30363d' } },
+          splitLine: { show: false },
+        },
+        series: [
+          {
+            type: 'bar',
+            name: 'Supply',
+            stack: 'total',
+            data: marketSupply,
+            itemStyle: { color: '#3fb950' },
+            barMaxWidth: 16,
+          },
+          {
+            type: 'bar',
+            name: 'Borrow',
+            stack: 'total',
+            data: marketBorrow,
+            itemStyle: { color: '#f0883e' },
+            barMaxWidth: 16,
+          },
+        ],
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: { type: 'shadow' },
+          formatter: function(p) {
+            var s = p[0].name + '<br/>';
+            p.forEach(function(item) {
+              s += '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + item.color + ';margin-right:4px"></span>' +
+                item.seriesName + ': <b>' + item.value + '</b><br/>';
+            });
+            return s;
+          },
+        },
+      }));
+
+      // ===== Chart 3: Liquidation Timeline =====
+      var liqDaily = await q(
+        'SELECT toStartOfWeek(timestamp) as week, count() as cnt, ' +
+        'sum(CASE WHEN bad_debt_assets > 0 THEN 1 ELSE 0 END) as bad_debt_cnt ' +
+        'FROM morpho_blue_liquidate GROUP BY week ORDER BY week'
+      );
+
+      var liqWeeks = liqDaily.map(function(r) { return r.week.substring(0, 10); });
+      var liqCounts = liqDaily.map(function(r) { return parseInt(r.cnt); });
+      var badDebtCounts = liqDaily.map(function(r) { return parseInt(r.bad_debt_cnt); });
+
+      var ch3 = echarts.init(document.getElementById('chart3'));
+      ch3.setOption(Object.assign(darkOpts('Liquidation Timeline'), {
+        legend: { data: ['Liquidations', 'Bad Debt'], top: 6, right: 16, textStyle: { color: '#8b949e', fontSize: 10 } },
+        xAxis: {
+          type: 'category',
+          data: liqWeeks,
+          axisLabel: { color: '#6e7681', fontSize: 9, formatter: function(v) { return v.substring(5,10); } },
+          axisLine: { lineStyle: { color: '#30363d' } },
+          splitLine: { show: false },
+        },
+        yAxis: {
+          type: 'value',
+          min: 0,
+          axisLabel: { color: '#6e7681', fontSize: 9 },
+          axisLine: { show: false },
+          splitLine: { lineStyle: { color: '#21262d' } },
+        },
+        series: [
+          {
+            type: 'bar',
+            name: 'Liquidations',
+            data: liqCounts,
+            itemStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: '#f78166' },
+                { offset: 1, color: '#da3633' },
+              ]),
+            },
+            barMaxWidth: 14,
+          },
+          {
+            type: 'bar',
+            name: 'Bad Debt',
+            data: badDebtCounts,
+            itemStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: '#d2a8ff' },
+                { offset: 1, color: '#8b5cf6' },
+              ]),
+            },
+            barMaxWidth: 14,
+          },
+        ],
+        tooltip: {
+          trigger: 'axis',
+          formatter: function(p) {
+            var s = p[0].axisValue + '<br/>';
+            p.forEach(function(item) {
+              s += '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + item.color + ';margin-right:4px"></span>' +
+                item.seriesName + ': <b>' + item.value + '</b><br/>';
+            });
+            return s;
+          },
+        },
+      }));
+
+      // ===== Chart 4: Protocol Pulse — Daily Active Users =====
+      var dauData = await q(
+        'SELECT week, count(DISTINCT addr) as dau FROM (' +
+        '  SELECT toStartOfWeek(timestamp) as week, caller as addr FROM morpho_blue_supply' +
+        '  UNION ALL SELECT toStartOfWeek(timestamp) as week, on_behalf as addr FROM morpho_blue_supply' +
+        '  UNION ALL SELECT toStartOfWeek(timestamp) as week, caller as addr FROM morpho_blue_borrow' +
+        '  UNION ALL SELECT toStartOfWeek(timestamp) as week, on_behalf as addr FROM morpho_blue_borrow' +
+        '  UNION ALL SELECT toStartOfWeek(timestamp) as week, caller as addr FROM morpho_blue_liquidate' +
+        '  UNION ALL SELECT toStartOfWeek(timestamp) as week, borrower as addr FROM morpho_blue_liquidate' +
+        ') GROUP BY week ORDER BY week'
+      );
+
+      var dauWeeks = dauData.map(function(r) { return r.week.substring(0, 10); });
+      var dauVals = dauData.map(function(r) { return parseInt(r.dau); });
+
+      var ch4 = echarts.init(document.getElementById('chart4'));
+      ch4.setOption(Object.assign(darkOpts('Protocol Pulse \u2014 Weekly Active Users'), {
+        xAxis: {
+          type: 'category',
+          data: dauWeeks,
+          axisLabel: { color: '#6e7681', fontSize: 9, formatter: function(v) { return v.substring(5,10); } },
+          axisLine: { lineStyle: { color: '#30363d' } },
+          splitLine: { show: false },
+          boundaryGap: false,
+        },
+        yAxis: {
+          type: 'value',
+          min: 0,
+          axisLabel: { color: '#6e7681', fontSize: 9, formatter: function(v) { return v >= 1000 ? (v/1000).toFixed(0) + 'K' : v; } },
+          axisLine: { show: false },
+          splitLine: { lineStyle: { color: '#21262d' } },
+        },
+        series: [{
+          type: 'line',
+          name: 'Active Users',
+          data: dauVals,
+          smooth: true,
+          showSymbol: false,
+          lineStyle: { color: '#58a6ff', width: 1.5 },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(88,166,255,0.3)' },
+              { offset: 1, color: 'rgba(88,166,255,0.02)' },
+            ]),
+          },
+        }],
+        tooltip: {
+          trigger: 'axis',
+          formatter: function(p) {
+            return p[0].axisValue + '<br/>Active Users: <b>' + p[0].value + '</b>';
+          },
+        },
+      }));
+
+      window.__DASHBOARD_READY__ = true;
+    }
+
+    init().catch(function(err) {
+      console.error('Dashboard error:', err);
+      var e = document.createElement('div');
+      e.style.cssText = 'color:#f78166;padding:24px;font-size:14px';
+      e.textContent = 'Error: ' + err.message;
+      document.body.appendChild(e);
+    });
+  </script>
+</body>
+</html>
