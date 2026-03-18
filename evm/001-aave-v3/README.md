@@ -6,7 +6,7 @@ Track liquidation events on Aave V3 to analyze cascading liquidations during mar
 
 ## Verification Report
 
-This data was validated against the SQD Portal (independent source of truth):
+This data was validated against the SQD Portal:
 
 ```
 ============================================================

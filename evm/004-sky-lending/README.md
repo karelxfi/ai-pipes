@@ -6,7 +6,7 @@ Track vault liquidations across all collateral types on MakerDAO's Liquidations 
 
 ## Verification Report
 
-This data was validated against the SQD Portal (independent source of truth):
+This data was validated against the SQD Portal:
 
 ```
 ============================================================

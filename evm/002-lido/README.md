@@ -6,7 +6,7 @@ Track Lido's TokenRebased events to monitor stETH/ETH exchange rate evolution, t
 
 ## Verification Report
 
-This data was validated against the SQD Portal (independent source of truth):
+This data was validated against the SQD Portal:
 
 ```
 ============================================================
