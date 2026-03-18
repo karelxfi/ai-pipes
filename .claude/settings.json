@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx skills*)",
+      "Bash(npm install*)",
+      "Bash(npm start*)",
+      "Bash(docker compose*)",
+      "Bash(npx tsx*)"
+    ]
+  }
+}
