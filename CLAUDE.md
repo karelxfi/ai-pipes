@@ -215,6 +215,25 @@ Use Node.js LTS (v20 or v22). Node v25+ has zstd bugs that crash on large syncs.
 ### Token address resolution
 Include a lookup map for common token addresses → symbols. For unknown addresses, show `0xABCD..EF12` format.
 
+### bytes32 decoding (MakerDAO-style identifiers)
+Some protocols use bytes32 for identifiers (e.g., MakerDAO's `ilk` for collateral types like "ETH-A"). Decode in dashboard JS:
+```javascript
+function decodeBytes32(hex) {
+  // hex is "0x4554482d41..." — decode to ASCII, trim null bytes
+  var str = '';
+  var h = hex.startsWith('0x') ? hex.slice(2) : hex;
+  for (var i = 0; i < h.length; i += 2) {
+    var code = parseInt(h.substr(i, 2), 16);
+    if (code === 0) break;
+    str += String.fromCharCode(code);
+  }
+  return str;
+}
+```
+
+### MakerDAO decimal conventions
+These appear in MakerDAO and forks: `wad` = 18 decimals, `ray` = 27 decimals, `rad` = 45 decimals. Divide accordingly.
+
 ## Conventions
 
 - Follow agent-skills CLAUDE.md (Rule 0: always read project docs before implementation)
