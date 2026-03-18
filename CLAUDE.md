@@ -42,15 +42,25 @@ Every generated example MUST include:
 - [ ] `dashboard/index.html` — standalone dark-themed dashboard with TradingView Lightweight Charts
 - [ ] `dashboard/screenshot.png` — captured screenshot of populated dashboard (1200x675, X-optimized)
 
-## Validation
+## Validation (MANDATORY — never skip)
+
+**You MUST run the indexer, validate the output, and capture a real screenshot before committing.** An example without a working screenshot with real data is not done.
 
 Before marking an example as done:
 
-1. Run `docker compose up -d && npm start` — indexer must start and sync
-2. Run `npx tsx validate.ts` — all assertions must pass
-3. Open `dashboard/index.html` — charts must render with real data
-4. Capture screenshot — must look good enough to share on X
-5. Update `protocols.json` status to "done"
+1. `docker compose up -d` — start ClickHouse
+2. `npm install && npm start` — run the indexer, wait until data appears in ClickHouse
+3. `npx tsx validate.ts` — all assertions must pass
+4. Open `dashboard/index.html` in browser — verify charts render with REAL data (not empty)
+5. Capture `dashboard/screenshot.png` — must show populated charts, not empty panels
+6. Visually confirm the screenshot looks good enough to share on X
+7. Update META.json: `runtime_status: "working"`, `validation_status: "passed"`
+8. Update `protocols.json` status to "done"
+
+**If charts are empty:** Check browser console for errors. Common issues:
+- ClickHouse CORS: mount `clickhouse-cors.xml` in docker-compose.yml
+- Lightweight Charts v5 API: use `chart.addSeries(LightweightCharts.LineSeries, ...)` NOT `chart.addLineSeries(...)`
+- Auth: include `user=default&password=password` in ClickHouse query URLs
 
 ## Conventions
 

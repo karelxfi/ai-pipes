@@ -5,6 +5,6 @@
   "claude_model": "claude-opus-4-6",
   "prompt_file": "PROMPT.md",
   "angle": "Liquidation cascades — tracking when one liquidation triggers others during market stress",
-  "runtime_status": "untested",
-  "validation_status": "untested"
+  "runtime_status": "working",
+  "validation_status": "passed"
 }

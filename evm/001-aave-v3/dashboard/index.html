@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=1200">
   <title>Aave V3 Liquidation Cascades</title>
-  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+  <script src="https://unpkg.com/lightweight-charts@5.1.0/dist/lightweight-charts.standalone.production.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -15,33 +15,46 @@
       height: 675px;
       overflow: hidden;
     }
-    .header { padding: 20px 24px 12px; }
-    .header h1 { font-size: 24px; font-weight: 600; color: #e6edf3; }
-    .header .angle { font-size: 14px; color: #8b949e; margin-top: 4px; }
+    .header { padding: 16px 24px 8px; }
+    .header h1 { font-size: 22px; font-weight: 600; color: #e6edf3; }
+    .header .angle { font-size: 13px; color: #8b949e; margin-top: 2px; }
     .chart-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       grid-template-rows: 1fr 1fr;
-      gap: 12px;
-      padding: 12px 24px;
-      height: calc(100% - 90px - 36px);
+      gap: 10px;
+      padding: 10px 24px;
+      height: calc(100% - 72px - 32px);
     }
     .chart-container {
       background: #161b22;
       border: 1px solid #30363d;
       border-radius: 8px;
-      padding: 12px;
+      padding: 10px;
       position: relative;
+      overflow: hidden;
     }
-    .chart-container .chart-title {
-      font-size: 12px;
+    .chart-title {
+      font-size: 11px;
       color: #8b949e;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    .chart-container .chart { width: 100%; height: calc(100% - 24px); }
-    .footer { padding: 8px 24px; text-align: right; font-size: 11px; color: #484f58; }
+    .chart { width: 100%; height: calc(100% - 22px); }
+    .bar-panel { display: flex; flex-direction: column; }
+    .bar-chart-area { flex: 1; display: flex; align-items: flex-end; gap: 6px; padding: 4px 0; }
+    .bar-item { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 0; }
+    .bar { border-radius: 3px 3px 0 0; min-height: 2px; width: 100%; }
+    .bar-label { font-size: 8px; color: #8b949e; margin-top: 4px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
+    .bar-value { font-size: 9px; color: #e6edf3; margin-bottom: 2px; font-weight: 500; }
+    .legend { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 4px; }
+    .legend-item { display: flex; align-items: center; gap: 4px; font-size: 9px; color: #8b949e; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+    .footer { padding: 6px 24px; text-align: right; font-size: 10px; color: #484f58; }
+    .footer a { color: #484f58; text-decoration: none; }
+    .footer a:hover { color: #8b949e; }
+    .loading { color: #484f58; font-size: 12px; padding: 20px; text-align: center; }
   </style>
 </head>
 <body>
@@ -51,115 +64,181 @@
   </div>
   <div class="chart-grid">
     <div class="chart-container">
-      <div class="chart-title">Liquidation Volume Over Time (debt covered)</div>
-      <div class="chart" id="chart1"></div>
+      <div class="chart-title">Liquidation Volume Over Time (debt covered, ETH units)</div>
+      <div class="chart" id="chart1"><div class="loading">Loading...</div></div>
     </div>
-    <div class="chart-container">
+    <div class="chart-container bar-panel">
       <div class="chart-title">Top Collateral Assets Liquidated</div>
-      <div class="chart" id="chart2"></div>
+      <div class="bar-chart-area" id="chart2"></div>
+      <div class="legend" id="legend2"></div>
     </div>
     <div class="chart-container">
-      <div class="chart-title">Liquidation Count Per Day</div>
-      <div class="chart" id="chart3"></div>
+      <div class="chart-title">Liquidations Per Day (count)</div>
+      <div class="chart" id="chart3"><div class="loading">Loading...</div></div>
     </div>
-    <div class="chart-container">
+    <div class="chart-container bar-panel">
       <div class="chart-title">Top Liquidators by Volume</div>
-      <div class="chart" id="chart4"></div>
+      <div class="bar-chart-area" id="chart4"></div>
+      <div class="legend" id="legend4"></div>
     </div>
   </div>
-  <div class="footer">Built with ai-pipes + SQD Pipes SDK</div>
+  <div class="footer">Built with ai-pipes + SQD Pipes SDK | <a href="https://github.com/karelxfi">github.com/karelxfi</a> | <a href="https://x.com/karelxfi">x.com/karelxfi</a></div>
+
   <script>
     const CLICKHOUSE_URL = 'http://localhost:8123';
     const DB = 'aave_v3_pool';
     const TABLE = 'aave_v_3_pool_liquidation_call';
 
     async function queryClickHouse(sql) {
-      const res = await fetch(`${CLICKHOUSE_URL}/?database=${DB}&query=${encodeURIComponent(sql + ' FORMAT JSON')}`);
+      const url = CLICKHOUSE_URL + '/?database=' + DB + '&user=default&password=password&query=' + encodeURIComponent(sql + ' FORMAT JSON');
+      const res = await fetch(url);
       const json = await res.json();
       return json.data;
     }
 
     function createChart(containerId) {
       const container = document.getElementById(containerId);
-      const chart = LightweightCharts.createChart(container, {
+      container.textContent = '';
+      return LightweightCharts.createChart(container, {
         layout: { background: { type: 'solid', color: '#161b22' }, textColor: '#8b949e' },
         grid: { vertLines: { color: '#21262d' }, horzLines: { color: '#21262d' } },
         width: container.clientWidth, height: container.clientHeight,
         timeScale: { borderColor: '#30363d' },
         rightPriceScale: { borderColor: '#30363d' },
       });
-      return chart;
     }
 
-    const COLORS = ['#58a6ff', '#f78166', '#3fb950', '#d2a8ff', '#f0883e', '#a5d6ff', '#7ee787', '#d29922'];
+    var COLORS = ['#58a6ff', '#f78166', '#3fb950', '#d2a8ff', '#f0883e', '#a5d6ff', '#7ee787', '#d29922', '#ff7b72', '#79c0ff'];
 
+    var TOKEN_NAMES = {
+      '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': 'WETH',
+      '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': 'USDC',
+      '0xdac17f958d2ee523a2206206994597c13d831ec7': 'USDT',
+      '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599': 'WBTC',
+      '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0': 'wstETH',
+      '0x6b175474e89094c44da98b954eedeac495271d0f': 'DAI',
+      '0xae78736cd615f374d3085123a210448e74fc6393': 'rETH',
+      '0xbe9895146f7af43049ca1c1ae358b0541ea49704': 'cbETH',
+      '0x514910771af9ca656af840dff83e8264ecf986ca': 'LINK',
+      '0xae7ab96520de3a18e5e111b5eaab095312d7fe84': 'stETH',
+    };
+
+    function shortAddr(addr) {
+      var lower = addr.toLowerCase();
+      return TOKEN_NAMES[lower] || (addr.slice(0, 6) + '...' + addr.slice(-4));
+    }
+
+    function formatNum(n) {
+      if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+      return n.toFixed(0);
+    }
+
+    function renderBarChart(containerId, legendId, data, labelFn, valueFn, fmtFn) {
+      var container = document.getElementById(containerId);
+      var legend = document.getElementById(legendId);
+      var maxVal = Math.max.apply(null, data.map(valueFn));
+
+      data.forEach(function(d, i) {
+        var val = valueFn(d);
+        var color = COLORS[i % COLORS.length];
+        var pct = maxVal > 0 ? (val / maxVal) * 100 : 0;
+        var label = labelFn(d);
+
+        // Bar item
+        var item = document.createElement('div');
+        item.className = 'bar-item';
+
+        var valEl = document.createElement('div');
+        valEl.className = 'bar-value';
+        valEl.textContent = fmtFn(val);
+
+        var barEl = document.createElement('div');
+        barEl.className = 'bar';
+        barEl.style.height = Math.max(pct, 3) + '%';
+        barEl.style.background = color;
+
+        var labelEl = document.createElement('div');
+        labelEl.className = 'bar-label';
+        labelEl.title = label;
+        labelEl.textContent = label;
+
+        item.appendChild(valEl);
+        item.appendChild(barEl);
+        item.appendChild(labelEl);
+        container.appendChild(item);
+
+        // Legend item
+        var legItem = document.createElement('div');
+        legItem.className = 'legend-item';
+
+        var dot = document.createElement('div');
+        dot.className = 'legend-dot';
+        dot.style.background = color;
+
+        var legText = document.createElement('span');
+        legText.textContent = label + ': ' + fmtFn(val);
+
+        legItem.appendChild(dot);
+        legItem.appendChild(legText);
+        legend.appendChild(legItem);
+      });
+    }
+
+    // Signal when dashboard is fully loaded (for screenshot script)
     async function init() {
-      // Chart 1: Liquidation volume over time (daily sum of debt_to_cover as float)
-      const volumeData = await queryClickHouse(`
-        SELECT toDate(timestamp) as day,
-               toFloat64(sum(debt_to_cover)) / 1e18 as volume
-        FROM ${TABLE}
-        GROUP BY day ORDER BY day
-      `);
-      const chart1 = createChart('chart1');
-      const lineSeries = chart1.addLineSeries({ color: '#58a6ff', lineWidth: 2 });
-      lineSeries.setData(volumeData.map(d => ({ time: d.day, value: parseFloat(d.volume) })));
-
-      // Chart 2: Top collateral assets (histogram-style using line series with histogram mode)
-      const topCollateral = await queryClickHouse(`
-        SELECT collateral_asset,
-               count() as liq_count
-        FROM ${TABLE}
-        GROUP BY collateral_asset
-        ORDER BY liq_count DESC
-        LIMIT 10
-      `);
-      const chart2 = createChart('chart2');
-      const histSeries = chart2.addHistogramSeries({});
-      histSeries.setData(topCollateral.map((d, i) => ({
-        time: `2023-01-${String(i + 1).padStart(2, '0')}`,
-        value: parseInt(d.liq_count),
-        color: COLORS[i % COLORS.length],
-      })));
-      // Disable time scale labels for this bar chart
-      chart2.timeScale().applyOptions({ visible: false });
-
-      // Chart 3: Liquidation count per day (area chart)
-      const countData = await queryClickHouse(`
-        SELECT toDate(timestamp) as day,
-               count() as liquidations
-        FROM ${TABLE}
-        GROUP BY day ORDER BY day
-      `);
-      const chart3 = createChart('chart3');
-      const areaSeries = chart3.addAreaSeries({
-        topColor: 'rgba(59, 130, 246, 0.4)',
-        bottomColor: 'rgba(59, 130, 246, 0.0)',
-        lineColor: '#3b82f6',
+      // Chart 1: Volume over time — area chart
+      var volumeData = await queryClickHouse(
+        'SELECT toDate(timestamp) as day, toFloat64(sum(debt_to_cover)) / 1e18 as volume FROM ' + TABLE + ' GROUP BY day ORDER BY day'
+      );
+      var chart1 = createChart('chart1');
+      var areaSeries1 = chart1.addSeries(LightweightCharts.AreaSeries, {
+        topColor: 'rgba(88, 166, 255, 0.4)',
+        bottomColor: 'rgba(88, 166, 255, 0.0)',
+        lineColor: '#58a6ff',
         lineWidth: 2,
       });
-      areaSeries.setData(countData.map(d => ({ time: d.day, value: parseInt(d.liquidations) })));
+      areaSeries1.setData(volumeData.map(function(d) { return { time: d.day, value: parseFloat(d.volume) }; }));
 
-      // Chart 4: Top liquidators by volume (histogram-style)
-      const topLiquidators = await queryClickHouse(`
-        SELECT liquidator,
-               toFloat64(sum(debt_to_cover)) / 1e18 as total_volume
-        FROM ${TABLE}
-        GROUP BY liquidator
-        ORDER BY total_volume DESC
-        LIMIT 10
-      `);
-      const chart4 = createChart('chart4');
-      const barSeries = chart4.addHistogramSeries({});
-      barSeries.setData(topLiquidators.map((d, i) => ({
-        time: `2023-01-${String(i + 1).padStart(2, '0')}`,
-        value: parseFloat(d.total_volume),
-        color: COLORS[i % COLORS.length],
-      })));
-      chart4.timeScale().applyOptions({ visible: false });
+      // Chart 2: Top collateral assets — custom bar chart with legend
+      var topCollateral = await queryClickHouse(
+        'SELECT collateral_asset, count() as liq_count FROM ' + TABLE + ' GROUP BY collateral_asset ORDER BY liq_count DESC LIMIT 8'
+      );
+      renderBarChart('chart2', 'legend2', topCollateral,
+        function(d) { return shortAddr(d.collateral_asset); },
+        function(d) { return parseInt(d.liq_count); },
+        function(n) { return n.toString(); }
+      );
+
+      // Chart 3: Liquidations per day — histogram (correct chart for discrete counts)
+      var countData = await queryClickHouse(
+        'SELECT toDate(timestamp) as day, count() as liquidations FROM ' + TABLE + ' GROUP BY day ORDER BY day'
+      );
+      var chart3 = createChart('chart3');
+      var histSeries = chart3.addSeries(LightweightCharts.HistogramSeries, { color: '#3fb950' });
+      histSeries.setData(countData.map(function(d) { return { time: d.day, value: parseInt(d.liquidations) }; }));
+
+      // Chart 4: Top liquidators — custom bar chart with legend
+      var topLiquidators = await queryClickHouse(
+        'SELECT liquidator, toFloat64(sum(debt_to_cover)) / 1e18 as total_volume FROM ' + TABLE + ' GROUP BY liquidator ORDER BY total_volume DESC LIMIT 6'
+      );
+      renderBarChart('chart4', 'legend4', topLiquidators,
+        function(d) { return shortAddr(d.liquidator); },
+        function(d) { return parseFloat(d.total_volume); },
+        formatNum
+      );
+
+      // Signal ready for screenshot
+      window.__DASHBOARD_READY__ = true;
     }
 
-    init().catch(console.error);
+    init().catch(function(err) {
+      console.error('Dashboard init failed:', err);
+      var errDiv = document.createElement('div');
+      errDiv.style.cssText = 'color:#f78166;padding:24px';
+      errDiv.textContent = 'Error loading data: ' + err.message;
+      document.body.appendChild(errDiv);
+    });
   </script>
 </body>
 </html>

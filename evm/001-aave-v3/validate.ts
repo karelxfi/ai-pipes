@@ -1,12 +1,18 @@
 import { createClient } from '@clickhouse/client'
 
+import 'dotenv/config'
+
 const CLICKHOUSE_URL = process.env.CLICKHOUSE_URL ?? 'http://localhost:8123'
 const CLICKHOUSE_DATABASE = process.env.CLICKHOUSE_DATABASE ?? 'aave_v3_pool'
+const CLICKHOUSE_USER = process.env.CLICKHOUSE_USER ?? 'default'
+const CLICKHOUSE_PASSWORD = process.env.CLICKHOUSE_PASSWORD ?? 'password'
 const TABLE = 'aave_v_3_pool_liquidation_call'
 
 const client = createClient({
   url: CLICKHOUSE_URL,
   database: CLICKHOUSE_DATABASE,
+  username: CLICKHOUSE_USER,
+  password: CLICKHOUSE_PASSWORD,
 })
 
 let failures = 0
