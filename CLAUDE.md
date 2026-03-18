@@ -39,19 +39,19 @@ Every generated example MUST include:
 - [ ] `src/` — indexer source code
 - [ ] `docker-compose.yml` — ClickHouse with persistent volume and CORS config
 - [ ] `clickhouse-cors.xml` — CORS headers for browser dashboard access
-- [ ] `validate.ts` — data validation using dotenv for ClickHouse auth
+- [ ] `validate.ts` — structural validation (schema, counts, ranges) + truth verification (Portal cross-reference + tx spot-checks)
 - [ ] `dashboard/index.html` — standalone dark-themed dashboard with Apache ECharts
 - [ ] `dashboard/screenshot.png` — captured screenshot of populated dashboard with REAL data
 
 ## Validation (MANDATORY — never skip)
 
-**You MUST run the indexer, validate the output, and capture a real screenshot before committing.** An example without a working screenshot with real data is not done. An example with empty charts is not done. Period.
+**You MUST run the indexer, validate the output, verify data truth, and capture a real screenshot before committing.** An example without verified data and a real screenshot is not done. Period.
 
 Before marking an example as done:
 
 1. `docker compose up -d` — start ClickHouse
 2. `npm install && npm start` — run the indexer, wait until 500+ rows appear
-3. `npx tsx validate.ts` — all assertions must pass
+3. `npx tsx validate.ts` — all assertions must pass (structural + truth checks)
 4. Open `dashboard/index.html` in browser — verify charts render with REAL data (not empty)
 5. Capture `dashboard/screenshot.png` — must show populated charts, not empty panels
 6. Visually confirm the screenshot looks good enough to share on X
@@ -61,6 +61,69 @@ Before marking an example as done:
 **How to check for data during sync:**
 ```bash
 curl -s 'http://localhost:8123/?user=default&password=password' --data-binary "SELECT count() FROM <database>.<table>"
+```
+
+### Data Truth Verification (part of validate.ts)
+
+Structural checks (schema, row count, ranges) are not enough. The data could be structurally valid but completely wrong. Every `validate.ts` must include TWO levels of truth verification:
+
+#### Level 1: Cross-reference with SQD Portal MCP
+
+Query the Portal MCP tools to independently count events for the same contract + block range, and compare against ClickHouse:
+
+```typescript
+// Example: verify event count against Portal
+// Use portal_count_events or portal_query_logs to get independent count
+// Compare: ClickHouse count should be within 5% of Portal count
+// (small differences are OK due to sync timing)
+```
+
+What to verify:
+- Total event count for the contract in the indexed block range
+- Event count matches between ClickHouse and Portal (within 5% tolerance for sync timing)
+- If counts diverge significantly, the indexer has a bug
+
+#### Level 2: Transaction Spot-Checks
+
+Pick 2-3 specific transactions and verify field-level correctness:
+
+```typescript
+// Example: spot-check a known transaction
+// 1. Find a tx hash from ClickHouse
+// 2. Look up that tx on block explorer (Etherscan/Solscan) or via Portal
+// 3. Verify: contract address, event parameters, block number, timestamp all match
+```
+
+What to verify:
+- Pick a tx hash from ClickHouse data
+- Query Portal for that specific block's events
+- Verify at least 2-3 fields match exactly (addresses, indexed params)
+- Verify the block number and timestamp are correct
+
+#### validate.ts Structure
+
+```typescript
+// Phase 1: Structural checks
+// - Table exists, row count > 0
+// - Schema has expected columns
+// - Timestamps in range, amounts non-negative
+
+// Phase 2: Portal cross-reference
+// - Query Portal MCP for event count in same block range
+// - Compare with ClickHouse count (5% tolerance)
+
+// Phase 3: Transaction spot-checks
+// - Pick 2-3 tx hashes from ClickHouse
+// - Verify against Portal data or known transactions
+// - Check field-level correctness
+```
+
+Log all verification results clearly:
+```
+PASS: Structural - 509 rows, schema OK, timestamps 2023-08-29 to 2024-03-12
+PASS: Portal cross-ref - ClickHouse: 509, Portal: 512 (0.6% diff, within 5% tolerance)
+PASS: Spot-check tx 0xabc... - block 18392741, collateral WETH, debt USDC matches Portal
+PASS: Spot-check tx 0xdef... - block 19012553, collateral WBTC, debt USDT matches Portal
 ```
 
 ## Known Issues & Workarounds
