@@ -1,0 +1,14 @@
+{
+  "name": "ai-pipes",
+  "private": true,
+  "description": "100 DeFi Indexers, Fully AI-Generated with SQD Pipes SDK",
+  "scripts": {
+    "fetch-protocols": "tsx scripts/fetch-protocols.ts",
+    "update-readme": "tsx scripts/update-readme.ts",
+    "screenshot": "tsx scripts/screenshot.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0",
+    "puppeteer": "^23.0.0"
+  }
+}
