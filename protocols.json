@@ -1,0 +1,1550 @@
+{
+  "source": "https://api.llama.fi/protocols",
+  "fetched": "2026-03-18",
+  "total": 100,
+  "breakdown": {
+    "evm": 77,
+    "solana": 23,
+    "hyperliquid": 0
+  },
+  "protocols": [
+    {
+      "name": "Aave V3",
+      "slug": "aave-v3",
+      "category": "Lending",
+      "tvl": 24518559370,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Plasma",
+        "Arbitrum",
+        "Base",
+        "Mantle",
+        "Avalanche",
+        "Binance",
+        "Polygon",
+        "xDai",
+        "Optimism",
+        "Linea",
+        "MegaETH",
+        "Sonic",
+        "Celo",
+        "Scroll",
+        "zkSync Era",
+        "Soneium",
+        "Metis",
+        "Fantom",
+        "Harmony"
+      ],
+      "angle": null,
+      "directory": "evm/001-aave-v3",
+      "status": "pending"
+    },
+    {
+      "name": "Lido",
+      "slug": "lido",
+      "category": "Liquid Staking",
+      "tvl": 20154349507,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Solana",
+        "Moonbeam",
+        "Moonriver",
+        "Terra"
+      ],
+      "angle": null,
+      "directory": "evm/002-lido",
+      "status": "pending"
+    },
+    {
+      "name": "Binance staked ETH",
+      "slug": "binance-staked-eth",
+      "category": "Liquid Staking",
+      "tvl": 8070082269,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Binance"
+      ],
+      "angle": null,
+      "directory": "evm/003-binance-staked-eth",
+      "status": "pending"
+    },
+    {
+      "name": "Sky Lending",
+      "slug": "sky-lending",
+      "category": "CDP",
+      "tvl": 7302817276,
+      "vm": "evm",
+      "chains": [
+        "Ethereum"
+      ],
+      "angle": null,
+      "directory": "evm/004-sky-lending",
+      "status": "pending"
+    },
+    {
+      "name": "Morpho V1",
+      "slug": "morpho-v1",
+      "category": "Lending",
+      "tvl": 6866148440,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Base",
+        "Hyperliquid L1",
+        "Monad",
+        "Arbitrum",
+        "Katana",
+        "Flare",
+        "Optimism",
+        "World Chain",
+        "Polygon",
+        "Plume Mainnet",
+        "Unichain",
+        "Etherlink",
+        "Soneium",
+        "Abstract",
+        "Sei",
+        "Hemi",
+        "TAC",
+        "Lisk",
+        "Scroll",
+        "Corn",
+        "Stable",
+        "Fraxtal",
+        "Sonic",
+        "Binance",
+        "Botanix",
+        "Citrea",
+        "Ink",
+        "xDai",
+        "Linea",
+        "Bitlayer",
+        "Mode",
+        "Zircuit"
+      ],
+      "angle": null,
+      "directory": "evm/005-morpho-v1",
+      "status": "pending"
+    },
+    {
+      "name": "JustLend",
+      "slug": "justlend",
+      "category": "Lending",
+      "tvl": 3325849704,
+      "vm": "evm",
+      "chains": [
+        "Tron"
+      ],
+      "angle": null,
+      "directory": "evm/006-justlend",
+      "status": "pending"
+    },
+    {
+      "name": "Maple",
+      "slug": "maple",
+      "category": "Lending",
+      "tvl": 2408333409,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "evm/007-maple",
+      "status": "pending"
+    },
+    {
+      "name": "Pendle",
+      "slug": "pendle",
+      "category": "Yield",
+      "tvl": 2262946277,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Plasma",
+        "Arbitrum",
+        "Hyperliquid L1",
+        "Binance",
+        "Base",
+        "Sonic",
+        "Mantle",
+        "Berachain",
+        "Avalanche",
+        "Optimism"
+      ],
+      "angle": null,
+      "directory": "evm/008-pendle",
+      "status": "pending"
+    },
+    {
+      "name": "SparkLend",
+      "slug": "sparklend",
+      "category": "Lending",
+      "tvl": 2165577142,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "xDai"
+      ],
+      "angle": null,
+      "directory": "evm/009-sparklend",
+      "status": "pending"
+    },
+    {
+      "name": "Kamino Lend",
+      "slug": "kamino-lend",
+      "category": "Lending",
+      "tvl": 2033981225,
+      "vm": "solana",
+      "chains": [
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "solana/001-kamino-lend",
+      "status": "pending"
+    },
+    {
+      "name": "Spark Savings",
+      "slug": "spark-savings",
+      "category": "Yield",
+      "tvl": 1424899492,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Arbitrum",
+        "Avalanche",
+        "Optimism",
+        "Base",
+        "Unichain"
+      ],
+      "angle": null,
+      "directory": "evm/010-spark-savings",
+      "status": "pending"
+    },
+    {
+      "name": "Compound V3",
+      "slug": "compound-v3",
+      "category": "Lending",
+      "tvl": 1352915939,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Arbitrum",
+        "Base",
+        "Optimism",
+        "Polygon",
+        "Mantle",
+        "Unichain",
+        "Ronin",
+        "Scroll"
+      ],
+      "angle": null,
+      "directory": "evm/011-compound-v3",
+      "status": "pending"
+    },
+    {
+      "name": "Rocket Pool",
+      "slug": "rocket-pool",
+      "category": "Liquid Staking",
+      "tvl": 1283190053,
+      "vm": "evm",
+      "chains": [
+        "Ethereum"
+      ],
+      "angle": null,
+      "directory": "evm/012-rocket-pool",
+      "status": "pending"
+    },
+    {
+      "name": "Venus Core Pool",
+      "slug": "venus-core-pool",
+      "category": "Lending",
+      "tvl": 1274040602,
+      "vm": "evm",
+      "chains": [
+        "Binance",
+        "Ethereum",
+        "Arbitrum",
+        "zkSync Era",
+        "Unichain",
+        "Base",
+        "Optimism",
+        "Op_Bnb"
+      ],
+      "angle": null,
+      "directory": "evm/013-venus-core-pool",
+      "status": "pending"
+    },
+    {
+      "name": "DoubleZero Staked SOL",
+      "slug": "doublezero-staked-sol",
+      "category": "Liquid Staking",
+      "tvl": 1193225729,
+      "vm": "solana",
+      "chains": [
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "solana/002-doublezero-staked-sol",
+      "status": "pending"
+    },
+    {
+      "name": "Sanctum Validator LSTs",
+      "slug": "sanctum-validator-lsts",
+      "category": "Liquid Staking",
+      "tvl": 1166765537,
+      "vm": "solana",
+      "chains": [
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "solana/003-sanctum-validator-lsts",
+      "status": "pending"
+    },
+    {
+      "name": "Jito Liquid Staking",
+      "slug": "jito-liquid-staking",
+      "category": "Liquid Staking",
+      "tvl": 1138625378,
+      "vm": "solana",
+      "chains": [
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "solana/004-jito-liquid-staking",
+      "status": "pending"
+    },
+    {
+      "name": "Jupiter Lend",
+      "slug": "jupiter-lend",
+      "category": "Lending",
+      "tvl": 1106777284,
+      "vm": "solana",
+      "chains": [
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "solana/005-jupiter-lend",
+      "status": "pending"
+    },
+    {
+      "name": "Fluid Lending",
+      "slug": "fluid-lending",
+      "category": "Lending",
+      "tvl": 1071254193,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Plasma",
+        "Arbitrum",
+        "Base",
+        "Polygon"
+      ],
+      "angle": null,
+      "directory": "evm/014-fluid-lending",
+      "status": "pending"
+    },
+    {
+      "name": "Binance Staked SOL",
+      "slug": "binance-staked-sol",
+      "category": "Liquid Staking",
+      "tvl": 956280942,
+      "vm": "solana",
+      "chains": [
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "solana/006-binance-staked-sol",
+      "status": "pending"
+    },
+    {
+      "name": "StakeWise V2",
+      "slug": "stakewise-v2",
+      "category": "Liquid Staking",
+      "tvl": 910201023,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "xDai"
+      ],
+      "angle": null,
+      "directory": "evm/015-stakewise-v2",
+      "status": "pending"
+    },
+    {
+      "name": "Jupiter Perpetual Exchange",
+      "slug": "jupiter-perpetual-exchange",
+      "category": "Derivatives",
+      "tvl": 881119935,
+      "vm": "solana",
+      "chains": [
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "solana/007-jupiter-perpetual-exchange",
+      "status": "pending"
+    },
+    {
+      "name": "Kinetiq kHYPE",
+      "slug": "kinetiq-khype",
+      "category": "Liquid Staking",
+      "tvl": 847949596,
+      "vm": "evm",
+      "chains": [
+        "Hyperliquid L1"
+      ],
+      "angle": null,
+      "directory": "evm/016-kinetiq-khype",
+      "status": "pending"
+    },
+    {
+      "name": "Jupiter Staked SOL",
+      "slug": "jupiter-staked-sol",
+      "category": "Liquid Staking",
+      "tvl": 847230628,
+      "vm": "solana",
+      "chains": [
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "solana/008-jupiter-staked-sol",
+      "status": "pending"
+    },
+    {
+      "name": "Lista Lending",
+      "slug": "lista-lending",
+      "category": "Lending",
+      "tvl": 772564422,
+      "vm": "evm",
+      "chains": [
+        "Binance",
+        "Ethereum"
+      ],
+      "angle": null,
+      "directory": "evm/017-lista-lending",
+      "status": "pending"
+    },
+    {
+      "name": "Convex Finance",
+      "slug": "convex-finance",
+      "category": "Yield",
+      "tvl": 708367374,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Fraxtal",
+        "Arbitrum",
+        "Polygon"
+      ],
+      "angle": null,
+      "directory": "evm/018-convex-finance",
+      "status": "pending"
+    },
+    {
+      "name": "mETH Protocol",
+      "slug": "meth-protocol",
+      "category": "Liquid Staking",
+      "tvl": 647445397,
+      "vm": "evm",
+      "chains": [
+        "Ethereum"
+      ],
+      "angle": null,
+      "directory": "evm/019-meth-protocol",
+      "status": "pending"
+    },
+    {
+      "name": "Lista Liquid Staking",
+      "slug": "lista-liquid-staking",
+      "category": "Liquid Staking",
+      "tvl": 630289153,
+      "vm": "evm",
+      "chains": [
+        "Binance"
+      ],
+      "angle": null,
+      "directory": "evm/020-lista-liquid-staking",
+      "status": "pending"
+    },
+    {
+      "name": "Liquid Collective",
+      "slug": "liquid-collective",
+      "category": "Liquid Staking",
+      "tvl": 607972246,
+      "vm": "evm",
+      "chains": [
+        "Ethereum"
+      ],
+      "angle": null,
+      "directory": "evm/021-liquid-collective",
+      "status": "pending"
+    },
+    {
+      "name": "USDD",
+      "slug": "usdd",
+      "category": "CDP",
+      "tvl": 562769152,
+      "vm": "evm",
+      "chains": [
+        "Tron",
+        "Ethereum",
+        "Binance"
+      ],
+      "angle": null,
+      "directory": "evm/022-usdd",
+      "status": "pending"
+    },
+    {
+      "name": "Euler V2",
+      "slug": "euler-v2",
+      "category": "Lending",
+      "tvl": 518268469,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Plasma",
+        "Monad",
+        "Avalanche",
+        "Arbitrum",
+        "BOB",
+        "Hyperliquid L1",
+        "Base",
+        "Unichain",
+        "Linea",
+        "Berachain",
+        "Binance",
+        "TAC",
+        "Swellchain",
+        "Sonic",
+        "Mantle"
+      ],
+      "angle": null,
+      "directory": "evm/023-euler-v2",
+      "status": "pending"
+    },
+    {
+      "name": "Fira",
+      "slug": "fira",
+      "category": "Lending",
+      "tvl": 452838812,
+      "vm": "evm",
+      "chains": [
+        "Ethereum"
+      ],
+      "angle": null,
+      "directory": "evm/024-fira",
+      "status": "pending"
+    },
+    {
+      "name": "Hyperliquid HLP",
+      "slug": "hyperliquid-hlp",
+      "category": "Derivatives",
+      "tvl": 430763604,
+      "vm": "evm",
+      "chains": [
+        "Hyperliquid L1"
+      ],
+      "angle": null,
+      "directory": "evm/025-hyperliquid-hlp",
+      "status": "pending"
+    },
+    {
+      "name": "Tydro",
+      "slug": "tydro",
+      "category": "Lending",
+      "tvl": 415081725,
+      "vm": "evm",
+      "chains": [
+        "Ink"
+      ],
+      "angle": null,
+      "directory": "evm/026-tydro",
+      "status": "pending"
+    },
+    {
+      "name": "Lista CDP",
+      "slug": "lista-cdp",
+      "category": "CDP",
+      "tvl": 412362587,
+      "vm": "evm",
+      "chains": [
+        "Binance"
+      ],
+      "angle": null,
+      "directory": "evm/027-lista-cdp",
+      "status": "pending"
+    },
+    {
+      "name": "HyperLend Pooled",
+      "slug": "hyperlend-pooled",
+      "category": "Lending",
+      "tvl": 396316391,
+      "vm": "evm",
+      "chains": [
+        "Hyperliquid L1"
+      ],
+      "angle": null,
+      "directory": "evm/028-hyperlend-pooled",
+      "status": "pending"
+    },
+    {
+      "name": "Avalon USDa",
+      "slug": "avalon-usda",
+      "category": "CDP",
+      "tvl": 391985395,
+      "vm": "evm",
+      "chains": [
+        "Binance",
+        "Ethereum",
+        "Klaytn",
+        "Berachain",
+        "Sonic",
+        "Mantle"
+      ],
+      "angle": null,
+      "directory": "evm/029-avalon-usda",
+      "status": "pending"
+    },
+    {
+      "name": "CIAN Yield Layer",
+      "slug": "cian-yield-layer",
+      "category": "Yield Aggregator",
+      "tvl": 377311771,
+      "vm": "evm",
+      "chains": [
+        "Mantle",
+        "Ethereum",
+        "Arbitrum",
+        "Optimism",
+        "Base",
+        "Binance",
+        "Scroll"
+      ],
+      "angle": null,
+      "directory": "evm/030-cian-yield-layer",
+      "status": "pending"
+    },
+    {
+      "name": "Stader",
+      "slug": "stader",
+      "category": "Liquid Staking",
+      "tvl": 358314822,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Hedera",
+        "Binance",
+        "Fantom",
+        "Terra2",
+        "Near"
+      ],
+      "angle": null,
+      "directory": "evm/031-stader",
+      "status": "pending"
+    },
+    {
+      "name": "Multipli.fi",
+      "slug": "multipli.fi",
+      "category": "Yield",
+      "tvl": 342606854,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Base",
+        "Monad",
+        "Binance",
+        "Avalanche"
+      ],
+      "angle": null,
+      "directory": "evm/032-multipli.fi",
+      "status": "pending"
+    },
+    {
+      "name": "Drift Trade",
+      "slug": "drift-trade",
+      "category": "Derivatives",
+      "tvl": 324810409,
+      "vm": "solana",
+      "chains": [
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "solana/009-drift-trade",
+      "status": "pending"
+    },
+    {
+      "name": "Coinbase Wrapped Staked ETH",
+      "slug": "coinbase-wrapped-staked-eth",
+      "category": "Liquid Staking",
+      "tvl": 297048897,
+      "vm": "evm",
+      "chains": [
+        "Ethereum"
+      ],
+      "angle": null,
+      "directory": "evm/033-coinbase-wrapped-staked-eth",
+      "status": "pending"
+    },
+    {
+      "name": "Dolomite",
+      "slug": "dolomite",
+      "category": "Lending",
+      "tvl": 288252603,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Arbitrum",
+        "Berachain",
+        "Botanix",
+        "Polygon zkEVM",
+        "Mantle",
+        "X Layer"
+      ],
+      "angle": null,
+      "directory": "evm/034-dolomite",
+      "status": "pending"
+    },
+    {
+      "name": "cap",
+      "slug": "cap",
+      "category": "Lending",
+      "tvl": 265345830,
+      "vm": "evm",
+      "chains": [
+        "Ethereum"
+      ],
+      "angle": null,
+      "directory": "evm/035-cap",
+      "status": "pending"
+    },
+    {
+      "name": "Strata Markets",
+      "slug": "strata-markets",
+      "category": "Yield",
+      "tvl": 259232556,
+      "vm": "evm",
+      "chains": [
+        "Ethereum"
+      ],
+      "angle": null,
+      "directory": "evm/036-strata-markets",
+      "status": "pending"
+    },
+    {
+      "name": "GMX V2 Perps",
+      "slug": "gmx-v2-perps",
+      "category": "Derivatives",
+      "tvl": 258942340,
+      "vm": "evm",
+      "chains": [
+        "Arbitrum",
+        "Avalanche",
+        "Botanix"
+      ],
+      "angle": null,
+      "directory": "evm/037-gmx-v2-perps",
+      "status": "pending"
+    },
+    {
+      "name": "Yearn Finance",
+      "slug": "yearn-finance",
+      "category": "Yield Aggregator",
+      "tvl": 257387102,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Katana",
+        "Base",
+        "Optimism",
+        "Polygon",
+        "Arbitrum",
+        "Fantom"
+      ],
+      "angle": null,
+      "directory": "evm/038-yearn-finance",
+      "status": "pending"
+    },
+    {
+      "name": "Marinade Liquid Staking",
+      "slug": "marinade-liquid-staking",
+      "category": "Liquid Staking",
+      "tvl": 255214822,
+      "vm": "solana",
+      "chains": [
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "solana/010-marinade-liquid-staking",
+      "status": "pending"
+    },
+    {
+      "name": "Drift Staked SOL",
+      "slug": "drift-staked-sol",
+      "category": "Liquid Staking",
+      "tvl": 235506705,
+      "vm": "solana",
+      "chains": [
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "solana/011-drift-staked-sol",
+      "status": "pending"
+    },
+    {
+      "name": "Benqi Staked Avax",
+      "slug": "benqi-staked-avax",
+      "category": "Liquid Staking",
+      "tvl": 234527114,
+      "vm": "evm",
+      "chains": [
+        "Avalanche"
+      ],
+      "angle": null,
+      "directory": "evm/039-benqi-staked-avax",
+      "status": "pending"
+    },
+    {
+      "name": "Kamino Liquidity",
+      "slug": "kamino-liquidity",
+      "category": "Liquidity Manager",
+      "tvl": 212953185,
+      "vm": "solana",
+      "chains": [
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "solana/012-kamino-liquidity",
+      "status": "pending"
+    },
+    {
+      "name": "NAVI Lending",
+      "slug": "navi-lending",
+      "category": "Lending",
+      "tvl": 207440356,
+      "vm": "evm",
+      "chains": [
+        "Sui"
+      ],
+      "angle": null,
+      "directory": "evm/040-navi-lending",
+      "status": "pending"
+    },
+    {
+      "name": "Extended",
+      "slug": "extended",
+      "category": "Derivatives",
+      "tvl": 196465160,
+      "vm": "evm",
+      "chains": [
+        "Starknet",
+        "Ethereum"
+      ],
+      "angle": null,
+      "directory": "evm/041-extended",
+      "status": "pending"
+    },
+    {
+      "name": "Cooler Loans",
+      "slug": "cooler-loans",
+      "category": "Lending",
+      "tvl": 189789323,
+      "vm": "evm",
+      "chains": [
+        "Ethereum"
+      ],
+      "angle": null,
+      "directory": "evm/042-cooler-loans",
+      "status": "pending"
+    },
+    {
+      "name": "EtherFi Borrowing Market",
+      "slug": "etherfi-borrowing-market",
+      "category": "Lending",
+      "tvl": 181283769,
+      "vm": "evm",
+      "chains": [
+        "Scroll"
+      ],
+      "angle": null,
+      "directory": "evm/043-etherfi-borrowing-market",
+      "status": "pending"
+    },
+    {
+      "name": "infiniFi",
+      "slug": "infinifi",
+      "category": "Yield",
+      "tvl": 175257674,
+      "vm": "evm",
+      "chains": [
+        "Ethereum"
+      ],
+      "angle": null,
+      "directory": "evm/044-infinifi",
+      "status": "pending"
+    },
+    {
+      "name": "Suilend",
+      "slug": "suilend",
+      "category": "Lending",
+      "tvl": 175179337,
+      "vm": "evm",
+      "chains": [
+        "Sui"
+      ],
+      "angle": null,
+      "directory": "evm/045-suilend",
+      "status": "pending"
+    },
+    {
+      "name": "Liquity V1",
+      "slug": "liquity-v1",
+      "category": "CDP",
+      "tvl": 171979343,
+      "vm": "evm",
+      "chains": [
+        "Ethereum"
+      ],
+      "angle": null,
+      "directory": "evm/046-liquity-v1",
+      "status": "pending"
+    },
+    {
+      "name": "Fluid Lite",
+      "slug": "fluid-lite",
+      "category": "Yield Aggregator",
+      "tvl": 171626309,
+      "vm": "evm",
+      "chains": [
+        "Ethereum"
+      ],
+      "angle": null,
+      "directory": "evm/047-fluid-lite",
+      "status": "pending"
+    },
+    {
+      "name": "Yield Basis",
+      "slug": "yield-basis",
+      "category": "Leveraged Farming",
+      "tvl": 171605364,
+      "vm": "evm",
+      "chains": [
+        "Ethereum"
+      ],
+      "angle": null,
+      "directory": "evm/048-yield-basis",
+      "status": "pending"
+    },
+    {
+      "name": "Venus Flux",
+      "slug": "venus-flux",
+      "category": "Lending",
+      "tvl": 171291315,
+      "vm": "evm",
+      "chains": [
+        "Binance"
+      ],
+      "angle": null,
+      "directory": "evm/049-venus-flux",
+      "status": "pending"
+    },
+    {
+      "name": "Reservoir Protocol",
+      "slug": "reservoir-protocol",
+      "category": "CDP",
+      "tvl": 171195039,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Plasma",
+        "Berachain",
+        "Base",
+        "Optimism",
+        "World Chain",
+        "Mantle",
+        "Arbitrum"
+      ],
+      "angle": null,
+      "directory": "evm/050-reservoir-protocol",
+      "status": "pending"
+    },
+    {
+      "name": "Aster asBNB",
+      "slug": "aster-asbnb",
+      "category": "Yield",
+      "tvl": 167091004,
+      "vm": "evm",
+      "chains": [
+        "Binance"
+      ],
+      "angle": null,
+      "directory": "evm/051-aster-asbnb",
+      "status": "pending"
+    },
+    {
+      "name": "stHYPE",
+      "slug": "sthype",
+      "category": "Liquid Staking",
+      "tvl": 160000973,
+      "vm": "evm",
+      "chains": [
+        "Hyperliquid L1"
+      ],
+      "angle": null,
+      "directory": "evm/052-sthype",
+      "status": "pending"
+    },
+    {
+      "name": "Stake DAO",
+      "slug": "stake-dao",
+      "category": "Yield",
+      "tvl": 151414629,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Base",
+        "Fraxtal",
+        "Arbitrum",
+        "Polygon",
+        "Avalanche",
+        "Sonic",
+        "Optimism",
+        "Linea",
+        "xDai"
+      ],
+      "angle": null,
+      "directory": "evm/053-stake-dao",
+      "status": "pending"
+    },
+    {
+      "name": "Beefy",
+      "slug": "beefy",
+      "category": "Yield Aggregator",
+      "tvl": 150022335,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Base",
+        "Arbitrum",
+        "Fraxtal",
+        "Binance",
+        "Optimism",
+        "Polygon",
+        "Fantom",
+        "Avalanche",
+        "Cronos",
+        "Monad",
+        "Plasma",
+        "Linea",
+        "Metis",
+        "Sonic",
+        "xDai",
+        "Lisk",
+        "Berachain",
+        "RSK",
+        "Mantle",
+        "Canto",
+        "Moonbeam",
+        "Fuse",
+        "Celo",
+        "Aurora",
+        "Moonriver",
+        "zkSync Era",
+        "Kava",
+        "Mode",
+        "Oasis",
+        "Harmony",
+        "Scroll",
+        "Sei",
+        "Hyperliquid L1",
+        "Heco",
+        "Saga",
+        "re.al",
+        "Manta",
+        "Polygon zkEVM",
+        "MegaETH"
+      ],
+      "angle": null,
+      "directory": "evm/054-beefy",
+      "status": "pending"
+    },
+    {
+      "name": "Benqi Lending",
+      "slug": "benqi-lending",
+      "category": "Lending",
+      "tvl": 146832396,
+      "vm": "evm",
+      "chains": [
+        "Avalanche"
+      ],
+      "angle": null,
+      "directory": "evm/055-benqi-lending",
+      "status": "pending"
+    },
+    {
+      "name": "Compound V2",
+      "slug": "compound-v2",
+      "category": "Lending",
+      "tvl": 141707655,
+      "vm": "evm",
+      "chains": [
+        "Ethereum"
+      ],
+      "angle": null,
+      "directory": "evm/056-compound-v2",
+      "status": "pending"
+    },
+    {
+      "name": "Aave V2",
+      "slug": "aave-v2",
+      "category": "Lending",
+      "tvl": 139986543,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Polygon",
+        "Avalanche"
+      ],
+      "angle": null,
+      "directory": "evm/057-aave-v2",
+      "status": "pending"
+    },
+    {
+      "name": "Frax Ether",
+      "slug": "frax-ether",
+      "category": "Liquid Staking",
+      "tvl": 137909190,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Fraxtal"
+      ],
+      "angle": null,
+      "directory": "evm/058-frax-ether",
+      "status": "pending"
+    },
+    {
+      "name": "Echo Lending",
+      "slug": "echo-lending",
+      "category": "Lending",
+      "tvl": 129387863,
+      "vm": "evm",
+      "chains": [
+        "Aptos"
+      ],
+      "angle": null,
+      "directory": "evm/059-echo-lending",
+      "status": "pending"
+    },
+    {
+      "name": "dYdX V4",
+      "slug": "dydx-v4",
+      "category": "Derivatives",
+      "tvl": 124801804,
+      "vm": "evm",
+      "chains": [
+        "dYdX"
+      ],
+      "angle": null,
+      "directory": "evm/060-dydx-v4",
+      "status": "pending"
+    },
+    {
+      "name": "Phantom SOL",
+      "slug": "phantom-sol",
+      "category": "Liquid Staking",
+      "tvl": 123200082,
+      "vm": "solana",
+      "chains": [
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "solana/013-phantom-sol",
+      "status": "pending"
+    },
+    {
+      "name": "Tectonic",
+      "slug": "tectonic",
+      "category": "Lending",
+      "tvl": 122832326,
+      "vm": "evm",
+      "chains": [
+        "Cronos"
+      ],
+      "angle": null,
+      "directory": "evm/061-tectonic",
+      "status": "pending"
+    },
+    {
+      "name": "Aura",
+      "slug": "aura",
+      "category": "Yield",
+      "tvl": 118870811,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Base",
+        "Arbitrum",
+        "xDai",
+        "Optimism",
+        "Polygon",
+        "Fraxtal",
+        "Polygon zkEVM",
+        "Avalanche"
+      ],
+      "angle": null,
+      "directory": "evm/062-aura",
+      "status": "pending"
+    },
+    {
+      "name": "The Vault Liquid Staking",
+      "slug": "the-vault-liquid-staking",
+      "category": "Liquid Staking",
+      "tvl": 112711312,
+      "vm": "solana",
+      "chains": [
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "solana/014-the-vault-liquid-staking",
+      "status": "pending"
+    },
+    {
+      "name": "JPool",
+      "slug": "jpool",
+      "category": "Liquid Staking",
+      "tvl": 111680496,
+      "vm": "solana",
+      "chains": [
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "solana/015-jpool",
+      "status": "pending"
+    },
+    {
+      "name": "Bybit Staked SOL",
+      "slug": "bybit-staked-sol",
+      "category": "Liquid Staking",
+      "tvl": 111460065,
+      "vm": "solana",
+      "chains": [
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "solana/016-bybit-staked-sol",
+      "status": "pending"
+    },
+    {
+      "name": "Homora V2",
+      "slug": "homora-v2",
+      "category": "Leveraged Farming",
+      "tvl": 110273717,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Binance",
+        "Avalanche",
+        "Fantom",
+        "Optimism"
+      ],
+      "angle": null,
+      "directory": "evm/063-homora-v2",
+      "status": "pending"
+    },
+    {
+      "name": "Capyfi",
+      "slug": "capyfi",
+      "category": "Lending",
+      "tvl": 98215490,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "LaChain Network",
+        "World Chain"
+      ],
+      "angle": null,
+      "directory": "evm/064-capyfi",
+      "status": "pending"
+    },
+    {
+      "name": "Ostium",
+      "slug": "ostium",
+      "category": "Derivatives",
+      "tvl": 97305382,
+      "vm": "evm",
+      "chains": [
+        "Arbitrum"
+      ],
+      "angle": null,
+      "directory": "evm/065-ostium",
+      "status": "pending"
+    },
+    {
+      "name": "Lulo",
+      "slug": "lulo",
+      "category": "Yield Aggregator",
+      "tvl": 96997273,
+      "vm": "solana",
+      "chains": [
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "solana/017-lulo",
+      "status": "pending"
+    },
+    {
+      "name": "Liquity V2",
+      "slug": "liquity-v2",
+      "category": "CDP",
+      "tvl": 95599764,
+      "vm": "evm",
+      "chains": [
+        "Ethereum"
+      ],
+      "angle": null,
+      "directory": "evm/066-liquity-v2",
+      "status": "pending"
+    },
+    {
+      "name": "Blend Pools V2",
+      "slug": "blend-pools-v2",
+      "category": "Lending",
+      "tvl": 95533447,
+      "vm": "evm",
+      "chains": [
+        "Stellar"
+      ],
+      "angle": null,
+      "directory": "evm/067-blend-pools-v2",
+      "status": "pending"
+    },
+    {
+      "name": "BlazeStake",
+      "slug": "blazestake",
+      "category": "Liquid Staking",
+      "tvl": 92087993,
+      "vm": "solana",
+      "chains": [
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "solana/018-blazestake",
+      "status": "pending"
+    },
+    {
+      "name": "Derive V2",
+      "slug": "derive-v2",
+      "category": "Derivatives",
+      "tvl": 89878102,
+      "vm": "evm",
+      "chains": [
+        "Optimism",
+        "Ethereum",
+        "Arbitrum",
+        "Hyperliquid L1",
+        "Base",
+        "Blast",
+        "Mode"
+      ],
+      "angle": null,
+      "directory": "evm/068-derive-v2",
+      "status": "pending"
+    },
+    {
+      "name": "Project 0",
+      "slug": "project-0",
+      "category": "Lending",
+      "tvl": 88730573,
+      "vm": "solana",
+      "chains": [
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "solana/019-project-0",
+      "status": "pending"
+    },
+    {
+      "name": "sDAI",
+      "slug": "sdai",
+      "category": "Yield",
+      "tvl": 86478100,
+      "vm": "evm",
+      "chains": [
+        "xDai"
+      ],
+      "angle": null,
+      "directory": "evm/069-sdai",
+      "status": "pending"
+    },
+    {
+      "name": "Loopscale",
+      "slug": "loopscale",
+      "category": "Lending",
+      "tvl": 86269064,
+      "vm": "solana",
+      "chains": [
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "solana/020-loopscale",
+      "status": "pending"
+    },
+    {
+      "name": "AlphaLend",
+      "slug": "alphalend",
+      "category": "Lending",
+      "tvl": 81967632,
+      "vm": "evm",
+      "chains": [
+        "Sui"
+      ],
+      "angle": null,
+      "directory": "evm/070-alphalend",
+      "status": "pending"
+    },
+    {
+      "name": "Infrared Finance",
+      "slug": "infrared-finance",
+      "category": "Liquid Staking",
+      "tvl": 80999849,
+      "vm": "evm",
+      "chains": [
+        "Berachain"
+      ],
+      "angle": null,
+      "directory": "evm/071-infrared-finance",
+      "status": "pending"
+    },
+    {
+      "name": "Avantis",
+      "slug": "avantis",
+      "category": "Derivatives",
+      "tvl": 80533738,
+      "vm": "evm",
+      "chains": [
+        "Base"
+      ],
+      "angle": null,
+      "directory": "evm/072-avantis",
+      "status": "pending"
+    },
+    {
+      "name": "Rhea Lend",
+      "slug": "rhea-lend",
+      "category": "Lending",
+      "tvl": 80394810,
+      "vm": "evm",
+      "chains": [
+        "Near"
+      ],
+      "angle": null,
+      "directory": "evm/073-rhea-lend",
+      "status": "pending"
+    },
+    {
+      "name": "Save",
+      "slug": "save",
+      "category": "Lending",
+      "tvl": 79945426,
+      "vm": "solana",
+      "chains": [
+        "Solana",
+        "Eclipse"
+      ],
+      "angle": null,
+      "directory": "solana/021-save",
+      "status": "pending"
+    },
+    {
+      "name": "Lorenzo sUSD1+",
+      "slug": "lorenzo-susd1+",
+      "category": "Yield",
+      "tvl": 79891222,
+      "vm": "evm",
+      "chains": [
+        "Binance",
+        "Ethereum"
+      ],
+      "angle": null,
+      "directory": "evm/074-lorenzo-susd1+",
+      "status": "pending"
+    },
+    {
+      "name": "Exponent",
+      "slug": "exponent",
+      "category": "Yield",
+      "tvl": 77701938,
+      "vm": "solana",
+      "chains": [
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "solana/022-exponent",
+      "status": "pending"
+    },
+    {
+      "name": "YO Protocol",
+      "slug": "yo-protocol",
+      "category": "Yield Aggregator",
+      "tvl": 77018782,
+      "vm": "evm",
+      "chains": [
+        "Base",
+        "Ethereum",
+        "Arbitrum"
+      ],
+      "angle": null,
+      "directory": "evm/075-yo-protocol",
+      "status": "pending"
+    },
+    {
+      "name": "Edgevana",
+      "slug": "edgevana",
+      "category": "Liquid Staking",
+      "tvl": 73963013,
+      "vm": "solana",
+      "chains": [
+        "Solana"
+      ],
+      "angle": null,
+      "directory": "solana/023-edgevana",
+      "status": "pending"
+    },
+    {
+      "name": "AUTOfinance",
+      "slug": "autofinance",
+      "category": "Yield",
+      "tvl": 73960041,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Base",
+        "Arbitrum",
+        "Plasma",
+        "Sonic"
+      ],
+      "angle": null,
+      "directory": "evm/076-autofinance",
+      "status": "pending"
+    },
+    {
+      "name": "Arrakis Modular",
+      "slug": "arrakis-modular",
+      "category": "Liquidity Manager",
+      "tvl": 73837264,
+      "vm": "evm",
+      "chains": [
+        "Ethereum",
+        "Base",
+        "Arbitrum",
+        "Binance"
+      ],
+      "angle": null,
+      "directory": "evm/077-arrakis-modular",
+      "status": "pending"
+    }
+  ]
+}
