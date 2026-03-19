@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200">
+  <title>Hyperliquid — BTC/ETH/SOL Perpetual Futures</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0d1117; color: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; width: 1200px; height: 675px; overflow: hidden; }
+    .header { padding: 14px 24px 6px; display: flex; justify-content: space-between; align-items: flex-start; }
+    .header h1 { font-size: 20px; font-weight: 600; }
+    .header .angle { font-size: 12px; color: #8b949e; margin-top: 2px; }
+    .stats { display: flex; gap: 2px; }
+    .stat { text-align: center; white-space: nowrap; padding: 4px 12px; background: #161b22; border-radius: 4px; }
+    .stat-value { font-size: 15px; font-weight: 700; line-height: 1.3; }
+    .stat-label { font-size: 7px; color: #6e7681; text-transform: uppercase; letter-spacing: 0.8px; }
+    .stat:nth-child(1) .stat-value { color: #58a6ff; }
+    .stat:nth-child(2) .stat-value { color: #3fb950; }
+    .stat:nth-child(3) .stat-value { color: #d2a8ff; }
+    .stat:nth-child(4) .stat-value { color: #f78166; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 8px; padding: 6px 16px; height: calc(100% - 62px - 22px); }
+    .panel { background: #161b22; border: 1px solid #30363d; border-radius: 6px; position: relative; }
+    .chart { width: 100%; height: 100%; }
+    .footer { padding: 2px 24px 4px; text-align: right; font-size: 9px; color: #484f58; }
+    .footer a { color: #484f58; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>Hyperliquid — BTC/ETH/SOL Perpetual Futures</h1>
+      <div class="angle">Trade fills, volume &amp; long/short ratios for major perps | Hyperliquid L1</div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="grid">
+    <div class="panel"><div class="chart" id="chart1"></div></div>
+    <div class="panel"><div class="chart" id="chart2"></div></div>
+    <div class="panel"><div class="chart" id="chart3"></div></div>
+    <div class="panel"><div class="chart" id="chart4"></div></div>
+  </div>
+  <div class="footer">Built with ai-pipes + SQD Pipes SDK | <a href="https://github.com/karelxfi">github.com/karelxfi</a> | <a href="https://x.com/karelxfi">x.com/karelxfi</a></div>
+<script>
+var CH = 'http://localhost:8123/?user=default&password=password&database=hl_perps';
+var COLORS = ['#58a6ff','#f78166','#3fb950','#d2a8ff','#f0883e','#79c0ff','#7ee787','#d29922','#ff7b72','#a5d6ff'];
+var COIN_COLORS = {BTC:'#f0883e',ETH:'#58a6ff',SOL:'#d2a8ff'};
+
+function query(sql) { return fetch(CH, { method: 'POST', body: sql + ' FORMAT JSON' }).then(function(r){return r.json()}).then(function(j){return j.data||[]}); }
+function fmt(n) { if(n>=1e9) return '$'+(n/1e9).toFixed(2)+'B'; if(n>=1e6) return '$'+(n/1e6).toFixed(1)+'M'; if(n>=1e3) return (n/1e3).toFixed(1)+'K'; return String(n); }
+function fmtN(n) { if(n>=1e6) return (n/1e6).toFixed(2)+'M'; if(n>=1e3) return (n/1e3).toFixed(1)+'K'; return String(n); }
+function shortAddr(a) { return a.substring(0,6)+'..'+a.substring(38); }
+
+function buildStats(d) {
+  var el = document.getElementById('stats');
+  while(el.firstChild) el.removeChild(el.firstChild);
+  [{val:fmtN(+d.total),label:'Total Fills'},{val:fmt(+d.volume),label:'Notional Volume'},{val:fmtN(+d.traders),label:'Traders'},{val:d.first_ts.substring(0,10)+' \u2192 '+d.last_ts.substring(0,10),label:'Period',style:'font-size:11px;color:#8b949e'}].forEach(function(item){
+    var s=document.createElement('div');s.className='stat';
+    var v=document.createElement('div');v.className='stat-value';if(item.style)v.style.cssText=item.style;v.textContent=item.val;
+    var l=document.createElement('div');l.className='stat-label';l.textContent=item.label;
+    s.appendChild(v);s.appendChild(l);el.appendChild(s);
+  });
+}
+
+async function init() {
+  var stats = await query("SELECT count() as total, sum(notional) as volume, count(DISTINCT user) as traders, min(timestamp) as first_ts, max(timestamp) as last_ts FROM hl_perps_fills");
+  buildStats(stats[0]);
+
+  // Chart 1: Fills per 6-hour window by coin (stacked bar)
+  var daily = await query("SELECT toStartOfInterval(timestamp, INTERVAL 6 HOUR) as period, coin, count() as cnt FROM hl_perps_fills GROUP BY period, coin ORDER BY period");
+  var coins = ['BTC','ETH','SOL'];
+  var days = []; var daySet = {};
+  daily.forEach(function(d){var dy=d.period.substring(0,16);if(!daySet[dy]){days.push(dy);daySet[dy]=true;}});
+  days.sort();
+  var byCoin = {}; coins.forEach(function(c){byCoin[c]={};});
+  daily.forEach(function(d){if(byCoin[d.coin]) byCoin[d.coin][d.period.substring(0,16)]=+d.cnt;});
+
+  echarts.init(document.getElementById('chart1')).setOption({
+    title:{text:'Fills per 6-Hour Window',left:12,top:8,textStyle:{color:'#e6edf3',fontSize:13}},
+    tooltip:{trigger:'axis',backgroundColor:'#161b22',borderColor:'#30363d',textStyle:{color:'#e6edf3'}},
+    legend:{right:12,top:8,textStyle:{color:'#8b949e',fontSize:10},data:coins},
+    grid:{left:48,right:16,top:40,bottom:28},
+    xAxis:{type:'category',data:days,axisLabel:{color:'#6e7681',fontSize:9},axisLine:{lineStyle:{color:'#30363d'}}},
+    yAxis:{type:'value',axisLabel:{color:'#6e7681',fontSize:9},splitLine:{lineStyle:{color:'#21262d'}}},
+    series:coins.map(function(c){return{name:c,type:'bar',stack:'total',data:days.map(function(d){return byCoin[c][d]||0;}),itemStyle:{color:COIN_COLORS[c]}};})
+  });
+
+  // Chart 2: Notional volume per 6h by coin (stacked area)
+  var volData = await query("SELECT toStartOfInterval(timestamp, INTERVAL 6 HOUR) as period, coin, sum(notional) as vol FROM hl_perps_fills GROUP BY period, coin ORDER BY period");
+  var volByCoin = {}; coins.forEach(function(c){volByCoin[c]={};});
+  volData.forEach(function(d){if(volByCoin[d.coin]) volByCoin[d.coin][d.period.substring(0,16)]=+d.vol;});
+
+  echarts.init(document.getElementById('chart2')).setOption({
+    title:{text:'Notional Volume (6-hour)',left:12,top:8,textStyle:{color:'#e6edf3',fontSize:13}},
+    tooltip:{trigger:'axis',backgroundColor:'#161b22',borderColor:'#30363d',textStyle:{color:'#e6edf3'},valueFormatter:function(v){return fmt(v);}},
+    legend:{right:12,top:8,textStyle:{color:'#8b949e',fontSize:10},data:coins},
+    grid:{left:56,right:16,top:40,bottom:28},
+    xAxis:{type:'category',data:days,axisLabel:{color:'#6e7681',fontSize:9},axisLine:{lineStyle:{color:'#30363d'}}},
+    yAxis:{type:'value',axisLabel:{color:'#6e7681',fontSize:9,formatter:function(v){return fmt(v);}},splitLine:{lineStyle:{color:'#21262d'}}},
+    series:coins.map(function(c){return{name:c,type:'line',stack:'vol',areaStyle:{opacity:0.4},data:days.map(function(d){return volByCoin[c][d]||0;}),itemStyle:{color:COIN_COLORS[c]},lineStyle:{width:1.5},symbol:'none'};})
+  });
+
+  // Chart 3: Long vs Short ratio by coin (horizontal bar)
+  var dirData = await query("SELECT coin, countIf(dir LIKE '%Long%') as longs, countIf(dir LIKE '%Short%') as shorts FROM hl_perps_fills GROUP BY coin ORDER BY coin");
+  echarts.init(document.getElementById('chart3')).setOption({
+    title:{text:'Long vs Short Fills',left:12,top:8,textStyle:{color:'#e6edf3',fontSize:13}},
+    tooltip:{backgroundColor:'#161b22',borderColor:'#30363d',textStyle:{color:'#e6edf3'}},
+    legend:{right:12,top:8,textStyle:{color:'#8b949e',fontSize:9},data:['Long','Short']},
+    grid:{left:50,right:16,top:36,bottom:16},
+    xAxis:{type:'value',axisLabel:{color:'#6e7681',fontSize:9},splitLine:{lineStyle:{color:'#21262d'}}},
+    yAxis:{type:'category',data:dirData.map(function(d){return d.coin;}),axisLabel:{color:'#8b949e',fontSize:11},axisLine:{lineStyle:{color:'#30363d'}}},
+    series:[
+      {name:'Long',type:'bar',stack:'total',data:dirData.map(function(d){return+d.longs;}),itemStyle:{color:'#3fb950'},label:{show:true,color:'#8b949e',fontSize:9,formatter:'{c}'}},
+      {name:'Short',type:'bar',stack:'total',data:dirData.map(function(d){return+d.shorts;}),itemStyle:{color:'#f78166'},label:{show:true,color:'#8b949e',fontSize:9,formatter:'{c}'}}
+    ]
+  });
+
+  // Chart 4: Top traders by fill count
+  var traders = await query("SELECT user, count() as cnt FROM hl_perps_fills GROUP BY user ORDER BY cnt DESC LIMIT 8");
+  echarts.init(document.getElementById('chart4')).setOption({
+    title:{text:'Top Traders (by fill count)',left:12,top:8,textStyle:{color:'#e6edf3',fontSize:13}},
+    tooltip:{backgroundColor:'#161b22',borderColor:'#30363d',textStyle:{color:'#e6edf3'}},
+    grid:{left:110,right:40,top:36,bottom:16},
+    xAxis:{type:'value',axisLabel:{color:'#6e7681',fontSize:9},splitLine:{lineStyle:{color:'#21262d'}}},
+    yAxis:{type:'category',data:traders.map(function(d){return shortAddr(d.user);}).reverse(),axisLabel:{color:'#8b949e',fontSize:9},axisLine:{lineStyle:{color:'#30363d'}}},
+    series:[{type:'bar',data:traders.map(function(d,i){return{value:+d.cnt,itemStyle:{color:COLORS[i%COLORS.length]}};}).reverse(),
+      label:{show:true,position:'right',color:'#8b949e',fontSize:9,formatter:'{c}'}}]
+  });
+
+  window.__DASHBOARD_READY__ = true;
+}
+init().catch(console.error);
+</script>
+</body>
+</html>

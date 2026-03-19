@@ -55,3 +55,11 @@ Tracked improvements for the Pipes CLI (`@iankressin/pipes-cli`), gathered from 
 ### No Solana ABI/IDL tooling
 - **Source:** solana/001-kamino-lend
 - **Issue:** EVM has `@subsquid/evm-typegen`. Solana needs an equivalent that takes an Anchor IDL and generates Pipes-compatible instruction definitions (d8 discriminators, account maps, borsh codecs). Without this, every Solana indexer requires manual instruction definition.
+
+### No Hyperliquid CLI template
+- **Source:** hyperliquid/001-perps-majors
+- **Issue:** Hyperliquid fills require fully manual project setup. Should add a `hyperliquidFills` template to the CLI that generates the boilerplate (HyperliquidFillsQueryBuilder, coin filter, ClickHouse schema).
+
+### Solana Stake Pool programs not indexable via events
+- **Source:** protocols.json (DoubleZero, Sanctum, Jito, Jupiter Staked SOL, etc.)
+- **Issue:** Solana liquid staking protocols use the native Stake Pool program which doesn't emit traditional events. 8+ protocols from the top 100 DeFi list use this pattern and are currently not indexable. Need instruction-level indexing support.

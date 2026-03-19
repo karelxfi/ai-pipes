@@ -1451,9 +1451,9 @@
       "chains": [
         "Hyperliquid"
       ],
-      "angle": null,
+      "angle": "BTC/ETH/SOL perpetual futures fills \u2014 volume, long/short ratios, top traders",
       "directory": "hyperliquid/001-hyperliquid-perps-majors",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Hyperliquid Whale Tracker",

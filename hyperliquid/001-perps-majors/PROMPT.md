@@ -1,0 +1,1 @@
+Create a Hyperliquid perpetual futures indexer tracking BTC, ETH, and SOL fills on Hyperliquid L1. Index trade fills with price, size, side (buy/sell), direction (open/close long/short), closed PnL, and fees. Dashboard should show fills per 6-hour window by coin, notional volume over time, long vs short ratios, and top traders.
