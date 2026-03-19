@@ -57,6 +57,23 @@ if (!existing.deployments) existing.deployments = {};
 
 let totalChanged = 0;
 
+// Clean up DeFiLlama placeholder entries (empty 'main' contract with no address)
+if (existing.contracts && existing.contracts.main) {
+  const mainHasAddr = Object.values(existing.deployments || {}).some(
+    d => d.addresses && d.addresses.main && d.addresses.main !== ''
+  );
+  if (!mainHasAddr) {
+    delete existing.contracts.main;
+    for (const dep of Object.values(existing.deployments || {})) {
+      if (dep.addresses) delete dep.addresses.main;
+      if (dep.deploymentBlocks) delete dep.deploymentBlocks.main;
+      if (dep.verified) delete dep.verified.main;
+    }
+    console.log('  Removed empty placeholder main contract');
+    totalChanged++;
+  }
+}
+
 for (const [chain, chainUpdate] of Object.entries(update.deployments || {})) {
   // Initialize deployment if missing
   if (!existing.deployments[chain]) {
@@ -87,14 +104,16 @@ for (const [chain, chainUpdate] of Object.entries(update.deployments || {})) {
 
       // Add contract definition if not present
       if (!existing.contracts[name]) {
+        // Use the name from contracts.json if provided, otherwise use the key as-is
+        const displayName = (chainUpdate.contracts[name] && chainUpdate.contracts[name].name) || name;
         existing.contracts[name] = {
-          name: name.charAt(0).toUpperCase() + name.slice(1).replace(/([A-Z])/g, ' \$1').trim(),
-          type: 'core',
-          description: '',
-          proxy: false,
-          keyEvents: [],
-          keyFunctions: [],
-          useCases: []
+          name: displayName,
+          type: (chainUpdate.contracts[name] && chainUpdate.contracts[name].type) || 'core',
+          description: (chainUpdate.contracts[name] && chainUpdate.contracts[name].description) || '',
+          proxy: (chainUpdate.contracts[name] && chainUpdate.contracts[name].proxy) || false,
+          keyEvents: (chainUpdate.contracts[name] && chainUpdate.contracts[name].keyEvents) || [],
+          keyFunctions: (chainUpdate.contracts[name] && chainUpdate.contracts[name].keyFunctions) || [],
+          useCases: (chainUpdate.contracts[name] && chainUpdate.contracts[name].useCases) || []
         };
       }
     }
