@@ -1,0 +1,13 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "liquidity": { "address": "0x52Aa899454998Be5b000Ad077a46Bbe360F4e497", "name": "Fluid Liquidity", "type": "core", "deploymentBlock": null, "verified": true, "proxy": true },
+        "vaultFactory": { "address": "0x324c5Dc1fC42c7a4D43d92df1eBA58a54d13Bf2d", "name": "Vault Factory", "type": "factory", "deploymentBlock": null, "verified": true },
+        "fluidToken": { "address": "0x6f40d4A6237C257fff2dB00FA0510DeEECd303eb", "name": "FLUID Token", "type": "token", "deploymentBlock": null, "verified": true }
+      },
+      "source": "fluid-github",
+      "sourceUrl": "https://github.com/Instadapp/fluid-contracts-public/blob/main/deployments/deployments.md"
+    }
+  }
+}

@@ -17,10 +17,10 @@ Tracked improvements for the Pipes CLI (`@iankressin/pipes-cli`), gathered from 
 ## High Priority
 
 ### Proxy contract ABI resolution
-- **Source:** evm/001-aave-v3, evm/002-lido, evm/003-binance-staked-eth, evm/008-sparklend
+- **Source:** evm/001-aave-v3, evm/002-lido, evm/003-binance-staked-eth, evm/008-sparklend, evm/013-fluid-lending
 - **Issue:** CLI fetches the proxy ABI (only `Upgraded`/`AdminChanged` events) for proxy contracts. This is the #1 failure mode for major DeFi protocols — almost all use proxies. Hit again on SparkLend (ERC-1967 proxy → needed separate typegen on implementation `0x5ae329...`).
 - **Fix:** Auto-detect proxy pattern, resolve implementation address, fetch implementation ABI. Warn if the fetched ABI contains only proxy events.
-- **Frequency:** 8 out of 13 indexers required manual proxy resolution (62%). Not needed for: Morpho V1, Kamino, Pendle (Diamond), Rocket Pool, Venus.
+- **Frequency:** 9 out of 14 indexers required manual proxy resolution (64%). Not needed for: Morpho V1, Kamino, Pendle (Diamond—manual events), Rocket Pool, Venus.
 
 ### Default database name should be project-specific
 - **Source:** evm/003-binance-staked-eth, evm/004-sky-lending, evm/005-morpho-v1

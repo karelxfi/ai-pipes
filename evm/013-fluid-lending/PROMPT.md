@@ -1,0 +1,1 @@
+Create a Fluid (Instadapp) indexer tracking Liquidity Layer operations — supply, withdraw, borrow, and repay events via the unified LogOperate event on Ethereum mainnet. Classify operations by the sign of supplyAmount/borrowAmount. Dashboard should show weekly activity by action, top tokens, action distribution, and top protocols interacting with the Liquidity Layer.

@@ -330,9 +330,9 @@
         "Base",
         "Polygon"
       ],
-      "angle": null,
+      "angle": "Liquidity Layer operations \u2014 unified supply/withdraw/borrow/repay via LogOperate",
       "directory": "evm/013-fluid-lending",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Binance Staked SOL",
