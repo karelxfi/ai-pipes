@@ -1,0 +1,103 @@
+{
+  "protocol": "kamino-lend",
+  "chain": "solana",
+  "deployments": {
+    "solana": {
+      "contracts": {
+        "lendingProgram": {
+          "address": "KLend2g3cP87fffoy8q1mQqGKjrxjC8boSyAYavgmjD",
+          "name": "Kamino Lending (KLend)",
+          "deploymentBlock": null,
+          "verified": true,
+          "notes": "Main lending/borrowing program"
+        },
+        "lendingProgramStaging": {
+          "address": "SLendK7ySfcEzyaFqy93gDnD3RtrpXJcnRwb6zFHJSh",
+          "name": "Kamino Lending (Staging)",
+          "deploymentBlock": null,
+          "verified": true,
+          "notes": "Staging deployment on mainnet — do NOT index"
+        },
+        "vaultProgram": {
+          "address": "kvauTFR8qm1dhniz6pYuBZkuene3Hfrs1VQhVRgCNrr",
+          "name": "Kamino Vault (KVault)",
+          "deploymentBlock": null,
+          "verified": true,
+          "notes": "Lending vault program, used by KaminoManager alongside KLend"
+        },
+        "liquidityProgram": {
+          "address": "6LtLpnUFNByNXLyCoK9wA2MykKAmQNZKBdY8s47dehDc",
+          "name": "Kamino Liquidity (KLiquidity)",
+          "deploymentBlock": null,
+          "verified": true,
+          "notes": "Automated CLMM vaults — manages concentrated liquidity on Orca, Raydium, Meteora"
+        },
+        "farmsProgram": {
+          "address": "FarmsPZpWu9i7Kky8tPN37rs2TpmMrAZrC7S7vJa91Hr",
+          "name": "Kamino Farms (KFarms)",
+          "deploymentBlock": null,
+          "verified": true,
+          "notes": "Staking/farming rewards program"
+        },
+        "scopeOracle": {
+          "address": "HFn8GnPADiny6XqUoWE8uRPPxb29ikn4yTuPa9MF2fWJ",
+          "name": "Scope Oracle",
+          "deploymentBlock": null,
+          "verified": true,
+          "notes": "Price oracle aggregator — aggregates Pyth, Switchboard, etc."
+        }
+      },
+      "accounts": {
+        "mainLendingMarket": {
+          "address": "7u3HeHxYDLhnCoErrtycNokbQYbWGzLs6JSDqGAv5PfF",
+          "name": "Main Lending Market",
+          "notes": "Primary KLend market account (not a program, a data account)"
+        },
+        "farmsGlobalConfig": {
+          "address": "6UodrBjL2ZreDy7QdR4YV1oxqMBjVYSEyrFpctqqwGwL",
+          "name": "Farms Global Config",
+          "notes": "Global configuration account for KFarms"
+        }
+      },
+      "token": {
+        "KMNO": {
+          "address": "KMNo3nJsBXfcpJTVhZcXLW7RmTwTt4GVFE7suUBo9sS",
+          "name": "Kamino (KMNO)",
+          "notes": "Governance token"
+        }
+      },
+      "sources": [
+        {
+          "name": "klend GitHub NOTICE",
+          "url": "https://github.com/Kamino-Finance/klend",
+          "verified": ["lendingProgram", "lendingProgramStaging"]
+        },
+        {
+          "name": "klend-sdk npm (programId.js)",
+          "url": "https://www.npmjs.com/package/@kamino-finance/klend-sdk",
+          "verified": ["lendingProgram"]
+        },
+        {
+          "name": "kliquidity-sdk GitHub",
+          "url": "https://github.com/Kamino-Finance/kliquidity-sdk",
+          "verified": ["liquidityProgram"]
+        },
+        {
+          "name": "farms-sdk npm (programId.ts)",
+          "url": "https://www.npmjs.com/package/@kamino-finance/farms-sdk",
+          "verified": ["farmsProgram"]
+        },
+        {
+          "name": "scope-sdk npm (programId.ts)",
+          "url": "https://www.npmjs.com/package/@kamino-finance/scope-sdk",
+          "verified": ["scopeOracle"]
+        },
+        {
+          "name": "klend-sdk .env.example",
+          "url": "https://github.com/Kamino-Finance/klend-sdk",
+          "verified": ["vaultProgram", "mainLendingMarket"]
+        }
+      ]
+    }
+  }
+}
