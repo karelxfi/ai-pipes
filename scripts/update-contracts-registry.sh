@@ -148,9 +148,8 @@ echo ""
 echo "Building registry to validate..."
 npm run build 2>&1 | tail -3
 
-# Commit on a branch
-BRANCH="ai-pipes-${SLUG}-$(date +%Y%m%d)"
-git checkout -b "$BRANCH" 2>/dev/null || git checkout "$BRANCH" 2>/dev/null || true
+# Commit directly to main and push
+git checkout main 2>/dev/null || true
 git add "data/sources/protocols/$SLUG/" "data/generated/" "docs/"
 git commit -m "feat: Add verified $SLUG contract addresses
 
@@ -158,6 +157,8 @@ Source: ai-pipes indexer generation
 Verified against: Block explorer + SQD Portal cross-reference
 Chains: $(node -e "const d=JSON.parse(require('fs').readFileSync('$CONTRACT_JSON','utf8')); console.log(Object.keys(d.deployments||{}).join(', '))")"
 
+echo "Pushing to main..."
+git push origin main
+
 echo ""
-echo "Committed on branch: $BRANCH"
-echo "To create PR: cd $REGISTRY_DIR && gh pr create"
+echo "Pushed verified $SLUG addresses to contracts-registry-llm"
