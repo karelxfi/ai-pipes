@@ -31,6 +31,16 @@ Tracked improvements for the Pipes CLI (`@iankressin/pipes-cli`), gathered from 
 - **Issue:** Every single generated project requires manually adding `clickhouse-data:/var/lib/clickhouse` volume and CORS XML mount to docker-compose.yml. Without the volume, data is lost on container restart. Without CORS, browser dashboards can't query ClickHouse.
 - **Fix:** Include both in the docker-compose template by default.
 
+### Custom template only supports single contract
+- **Source:** evm/006-maple
+- **Issue:** The `custom` template accepts one contract in the config. For protocols with multiple contracts sharing the same ABI (e.g., Maple's 3 pool contracts), the user must manually modify `src/index.ts` to add extra addresses to the `contracts` array.
+- **Fix:** Allow `contracts` array in config to accept multiple addresses per ABI, e.g. `"contractAddresses": ["0xaaa", "0xbbb", "0xccc"]` alongside the single `contractAddress`.
+
+### Diamond proxy produces empty contract file
+- **Source:** evm/007-pendle
+- **Issue:** When the CLI fetches ABI for a Diamond proxy (EIP-2535) like Pendle's Router, typegen produces an empty `Contract` class with no events. The user gets no error — just silently broken code that compiles but indexes zero events.
+- **Fix:** Detect when typegen produces zero events and warn the user. Suggest checking if the contract is a Diamond proxy and provide the manual event definition fallback.
+
 ## Nice to Have
 
 ### Event signature validation
