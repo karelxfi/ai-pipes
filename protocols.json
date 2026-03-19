@@ -441,9 +441,9 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": null,
+      "angle": "Staking flow & exchange rate \u2014 ETH inflows/outflows and implicit mETH/ETH rate",
       "directory": "evm/018-meth-protocol",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Lista Liquid Staking",

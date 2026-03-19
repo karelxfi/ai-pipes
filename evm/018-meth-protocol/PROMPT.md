@@ -1,0 +1,1 @@
+Index mETH Protocol staking activity on Ethereum to track ETH staking inflows/outflows and the implicit mETH/ETH exchange rate. The Staking contract (proxy: 0xe3cBd06D7dadB3F4e6557bAb7EdD924CD1489E8f) emits Staked, UnstakeRequested, UnstakeRequestClaimed, and ReturnsReceived events. Track the ETH/mETH amounts to derive the exchange rate evolution over time.

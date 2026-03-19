@@ -1,0 +1,10 @@
+{
+  "date": "2026-03-19",
+  "pipes_sdk_version": "0.1.0-beta.15",
+  "agent_skills_version": "latest",
+  "claude_model": "claude-opus-4-6",
+  "prompt_file": "PROMPT.md",
+  "angle": "Staking flow & exchange rate — ETH inflows/outflows and implicit mETH/ETH rate from Staked events",
+  "runtime_status": "working",
+  "validation_status": "passed"
+}
