@@ -5,10 +5,15 @@ Tracked improvements for `subsquid-labs/agent-skills`, gathered from real indexe
 ## pipes-new-indexer Skill
 
 ### Non-standard proxy patterns (Aragon, Diamond, UUPS)
-- **Source:** evm/002-lido
-- **Issue:** Skill only documents standard ERC-1967 proxies. Lido uses Aragon's `AppProxyUpgradeable` which neither CLI nor typegen can resolve. Required manually writing contract types and computing keccak256 topic0.
-- **Fix:** Add section about non-standard proxy patterns and the manual contract type creation fallback.
-- **Status:** Patched locally, PR submitted.
+- **Source:** evm/002-lido, evm/007-pendle
+- **Issue:** Skill only documents standard ERC-1967 proxies. Lido uses Aragon's `AppProxyUpgradeable`, Pendle Router uses Diamond proxy (EIP-2535). Both cause typegen to return empty/proxy-only ABI.
+- **Fix:** Updated with real working example using `event()` + `indexed()` from `@subsquid/evm-abi` (not the outdated `LogEvent` pattern). Added detection guidance and event signature version change warnings.
+- **Status:** Patched locally. Updated with Pendle experience (2026-03-19).
+
+### Event signature version changes across upgrades
+- **Source:** evm/007-pendle
+- **Issue:** Pendle's `SwapYtAndToken` event changed its data layout between Router versions. Older events have fewer non-indexed parameters than the current ABI. Causes `EventDecodingError: Offset is outside the bounds of the DataView`.
+- **Fix:** Added warning about version changes to the Diamond proxy section. Workaround: remove the problematic event or filter to blocks after the upgrade.
 
 ### Proxy detection should be a mandatory pre-step
 - **Source:** evm/001-aave-v3
