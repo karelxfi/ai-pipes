@@ -15,16 +15,20 @@ npx skills add subsquid-labs/agent-skills --all
 Use the `/generate-indexer` command or follow this workflow manually:
 
 1. Pick a protocol from `protocols.json` (status: "pending")
-2. Research the protocol to find a compelling, protocol-specific angle
+2. **Check contracts-registry first** — look up the protocol in `/Users/kb/dev/personal/contracts-registry-llm/data/sources/protocols/<slug>/`
+   - If it has verified addresses, use them directly (skip research)
+   - If empty/placeholder, proceed to research
+3. Research the protocol to find a compelling, protocol-specific angle
    - NOT generic "index Transfer events"
    - Find what makes this protocol unique and build around that
    - The angle should produce a visually interesting dashboard
-3. Use the `pipes-new-indexer` skill to scaffold the indexer
-4. Place the example in the correct VM directory:
+4. Use the `pipes-new-indexer` skill to scaffold the indexer
+5. Place the example in the correct VM directory:
    - `evm/NNN-slug/` for EVM chains
    - `solana/NNN-slug/` for Solana
    - `hyperliquid/NNN-slug/` for Hyperliquid
-5. For multi-chain EVM protocols, default to Ethereum mainnet unless primarily deployed elsewhere
+6. For multi-chain EVM protocols, default to Ethereum mainnet unless primarily deployed elsewhere
+7. **After validation passes**, update contracts-registry with verified addresses (see below)
 
 ## Per-Example Checklist
 
@@ -44,6 +48,7 @@ Every generated example MUST include:
 - [ ] `validate.ts` — structural validation (schema, counts, ranges) + truth verification (Portal cross-reference + tx spot-checks)
 - [ ] `dashboard/index.html` — standalone dark-themed dashboard with Apache ECharts
 - [ ] `dashboard/screenshot.png` — captured screenshot of populated dashboard with REAL data
+- [ ] `contracts.json` — ALL verified contract addresses across ALL chains (for contracts-registry)
 
 ## Validation (MANDATORY — never skip)
 
@@ -244,6 +249,66 @@ After each example, update two root-level files:
 - **`AGENT_SKILLS_IMPROVEMENTS.md`** — Issues with agent-skills (skill docs, workflows, missing patterns). These get submitted as PRs to `subsquid-labs/agent-skills` via `scripts/submit-skills-pr.sh`.
 
 Each example's `IMPROVEMENTS.md` is the raw notes. The root files are the consolidated, deduplicated tracking lists. Don't duplicate entries — update existing ones with new source references if the same issue recurs.
+
+## Contracts Registry Integration
+
+This repo feeds verified contract addresses back to [contracts-registry-llm](https://github.com/karelxfi/contracts-registry-llm) — a structured registry of smart contract addresses for AI agents.
+
+### How it works
+
+Every indexer generation verifies contract addresses (via Etherscan, Portal cross-reference, tx spot-checks). These verified addresses are valuable and should be contributed back.
+
+### After each indexer — capture ALL contracts
+
+**This is not optional.** When researching a protocol, capture EVERY deployed contract across EVERY chain — not just the one event we're indexing. Most protocols publish a full address list in their docs. Find it.
+
+Where to find addresses:
+- Official docs (e.g., Morpho's `/get-started/resources/addresses/` — click EVERY tab for each chain)
+- GitHub repos (deployment scripts, address constants)
+- Block explorer verified contracts
+- Protocol dashboards / governance portals
+
+1. Create a `contracts.json` in the example directory with ALL verified addresses across ALL chains:
+```json
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "morpho": { "address": "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb", "deploymentBlock": 18883124, "verified": true },
+        "adaptiveCurveIrm": { "address": "0x870aC11D48B15DB9a138Cf899d20F13F79Ba00BC", "deploymentBlock": 18883153, "verified": true },
+        "morphoVaults": { "address": "0x...", "deploymentBlock": null, "verified": true }
+      },
+      "source": "morpho-docs",
+      "sourceUrl": "https://docs.morpho.org/get-started/resources/addresses/"
+    },
+    "base": {
+      "contracts": {
+        "morpho": { "address": "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb", "deploymentBlock": null, "verified": true }
+      },
+      "source": "morpho-docs",
+      "sourceUrl": "https://docs.morpho.org/get-started/resources/addresses/"
+    }
+  }
+}
+```
+
+2. Run the update script (it processes all chains):
+```bash
+./scripts/update-contracts-registry.sh <slug> <path-to-contracts.json>
+```
+
+3. The script merges addresses into the registry's protocol file and creates a branch for PR.
+
+### What gets verified
+- Contract addresses match on-chain data (Portal cross-reference)
+- Deployment blocks are correct
+- Contracts are verified on block explorers
+- Source attribution is included
+
+### When to skip
+- Protocol is on an unsupported chain (Tron, Sui, Near, etc.)
+- Protocol has no discoverable on-chain contracts (off-chain infrastructure)
+- Registry already has complete, up-to-date addresses for this protocol
 
 ## Conventions
 
