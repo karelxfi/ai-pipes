@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200">
+  <title>Lista Liquid Staking — slisBNB Staking Lifecycle</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0d1117; color: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; width: 1200px; height: 675px; overflow: hidden; }
+    .header { padding: 14px 24px 6px; display: flex; justify-content: space-between; align-items: flex-start; }
+    .header h1 { font-size: 20px; font-weight: 600; }
+    .header .angle { font-size: 12px; color: #8b949e; margin-top: 2px; }
+    .stats { display: flex; gap: 20px; }
+    .stat { text-align: center; }
+    .stat-value { font-size: 22px; font-weight: 700; color: #58a6ff; line-height: 1.2; }
+    .stat-label { font-size: 8px; color: #6e7681; text-transform: uppercase; letter-spacing: 1px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 8px; padding: 6px 16px; height: calc(100% - 62px - 22px); }
+    .panel { background: #161b22; border: 1px solid #30363d; border-radius: 6px; position: relative; }
+    .chart { width: 100%; height: 100%; }
+    .footer { padding: 2px 24px 4px; text-align: right; font-size: 9px; color: #484f58; }
+    .footer a { color: #58a6ff; text-decoration: none; opacity: 0.5; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>Lista Liquid Staking — slisBNB Staking Lifecycle</h1>
+      <div class="angle">BNB deposits, unstake requests, and withdrawal claims on Lista DAO's slisBNB | BSC</div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="grid">
+    <div class="panel"><div class="chart" id="chart1"></div></div>
+    <div class="panel"><div class="chart" id="chart2"></div></div>
+    <div class="panel"><div class="chart" id="chart3"></div></div>
+    <div class="panel"><div class="chart" id="chart4"></div></div>
+  </div>
+  <div class="footer">Built with ai-pipes + SQD Pipes SDK | <a href="https://github.com/karelxfi">github.com/karelxfi</a> | <a href="https://x.com/karelxfi">x.com/karelxfi</a></div>
+
+  <script>
+    var CH = 'http://localhost:8123';
+    var DB = 'lista_liquid_staking';
+    var T = 'lista_staking_events';
+
+    function q(sql) {
+      return fetch(CH + '/?database=' + DB + '&user=default&password=password&query=' + encodeURIComponent(sql + ' FORMAT JSON'))
+        .then(function(r) { return r.json(); })
+        .then(function(j) { return j.data; });
+    }
+
+    var PALETTE = ['#58a6ff','#f78166','#3fb950','#d2a8ff','#f0883e','#79c0ff','#7ee787','#d29922','#ff7b72','#a5d6ff'];
+    var typeColors = { deposit: '#3fb950', request_withdraw: '#f78166', claim_withdrawal: '#d2a8ff' };
+
+    function darkOpts(title) {
+      return {
+        backgroundColor: 'transparent',
+        title: { text: title, textStyle: { color: '#8b949e', fontSize: 11, fontWeight: 'normal' }, left: 10, top: 8 },
+        textStyle: { color: '#8b949e' },
+        tooltip: { backgroundColor: '#1c2128', borderColor: '#30363d', textStyle: { color: '#e6edf3', fontSize: 11 } },
+        grid: { left: 50, right: 16, top: 36, bottom: 28 },
+      };
+    }
+
+    function fmt(n) {
+      if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+      return String(Math.round(n));
+    }
+
+    async function init() {
+      var totals = await q("SELECT count() as total, countIf(event_type='deposit') as deposits, countIf(event_type='request_withdraw') as withdraws, uniq(user_address) as users, min(timestamp) as min_ts, max(timestamp) as max_ts FROM " + T);
+      var st = totals[0];
+      var period = (st.min_ts || '').slice(0, 10) + ' \u2192 ' + (st.max_ts || '').slice(0, 10);
+      var statsEl = document.getElementById('stats');
+      [
+        {v: fmt(parseInt(st.total)), l: 'Total Events'},
+        {v: fmt(parseInt(st.deposits)), l: 'Deposits'},
+        {v: fmt(parseInt(st.withdraws)), l: 'Unstakes'},
+        {v: fmt(parseInt(st.users)), l: 'Unique Users'},
+        {v: period, l: 'Period', small: true}
+      ].forEach(function(s) {
+        var d = document.createElement('div'); d.className = 'stat';
+        var vl = document.createElement('div'); vl.className = 'stat-value';
+        if (s.small) vl.style.fontSize = '11px';
+        vl.textContent = s.v;
+        var lb = document.createElement('div'); lb.className = 'stat-label'; lb.textContent = s.l;
+        d.appendChild(vl); d.appendChild(lb); statsEl.appendChild(d);
+      });
+
+      // Chart 1: Daily Activity — stacked bar by event type
+      var daily = await q("SELECT toStartOfWeek(timestamp) as week, event_type, count() as n FROM " + T + " GROUP BY week, event_type ORDER BY week");
+      var weeks = []; var weekSet = {}; var seriesData = {};
+      var types = ['deposit', 'request_withdraw', 'claim_withdrawal'];
+      types.forEach(function(t) { seriesData[t] = {}; });
+      daily.forEach(function(r) {
+        if (!weekSet[r.week]) { weekSet[r.week] = true; weeks.push(r.week); }
+        seriesData[r.event_type][r.week] = parseInt(r.n);
+      });
+      var ch1 = echarts.init(document.getElementById('chart1'));
+      ch1.setOption(Object.assign(darkOpts('Weekly Activity by Event Type'), {
+        legend: { data: types, textStyle: { color: '#8b949e', fontSize: 9 }, top: 6, right: 16, itemWidth: 10, itemHeight: 10 },
+        grid: { left: 50, right: 16, top: 32, bottom: 28 },
+        xAxis: { type: 'category', data: weeks, axisLabel: { color: '#6e7681', fontSize: 9 }, axisLine: { lineStyle: { color: '#30363d' } }, splitLine: { show: false } },
+        yAxis: { type: 'value', axisLabel: { color: '#6e7681', fontSize: 9 }, axisLine: { show: false }, splitLine: { lineStyle: { color: '#21262d' } } },
+        tooltip: { trigger: 'axis' },
+        series: types.map(function(t) {
+          return { name: t, type: 'bar', stack: 'total', itemStyle: { color: typeColors[t] },
+            data: weeks.map(function(w) { return seriesData[t][w] || 0; }) };
+        }),
+      }));
+
+      // Chart 2: Event Type Distribution — treemap
+      var dist = await q("SELECT event_type, count() as n FROM " + T + " GROUP BY event_type ORDER BY n DESC");
+      var ch2 = echarts.init(document.getElementById('chart2'));
+      ch2.setOption({
+        backgroundColor: 'transparent',
+        title: { text: 'Event Type Distribution', textStyle: { color: '#8b949e', fontSize: 11, fontWeight: 'normal' }, left: 10, top: 8 },
+        tooltip: { backgroundColor: '#1c2128', borderColor: '#30363d', textStyle: { color: '#e6edf3', fontSize: 11 } },
+        series: [{
+          type: 'treemap', top: 32, left: 8, right: 8, bottom: 8, roam: false, nodeClick: false, breadcrumb: { show: false },
+          label: { show: true, color: '#e6edf3', fontSize: 13, fontWeight: 'bold', formatter: function(p) { return p.name + '\n' + fmt(p.value); } },
+          itemStyle: { borderColor: '#0d1117', borderWidth: 2, gapWidth: 2 },
+          data: dist.map(function(d) { return { value: parseInt(d.n), name: d.event_type, itemStyle: { color: typeColors[d.event_type] || PALETTE[0] } }; }),
+        }],
+      });
+
+      // Chart 3: Top Stakers by deposit count — horizontal bar
+      var topStakers = await q("SELECT user_address, count() as n FROM " + T + " WHERE event_type = 'deposit' GROUP BY user_address ORDER BY n DESC LIMIT 10");
+      var ch3 = echarts.init(document.getElementById('chart3'));
+      ch3.setOption(Object.assign(darkOpts('Top Depositors (by count)'), {
+        grid: { left: 90, right: 40, top: 36, bottom: 12 },
+        xAxis: { type: 'value', axisLabel: { color: '#6e7681', fontSize: 9 }, splitLine: { lineStyle: { color: '#21262d' } } },
+        yAxis: { type: 'category', data: topStakers.map(function(d){return d.user_address.slice(0,6)+'..'+d.user_address.slice(-4);}).reverse(), axisLabel: { color: '#e6edf3', fontSize: 9 }, axisLine: { lineStyle: { color: '#30363d' } } },
+        series: [{
+          type: 'bar',
+          data: topStakers.map(function(d,i){return {value: parseInt(d.n), itemStyle: {color: PALETTE[i % PALETTE.length]}};}).reverse(),
+          label: { show: true, position: 'right', color: '#8b949e', fontSize: 9, formatter: function(p){return fmt(p.value);} },
+          barMaxWidth: 16
+        }],
+      }));
+
+      // Chart 4: Cumulative Net BNB Flow
+      var cumul = await q("SELECT toStartOfWeek(timestamp) as week, sumIf(toFloat64(amount)/1e18, event_type='deposit') as deposited, sumIf(toFloat64(amount)/1e18, event_type='claim_withdrawal') as claimed FROM " + T + " GROUP BY week ORDER BY week");
+      var runDep = 0; var runClaim = 0;
+      var cumulData = cumul.map(function(d) {
+        runDep += parseFloat(d.deposited);
+        runClaim += parseFloat(d.claimed);
+        return { week: d.week, net: runDep - runClaim };
+      });
+      var ch4 = echarts.init(document.getElementById('chart4'));
+      ch4.setOption(Object.assign(darkOpts('Cumulative Net BNB Staked'), {
+        xAxis: { type: 'category', data: cumulData.map(function(d){return d.week;}), axisLabel: { color: '#6e7681', fontSize: 9 }, axisLine: { lineStyle: { color: '#30363d' } }, splitLine: { show: false } },
+        yAxis: { type: 'value', axisLabel: { color: '#6e7681', fontSize: 9, formatter: function(v){return fmt(v);} }, axisLine: { show: false }, splitLine: { lineStyle: { color: '#21262d' } } },
+        tooltip: { trigger: 'axis', formatter: function(p) { return p[0].axisValue + '<br/>Net BNB: <b>' + fmt(p[0].value) + '</b>'; } },
+        series: [{
+          type: 'line', symbol: 'none', lineStyle: { width: 2, color: '#3fb950' },
+          areaStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(63,185,80,0.3)'},{offset:1,color:'rgba(63,185,80,0.02)'}]) },
+          data: cumulData.map(function(d){return Math.round(d.net);})
+        }],
+      }));
+
+      window.__DASHBOARD_READY__ = true;
+    }
+
+    init().catch(function(err) {
+      console.error('Dashboard error:', err);
+      var e = document.createElement('div');
+      e.style.cssText = 'color:#f78166;padding:24px;font-size:14px';
+      e.textContent = 'Error: ' + err.message;
+      document.body.appendChild(e);
+    });
+  </script>
+</body>
+</html>

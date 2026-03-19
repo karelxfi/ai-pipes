@@ -1,0 +1,20 @@
+{
+  "deployments": {
+    "bsc": {
+      "contracts": {
+        "listaStakeManager": { "address": "0x1adB950d8bB3dA4bE104211D5AB038628e477fE6", "deploymentBlock": null, "verified": true },
+        "slisBNB": { "address": "0xB0b84D294e0C75A6abe60171b70edEb2EFd14A1B", "deploymentBlock": null, "verified": true },
+        "slisBNBOFTAdaptor": { "address": "0x82f5bcD1473BDa5794239D01073797093a413f02", "deploymentBlock": null, "verified": true }
+      },
+      "source": "lista-docs",
+      "sourceUrl": "https://docs.bsc.lista.org/for-developer/liquid-staking-slisbnb/smart-contract"
+    },
+    "ethereum": {
+      "contracts": {
+        "slisBNB": { "address": "0x44388Ef3bc730BDE8670a3b4831281dd7E89C584", "deploymentBlock": null, "verified": true }
+      },
+      "source": "lista-docs",
+      "sourceUrl": "https://docs.bsc.lista.org/for-developer/liquid-staking-slisbnb/smart-contract"
+    }
+  }
+}

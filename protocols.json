@@ -454,9 +454,9 @@
       "chains": [
         "Binance"
       ],
-      "angle": null,
+      "angle": "slisBNB staking lifecycle \u2014 BNB deposits, unstake requests, and claims",
       "directory": "evm/019-lista-liquid-staking",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Liquid Collective",

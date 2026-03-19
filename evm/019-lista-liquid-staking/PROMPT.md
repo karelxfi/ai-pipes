@@ -1,0 +1,1 @@
+Index Lista Liquid Staking (slisBNB) activity on BSC to track the full BNB staking lifecycle. The ListaStakeManager contract (proxy: 0x1adB950d8bB3dA4bE104211D5AB038628e477fE6) emits Deposit, RequestWithdraw, and ClaimWithdrawal events. Track staking inflows/outflows and user activity over time.
