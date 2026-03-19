@@ -1,0 +1,52 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "wBETH": {
+          "address": "0xa2E3356610840701BDf5611a53974510Ae27E2e1",
+          "deploymentBlock": 17080241,
+          "verified": true,
+          "type": "proxy",
+          "implementation": "0x9E021c9607bd3adb7424d3b25a2d35763ff180bb",
+          "notes": "FiatTokenProxy (AdminUpgradeabilityProxy). Implementation is WrapTokenV3ETH which handles ETH deposits, exchange rate updates, and withdrawals."
+        },
+        "UnwrapTokenProxy": {
+          "address": "0x79973d557CD9dd87eb61E250cc2572c990e20196",
+          "deploymentBlock": null,
+          "verified": true,
+          "type": "proxy",
+          "implementation": "0x542059d658624DF6452b22B10302A15a6AB59f10",
+          "notes": "UnwrapTokenProxy — handles wBETH unwrapping/redemption to ETH. Implementation is UnwrapTokenV1ETH. Created by Binance: Deployer 12."
+        }
+      },
+      "source": "binance",
+      "sourceUrl": "https://etherscan.io/address/0xa2E3356610840701BDf5611a53974510Ae27E2e1"
+    },
+    "bsc": {
+      "contracts": {
+        "wBETH": {
+          "address": "0xa2E3356610840701BDf5611a53974510Ae27E2e1",
+          "deploymentBlock": null,
+          "verified": true,
+          "type": "proxy",
+          "implementation": "0xfe928a7d8be9c8cece7e97f0ed5704f4fa2cb42a",
+          "notes": "FiatTokenProxy on BSC. Same address as Ethereum deployment. Contract verified 2023-04-19. Previous implementation was 0xa77e9ac1a564d56e0a36b6f5126e881e3c5208ed."
+        }
+      },
+      "source": "binance",
+      "sourceUrl": "https://bscscan.com/address/0xa2E3356610840701BDf5611a53974510Ae27E2e1"
+    }
+  },
+  "metadata": {
+    "protocol": "Binance Staked ETH",
+    "slug": "binance-staked-eth",
+    "token": "wBETH",
+    "description": "Wrapped Beacon ETH — Binance liquid staking token. 1 wBETH represents 1 staked ETH plus accrued staking rewards. Exchange rate is updated by a centralized Binance-controlled oracle (ExchangeRateUpdater). The wBETH contract has an exchangeRate() view function that returns the current wBETH:ETH rate.",
+    "launchDate": "2023-04-19",
+    "keyFunctions": [
+      "exchangeRate() — returns current wBETH:ETH conversion rate",
+      "deposit(address referral) — stake ETH to mint wBETH",
+      "requestWithdrawEth(uint256 wbethAmount) — burn wBETH to request ETH withdrawal"
+    ]
+  }
+}
