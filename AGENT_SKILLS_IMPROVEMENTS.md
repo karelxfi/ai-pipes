@@ -81,6 +81,16 @@ Tracked improvements for `subsquid-labs/agent-skills`, gathered from real indexe
 - **Issue:** `contracts` expects `['0xABC...']` (string array) but the factory pattern uses `factory({ address: ['0xABC...'] })`. Easy to confuse the two, causing `contract.toLowerCase is not a function`.
 - **Fix:** Add a clear note: "For static contracts, pass an array of address strings. For dynamic factory-deployed contracts, use the `factory()` helper."
 
+### portal-query-solana-instructions: `signatures` not `signature`
+- **Source:** solana/003-sanctum-router
+- **Issue:** Portal Solana transaction fields use `signatures` (plural, array) not `signature`. Using `signature` causes "unknown field" error.
+- **Fix:** Document valid Solana transaction fields in the skill. Key ones: `signatures`, `accountKeys`, `feePayer`, `err`, `fee`, `computeUnitsConsumed`.
+
+### portal-query-solana-instructions: volume estimation before building indexer
+- **Source:** solana/003-sanctum-router
+- **Issue:** Built a Router-only indexer before discovering it has ~2 instructions per 1K slots. Most Sanctum activity flows through S Controller (Infinity pool). Should verify volume first.
+- **Fix:** Add workflow step: "Before building, query Portal for instruction count in a 10K slot sample. If < 50 instructions, investigate related programs."
+
 ## Pipes SDK Suggestions
 
 ### `solanaInstructionDecoder` classify-only mode

@@ -288,9 +288,9 @@
       "chains": [
         "Solana"
       ],
-      "angle": null,
-      "directory": "solana/003-sanctum-validator-lsts",
-      "status": "pending"
+      "angle": "Validator LST swap flow \u2014 1000+ LSTs across Router, Infinity, Unstake",
+      "directory": "solana/003-sanctum-router",
+      "status": "done"
     },
     {
       "name": "Jito Liquid Staking",

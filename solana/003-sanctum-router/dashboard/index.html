@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200">
+  <title>Sanctum Router — Validator LST Swap Flow</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      width: 1200px;
+      height: 675px;
+      overflow: hidden;
+    }
+    .header {
+      padding: 14px 24px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .header h1 { font-size: 20px; font-weight: 600; color: #e6edf3; }
+    .header .angle { font-size: 12px; color: #8b949e; margin-top: 2px; }
+    .stats { display: flex; gap: 20px; }
+    .stat { text-align: center; }
+    .stat-value { font-size: 22px; font-weight: 700; color: #58a6ff; line-height: 1.2; }
+    .stat-label { font-size: 8px; color: #6e7681; text-transform: uppercase; letter-spacing: 1px; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 8px;
+      padding: 6px 16px;
+      height: calc(100% - 62px - 22px);
+    }
+    .panel {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      position: relative;
+    }
+    .chart { width: 100%; height: 100%; }
+    .footer {
+      padding: 2px 24px 4px;
+      text-align: right;
+      font-size: 9px;
+      color: #484f58;
+    }
+    .footer a { color: #58a6ff; text-decoration: none; opacity: 0.5; }
+    .footer a:hover { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>Sanctum Router — Validator LST Swap Flow</h1>
+      <div class="angle">How stake flows between validator LSTs via Sanctum's swap router | Solana Mainnet</div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="grid">
+    <div class="panel"><div class="chart" id="chart1"></div></div>
+    <div class="panel"><div class="chart" id="chart2"></div></div>
+    <div class="panel"><div class="chart" id="chart3"></div></div>
+    <div class="panel"><div class="chart" id="chart4"></div></div>
+  </div>
+  <div class="footer">
+    Built with ai-pipes + SQD Pipes SDK |
+    <a href="https://github.com/karelxfi">github.com/karelxfi</a> |
+    <a href="https://x.com/karelxfi">x.com/karelxfi</a>
+  </div>
+
+  <script>
+    var CH = 'http://localhost:8123';
+    var DB = 'sanctum_router';
+    var T = 'sanctum_actions';
+
+    function q(sql) {
+      return fetch(CH + '/?database=' + DB + '&user=default&password=password&query=' + encodeURIComponent(sql + ' FORMAT JSON'))
+        .then(function(r) { return r.json(); })
+        .then(function(j) { return j.data; });
+    }
+
+    var PALETTE = ['#58a6ff','#f78166','#3fb950','#d2a8ff','#f0883e','#79c0ff','#7ee787','#d29922','#ff7b72','#a5d6ff'];
+
+    // Known LST mint → name mapping
+    var LST_NAMES = {
+      'jupSoLaHXQiZZTSfEWMTRRgpnyFm8f6sZdosWBjx93v': 'jupSOL',
+      'mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So': 'mSOL',
+      'bSo13r4TkiE4KumL71LsHTPpL2euBYLFx6h9HP3piy1': 'bSOL',
+      'J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn': 'jitoSOL',
+      'he1iusmfkpAdwvxLNGV8Y1iSbj4rUy6yMhEA3fotn9A': 'hSOL',
+      'LSTxxxnJzKDFSLr4dUkPcmCf5VyryEqzPLz5j4bpxFp': 'LST',
+      '5oVNBeEEQvYi1cX3ir8Dx5n1P7pdxydbGF2X4TxVusJm': 'INF',
+      'BonK1YhkXEGLZzwtcvRTip3gAL9nCeQD7ppZBLXhtTs': 'bonkSOL',
+      'vSoLxydx6akxyMD9XEcPvGYNGq6Nn66oqVb3UkGkei7': 'vSOL',
+      'Comp4ssDzXcLeu2MnLuGNNFC4cmLPMng8qWHPvzAMU1h': 'compassSOL',
+      'GRJQtWwdJmp5LLpy8JWjPgn5FnLyqSJGNhn5ZnCTFUwM': 'cgntSOL',
+      'pathdXw4He1Xk3eX84pDdDcoFhABChCyUSPyeZ3kaZF': 'pathSOL',
+      'picobAEvs6w7QEknPce34wAE4gknZA9v5tTonnmHYdX': 'picoSOL',
+      'Dso1bDeDjCQxTrWHqUUi63oBvV7Mdm6WaobLbQ7gnPQ': 'dSOL',
+      'So11111111111111111111111111111111111111112': 'SOL',
+      'CgKRyNws4dp8kHp2qTqi1oKfVtPwXebycUySfuG8cwYG': 'pwrSOL',
+      'BULKoNSGzxtCqzwTvg5hFJg8fx6dqZRScyXe5LYMfxrn': 'hubSOL',
+      'gotMd6mpiWE4RWTv3eH3SrYjAXpxkQiZYY1zFKCNRq9': 'gotSOL',
+    };
+
+    function lstName(mint) {
+      if (LST_NAMES[mint]) return LST_NAMES[mint];
+      return mint.slice(0, 4) + '..' + mint.slice(-4);
+    }
+
+    function darkOpts(title) {
+      return {
+        backgroundColor: 'transparent',
+        title: { text: title, textStyle: { color: '#8b949e', fontSize: 11, fontWeight: 'normal' }, left: 10, top: 8 },
+        textStyle: { color: '#8b949e', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial' },
+        tooltip: { backgroundColor: '#1c2128', borderColor: '#30363d', textStyle: { color: '#e6edf3', fontSize: 11 } },
+        grid: { left: 50, right: 16, top: 36, bottom: 28 },
+      };
+    }
+
+    function fmt(n) {
+      if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+      return String(n);
+    }
+
+    async function init() {
+      // Stats
+      var totals = await q("SELECT count() as total, uniq(fee_payer) as users, uniq(lst_mint) as lst_count, min(timestamp) as min_ts, max(timestamp) as max_ts FROM " + T);
+      var st = totals[0];
+      var period = (st.min_ts || '').slice(0, 10) + ' \u2192 ' + (st.max_ts || '').slice(0, 10);
+      var statsEl = document.getElementById('stats');
+      [
+        {v: fmt(parseInt(st.total)), l: 'Total Actions'},
+        {v: fmt(parseInt(st.users)), l: 'Unique Users'},
+        {v: fmt(parseInt(st.lst_count)), l: 'Validator LSTs'},
+        {v: period, l: 'Period', small: true}
+      ].forEach(function(s) {
+        var d = document.createElement('div'); d.className = 'stat';
+        var vl = document.createElement('div'); vl.className = 'stat-value';
+        if (s.small) vl.style.fontSize = '11px';
+        vl.textContent = s.v;
+        var lb = document.createElement('div'); lb.className = 'stat-label'; lb.textContent = s.l;
+        d.appendChild(vl); d.appendChild(lb); statsEl.appendChild(d);
+      });
+
+      // Chart 1: Daily Activity by Program — stacked bar chart
+      var daily = await q("SELECT toDate(timestamp) as day, program, count() as n FROM " + T + " GROUP BY day, program ORDER BY day");
+      var days = []; var daySet = {}; var seriesData = {};
+      var progs = ['infinity', 'router', 'unstake'];
+      var progColors = { infinity: '#58a6ff', router: '#3fb950', unstake: '#f78166' };
+      progs.forEach(function(p) { seriesData[p] = {}; });
+      daily.forEach(function(r) {
+        if (!daySet[r.day]) { daySet[r.day] = true; days.push(r.day); }
+        seriesData[r.program][r.day] = parseInt(r.n);
+      });
+      var ch1 = echarts.init(document.getElementById('chart1'));
+      ch1.setOption(Object.assign(darkOpts('Daily Activity by Program'), {
+        legend: { data: progs, textStyle: { color: '#8b949e', fontSize: 9 }, top: 6, right: 16, itemWidth: 10, itemHeight: 10 },
+        grid: { left: 50, right: 16, top: 32, bottom: 28 },
+        xAxis: { type: 'category', data: days, axisLabel: { color: '#6e7681', fontSize: 9 }, axisLine: { lineStyle: { color: '#30363d' } }, splitLine: { show: false } },
+        yAxis: { type: 'value', axisLabel: { color: '#6e7681', fontSize: 9 }, axisLine: { show: false }, splitLine: { lineStyle: { color: '#21262d' } } },
+        tooltip: { trigger: 'axis' },
+        series: progs.map(function(p) {
+          return { name: p, type: 'bar', stack: 'total', itemStyle: { color: progColors[p] },
+            data: days.map(function(d) { return seriesData[p][d] || 0; }) };
+        }),
+      }));
+
+      // Chart 2: Top Validator LSTs — horizontal bar
+      var topLsts = await q("SELECT lst_mint, count() as n FROM " + T + " GROUP BY lst_mint ORDER BY n DESC LIMIT 15");
+      var ch2 = echarts.init(document.getElementById('chart2'));
+      ch2.setOption(Object.assign(darkOpts('Top Validator LSTs (by activity count)'), {
+        grid: { left: 80, right: 40, top: 36, bottom: 12 },
+        xAxis: { type: 'value', axisLabel: { color: '#6e7681', fontSize: 9 }, splitLine: { lineStyle: { color: '#21262d' } } },
+        yAxis: { type: 'category', data: topLsts.map(function(d){return lstName(d.lst_mint);}).reverse(), axisLabel: { color: '#e6edf3', fontSize: 10 }, axisLine: { lineStyle: { color: '#30363d' } } },
+        series: [{
+          type: 'bar',
+          data: topLsts.map(function(d,i){return {value: parseInt(d.n), itemStyle: {color: PALETTE[i % PALETTE.length]}};}).reverse(),
+          label: { show: true, position: 'right', color: '#8b949e', fontSize: 9, formatter: function(p){return fmt(p.value);} },
+          barMaxWidth: 16
+        }],
+      }));
+
+      // Chart 3: Program Distribution — treemap
+      var progDist = await q("SELECT program, count() as n FROM " + T + " GROUP BY program ORDER BY n DESC");
+      var ch3 = echarts.init(document.getElementById('chart3'));
+      ch3.setOption({
+        backgroundColor: 'transparent',
+        title: { text: 'Program Distribution', textStyle: { color: '#8b949e', fontSize: 11, fontWeight: 'normal' }, left: 10, top: 8 },
+        tooltip: { backgroundColor: '#1c2128', borderColor: '#30363d', textStyle: { color: '#e6edf3', fontSize: 11 }, formatter: function(p) { return p.name + ': <b>' + fmt(p.value) + '</b> actions'; } },
+        series: [{
+          type: 'treemap', top: 32, left: 8, right: 8, bottom: 8,
+          roam: false, nodeClick: false, breadcrumb: { show: false },
+          label: { show: true, color: '#e6edf3', fontSize: 13, fontWeight: 'bold', formatter: function(p) { return p.name + '\n' + fmt(p.value); } },
+          itemStyle: { borderColor: '#0d1117', borderWidth: 2, gapWidth: 2 },
+          data: progDist.map(function(d) { return { value: parseInt(d.n), name: d.program, itemStyle: { color: progColors[d.program] || PALETTE[0] } }; }),
+        }],
+      });
+
+      // Chart 4: Unique Users Per Day — area chart
+      var users = await q("SELECT toDate(timestamp) as day, uniq(fee_payer) as n FROM " + T + " GROUP BY day ORDER BY day");
+      var ch4 = echarts.init(document.getElementById('chart4'));
+      ch4.setOption(Object.assign(darkOpts('Unique Users Per Day'), {
+        xAxis: { type: 'category', data: users.map(function(d){return d.day;}), axisLabel: { color: '#6e7681', fontSize: 9 }, axisLine: { lineStyle: { color: '#30363d' } }, splitLine: { show: false } },
+        yAxis: { type: 'value', axisLabel: { color: '#6e7681', fontSize: 9 }, axisLine: { show: false }, splitLine: { lineStyle: { color: '#21262d' } } },
+        tooltip: { trigger: 'axis', formatter: function(p) { return p[0].axisValue + '<br/>Unique Users: <b>' + p[0].value + '</b>'; } },
+        series: [{
+          type: 'line', symbol: 'none', lineStyle: { width: 1.5, color: '#3fb950' },
+          areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{offset: 0, color: 'rgba(63,185,80,0.4)'}, {offset: 1, color: 'rgba(63,185,80,0.02)'}]) },
+          data: users.map(function(d){return parseInt(d.n);})
+        }],
+      }));
+
+      window.__DASHBOARD_READY__ = true;
+    }
+
+    init().catch(function(err) {
+      console.error('Dashboard error:', err);
+      var e = document.createElement('div');
+      e.style.cssText = 'color:#f78166;padding:24px;font-size:14px';
+      e.textContent = 'Error: ' + err.message;
+      document.body.appendChild(e);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "deployments": {
+    "solana": {
+      "contracts": {
+        "sanctumRouter": { "address": "stkitrT1Uoy18Dk1fTrgPw8W6MVzoCfYoAFT4MLsmhq", "deploymentBlock": null, "verified": true },
+        "sController": { "address": "5ocnV1qiCgaQR8Jb8xWnVbApfaygJ8tNoZfgPwsgx9kx", "deploymentBlock": null, "verified": true },
+        "sanctumUnstake": { "address": "unpXTU2Ndrc7WWNyEhQWe4udTzSibLPi25SXv2xbCHQ", "deploymentBlock": null, "verified": true },
+        "sanctumSpl": { "address": "SP12tWFxD9oJsVWNavTTBZvMbA6gkAmxtVgxdqvyvhY", "deploymentBlock": null, "verified": true },
+        "sanctumSplMulti": { "address": "SPMBzsVUuoHA4Jm6KunbsotaahvVikZs1JyTW6iJvbn", "deploymentBlock": null, "verified": true },
+        "originalSplStakePool": { "address": "SPoo1Ku8WFXoNDMHPsrGSTSG1Y47rzgn41SLUNakuHy", "deploymentBlock": null, "verified": true },
+        "splSolValueCalculator": { "address": "sp1V4h2gWorkGhVcazBc22Hfo2f5sd7jcjT4EDPrWFF", "deploymentBlock": null, "verified": true },
+        "sanctumSplSolValueCalculator": { "address": "sspUE1vrh7xRoXxGsg7vR1zde2WdGtJRbyK9uRumBDy", "deploymentBlock": null, "verified": true },
+        "sanctumSplMultiSolValueCalculator": { "address": "ssmbu3KZxgonUtjEMCKspZzxvUQCxAFnyh1rcHUeEDo", "deploymentBlock": null, "verified": true },
+        "flatSlabPricing": { "address": "s1b6NRXj6ygNu1QMKXh2H9LUR2aPApAAm1UQ2DjdhNV", "deploymentBlock": null, "verified": true },
+        "wsolSolValueCalculator": { "address": "wsoGmxQLSvwWpuaidCApxN5kEowLe2HLQLJhCQnj4bE", "deploymentBlock": null, "verified": true }
+      },
+      "source": "sanctum-docs-and-portal-verification",
+      "sourceUrl": "https://docs.sanctum.so/"
+    }
+  }
+}
