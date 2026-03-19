@@ -32,7 +32,9 @@ Every generated example MUST include:
 
 - [ ] `PROMPT.md` — exact verbatim prompt used (nothing more)
 - [ ] `OUTPUT.md` — brief narrative: what happened, key decisions, issues resolved
-- [ ] `IMPROVEMENTS.md` — feedback on how CLAUDE.md, generate-indexer command, and templates should improve based on this experience. Agent-skills specific issues go here too.
+- [ ] `IMPROVEMENTS.md` — feedback on how CLAUDE.md, generate-indexer command, and templates should improve based on this experience
+- [ ] Update `CLI_IMPROVEMENTS.md` (root) — append any new Pipes CLI issues discovered
+- [ ] Update `AGENT_SKILLS_IMPROVEMENTS.md` (root) — append any new agent-skills issues discovered
 - [ ] `META.json` — date, pipes_sdk_version, agent_skills_version, claude_model, angle, runtime_status, validation_status
 - [ ] `README.md` — with dashboard screenshot at top, **verification report** (full validate.ts output), run instructions, sample ClickHouse query
 - [ ] `package.json` — with pinned Pipes SDK version
@@ -233,6 +235,15 @@ function decodeBytes32(hex) {
 
 ### MakerDAO decimal conventions
 These appear in MakerDAO and forks: `wad` = 18 decimals, `ray` = 27 decimals, `rad` = 45 decimals. Divide accordingly.
+
+## Improvement Tracking
+
+After each example, update two root-level files:
+
+- **`CLI_IMPROVEMENTS.md`** — Issues with the Pipes CLI itself (templates, init bugs, missing features). These get reported upstream to the CLI maintainers.
+- **`AGENT_SKILLS_IMPROVEMENTS.md`** — Issues with agent-skills (skill docs, workflows, missing patterns). These get submitted as PRs to `subsquid-labs/agent-skills` via `scripts/submit-skills-pr.sh`.
+
+Each example's `IMPROVEMENTS.md` is the raw notes. The root files are the consolidated, deduplicated tracking lists. Don't duplicate entries — update existing ones with new source references if the same issue recurs.
 
 ## Conventions
 
