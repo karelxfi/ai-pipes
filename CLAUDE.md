@@ -14,7 +14,11 @@ npx skills add subsquid-labs/agent-skills --all
 
 Use the `/generate-indexer` command or follow this workflow manually:
 
-1. Pick a protocol from `protocols.json` (status: "pending")
+1. Pick the NEXT protocol from `protocols.json` (status: "pending") **IN ORDER. DO NOT SKIP.**
+   - **NEVER skip a protocol because it's "too complex"** — that's the entire point of this project
+   - If a protocol requires factory patterns, custom event decoding, instruction-level analysis, or novel architecture → figure it out
+   - Document what you learned in IMPROVEMENTS.md — complex protocols teach the most
+   - The only valid reason to skip is if the chain is truly not supported by Portal (already filtered out)
 2. **Check contracts-registry first** — look up the protocol in `/Users/kb/dev/personal/contracts-registry-llm/data/sources/protocols/<slug>/`
    - If it has verified addresses, use them directly (skip research)
    - If empty/placeholder, proceed to research
