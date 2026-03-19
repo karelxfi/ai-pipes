@@ -16,9 +16,14 @@ Tracked improvements for `subsquid-labs/agent-skills`, gathered from real indexe
 - **Fix:** Added warning about version changes to the Diamond proxy section. Workaround: remove the problematic event or filter to blocks after the upgrade.
 
 ### Proxy detection should be a mandatory pre-step
-- **Source:** evm/001-aave-v3
-- **Issue:** Proxy detection is mentioned in Step 3.5 but buried. For Aave V3, the Pool contract is a proxy — CLI fetched only `Upgraded` event ABI. This is the #1 failure mode.
+- **Source:** evm/001-aave-v3, evm/008-sparklend
+- **Issue:** Proxy detection is mentioned in Step 3.5 but buried. 6 out of 9 indexers required manual proxy resolution (Aave V3, Lido, wBETH, Pendle, SparkLend, Sky Lending). This is the #1 failure mode.
 - **Fix:** Move proxy detection to a mandatory pre-step before running CLI. Check Etherscan for proxy status, fetch implementation address.
+
+### Aave V3 fork pattern recognition
+- **Source:** evm/001-aave-v3, evm/008-sparklend
+- **Issue:** SparkLend is an Aave V3 fork with identical Pool ABI and event signatures. The skill doesn't mention fork recognition — if you know a protocol is an Aave V3 fork, you can reuse the same event definitions (Supply, Withdraw, Borrow, Repay, LiquidationCall) with just a different proxy address.
+- **Fix:** Add a "common fork patterns" section: Aave V3 forks (SparkLend, Radiant, Seamless), Uniswap V2/V3 forks, Compound V2 forks.
 
 ### Portal-based event signature discovery
 - **Source:** evm/003-binance-staked-eth, solana/001-kamino-lend

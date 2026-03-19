@@ -241,14 +241,29 @@ function decodeBytes32(hex) {
 ### MakerDAO decimal conventions
 These appear in MakerDAO and forks: `wad` = 18 decimals, `ray` = 27 decimals, `rad` = 45 decimals. Divide accordingly.
 
-## Improvement Tracking
+## Improvement Tracking (MANDATORY after every indexer)
 
-After each example, update two root-level files:
+**You MUST do ALL of these after EVERY indexer. No exceptions.**
 
-- **`CLI_IMPROVEMENTS.md`** — Issues with the Pipes CLI itself (templates, init bugs, missing features). These get reported upstream to the CLI maintainers.
-- **`AGENT_SKILLS_IMPROVEMENTS.md`** — Issues with agent-skills (skill docs, workflows, missing patterns). These get submitted as PRs to `subsquid-labs/agent-skills` via `scripts/submit-skills-pr.sh`.
+### 1. Update root improvement files
+- **`CLI_IMPROVEMENTS.md`** — Append any new Pipes CLI issues (templates, init bugs, missing features). Add the source example reference. Don't duplicate existing entries — update with new source refs if same issue recurs.
+- **`AGENT_SKILLS_IMPROVEMENTS.md`** — Append any new agent-skills issues (skill docs, workflows, missing patterns). Same dedup rules.
 
-Each example's `IMPROVEMENTS.md` is the raw notes. The root files are the consolidated, deduplicated tracking lists. Don't duplicate entries — update existing ones with new source references if the same issue recurs.
+### 2. Patch agent-skills locally (if applicable)
+If you learned something generalizable, edit files under `.agents/skills/`. Then commit separately and PR:
+```bash
+git add .agents/skills/
+git commit -m "fix(skills): <what and why>"
+SKILL_COMMIT=$(git rev-parse HEAD)
+bash scripts/pr-skill-patches.sh "$SKILL_COMMIT" "<description>"
+```
+
+### 3. Check — did you skip anything?
+Before committing the indexer, verify:
+- [ ] `CLI_IMPROVEMENTS.md` — reviewed, updated if needed (even if "no new issues")
+- [ ] `AGENT_SKILLS_IMPROVEMENTS.md` — reviewed, updated if needed
+- [ ] Skills PR submitted if patches were made
+- [ ] `contracts.json` created and pushed to contracts-registry
 
 ## Contracts Registry Integration
 
