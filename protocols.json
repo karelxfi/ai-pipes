@@ -1,9 +1,9 @@
 {
   "source": "https://api.llama.fi/protocols",
   "fetched": "2026-03-18",
-  "total": 105,
+  "total": 97,
   "breakdown": {
-    "evm": 77,
+    "evm": 69,
     "solana": 23,
     "hyperliquid": 5
   },
@@ -130,19 +130,6 @@
       "status": "done"
     },
     {
-      "name": "JustLend",
-      "slug": "justlend",
-      "category": "Lending",
-      "tvl": 3325849704,
-      "vm": "evm",
-      "chains": [
-        "Tron"
-      ],
-      "angle": null,
-      "directory": "evm/006-justlend",
-      "status": "pending"
-    },
-    {
       "name": "Maple",
       "slug": "maple",
       "category": "Lending",
@@ -153,7 +140,7 @@
         "Solana"
       ],
       "angle": null,
-      "directory": "evm/007-maple",
+      "directory": "evm/006-maple",
       "status": "pending"
     },
     {
@@ -176,7 +163,7 @@
         "Optimism"
       ],
       "angle": null,
-      "directory": "evm/008-pendle",
+      "directory": "evm/007-pendle",
       "status": "pending"
     },
     {
@@ -190,7 +177,7 @@
         "xDai"
       ],
       "angle": null,
-      "directory": "evm/009-sparklend",
+      "directory": "evm/008-sparklend",
       "status": "pending"
     },
     {
@@ -221,7 +208,7 @@
         "Unichain"
       ],
       "angle": null,
-      "directory": "evm/010-spark-savings",
+      "directory": "evm/009-spark-savings",
       "status": "pending"
     },
     {
@@ -242,7 +229,7 @@
         "Scroll"
       ],
       "angle": null,
-      "directory": "evm/011-compound-v3",
+      "directory": "evm/010-compound-v3",
       "status": "pending"
     },
     {
@@ -255,7 +242,7 @@
         "Ethereum"
       ],
       "angle": null,
-      "directory": "evm/012-rocket-pool",
+      "directory": "evm/011-rocket-pool",
       "status": "pending"
     },
     {
@@ -275,7 +262,7 @@
         "Op_Bnb"
       ],
       "angle": null,
-      "directory": "evm/013-venus-core-pool",
+      "directory": "evm/012-venus-core-pool",
       "status": "pending"
     },
     {
@@ -344,7 +331,7 @@
         "Polygon"
       ],
       "angle": null,
-      "directory": "evm/014-fluid-lending",
+      "directory": "evm/013-fluid-lending",
       "status": "pending"
     },
     {
@@ -371,7 +358,7 @@
         "xDai"
       ],
       "angle": null,
-      "directory": "evm/015-stakewise-v2",
+      "directory": "evm/014-stakewise-v2",
       "status": "pending"
     },
     {
@@ -397,7 +384,7 @@
         "Hyperliquid L1"
       ],
       "angle": null,
-      "directory": "evm/016-kinetiq-khype",
+      "directory": "evm/015-kinetiq-khype",
       "status": "pending"
     },
     {
@@ -424,7 +411,7 @@
         "Ethereum"
       ],
       "angle": null,
-      "directory": "evm/017-lista-lending",
+      "directory": "evm/016-lista-lending",
       "status": "pending"
     },
     {
@@ -440,7 +427,7 @@
         "Polygon"
       ],
       "angle": null,
-      "directory": "evm/018-convex-finance",
+      "directory": "evm/017-convex-finance",
       "status": "pending"
     },
     {
@@ -453,7 +440,7 @@
         "Ethereum"
       ],
       "angle": null,
-      "directory": "evm/019-meth-protocol",
+      "directory": "evm/018-meth-protocol",
       "status": "pending"
     },
     {
@@ -466,7 +453,7 @@
         "Binance"
       ],
       "angle": null,
-      "directory": "evm/020-lista-liquid-staking",
+      "directory": "evm/019-lista-liquid-staking",
       "status": "pending"
     },
     {
@@ -479,7 +466,7 @@
         "Ethereum"
       ],
       "angle": null,
-      "directory": "evm/021-liquid-collective",
+      "directory": "evm/020-liquid-collective",
       "status": "pending"
     },
     {
@@ -494,7 +481,7 @@
         "Binance"
       ],
       "angle": null,
-      "directory": "evm/022-usdd",
+      "directory": "evm/021-usdd",
       "status": "pending"
     },
     {
@@ -522,7 +509,7 @@
         "Mantle"
       ],
       "angle": null,
-      "directory": "evm/023-euler-v2",
+      "directory": "evm/022-euler-v2",
       "status": "pending"
     },
     {
@@ -535,7 +522,7 @@
         "Ethereum"
       ],
       "angle": null,
-      "directory": "evm/024-fira",
+      "directory": "evm/023-fira",
       "status": "pending"
     },
     {
@@ -548,7 +535,7 @@
         "Hyperliquid L1"
       ],
       "angle": null,
-      "directory": "evm/025-hyperliquid-hlp",
+      "directory": "evm/024-hyperliquid-hlp",
       "status": "pending"
     },
     {
@@ -561,7 +548,7 @@
         "Ink"
       ],
       "angle": null,
-      "directory": "evm/026-tydro",
+      "directory": "evm/025-tydro",
       "status": "pending"
     },
     {
@@ -574,7 +561,7 @@
         "Binance"
       ],
       "angle": null,
-      "directory": "evm/027-lista-cdp",
+      "directory": "evm/026-lista-cdp",
       "status": "pending"
     },
     {
@@ -587,7 +574,7 @@
         "Hyperliquid L1"
       ],
       "angle": null,
-      "directory": "evm/028-hyperlend-pooled",
+      "directory": "evm/027-hyperlend-pooled",
       "status": "pending"
     },
     {
@@ -605,7 +592,7 @@
         "Mantle"
       ],
       "angle": null,
-      "directory": "evm/029-avalon-usda",
+      "directory": "evm/028-avalon-usda",
       "status": "pending"
     },
     {
@@ -624,7 +611,7 @@
         "Scroll"
       ],
       "angle": null,
-      "directory": "evm/030-cian-yield-layer",
+      "directory": "evm/029-cian-yield-layer",
       "status": "pending"
     },
     {
@@ -642,7 +629,7 @@
         "Near"
       ],
       "angle": null,
-      "directory": "evm/031-stader",
+      "directory": "evm/030-stader",
       "status": "pending"
     },
     {
@@ -659,7 +646,7 @@
         "Avalanche"
       ],
       "angle": null,
-      "directory": "evm/032-multipli.fi",
+      "directory": "evm/031-multipli.fi",
       "status": "pending"
     },
     {
@@ -685,7 +672,7 @@
         "Ethereum"
       ],
       "angle": null,
-      "directory": "evm/033-coinbase-wrapped-staked-eth",
+      "directory": "evm/032-coinbase-wrapped-staked-eth",
       "status": "pending"
     },
     {
@@ -704,7 +691,7 @@
         "X Layer"
       ],
       "angle": null,
-      "directory": "evm/034-dolomite",
+      "directory": "evm/033-dolomite",
       "status": "pending"
     },
     {
@@ -717,7 +704,7 @@
         "Ethereum"
       ],
       "angle": null,
-      "directory": "evm/035-cap",
+      "directory": "evm/034-cap",
       "status": "pending"
     },
     {
@@ -730,7 +717,7 @@
         "Ethereum"
       ],
       "angle": null,
-      "directory": "evm/036-strata-markets",
+      "directory": "evm/035-strata-markets",
       "status": "pending"
     },
     {
@@ -745,7 +732,7 @@
         "Botanix"
       ],
       "angle": null,
-      "directory": "evm/037-gmx-v2-perps",
+      "directory": "evm/036-gmx-v2-perps",
       "status": "pending"
     },
     {
@@ -764,7 +751,7 @@
         "Fantom"
       ],
       "angle": null,
-      "directory": "evm/038-yearn-finance",
+      "directory": "evm/037-yearn-finance",
       "status": "pending"
     },
     {
@@ -803,7 +790,7 @@
         "Avalanche"
       ],
       "angle": null,
-      "directory": "evm/039-benqi-staked-avax",
+      "directory": "evm/038-benqi-staked-avax",
       "status": "pending"
     },
     {
@@ -820,19 +807,6 @@
       "status": "pending"
     },
     {
-      "name": "NAVI Lending",
-      "slug": "navi-lending",
-      "category": "Lending",
-      "tvl": 207440356,
-      "vm": "evm",
-      "chains": [
-        "Sui"
-      ],
-      "angle": null,
-      "directory": "evm/040-navi-lending",
-      "status": "pending"
-    },
-    {
       "name": "Extended",
       "slug": "extended",
       "category": "Derivatives",
@@ -843,7 +817,7 @@
         "Ethereum"
       ],
       "angle": null,
-      "directory": "evm/041-extended",
+      "directory": "evm/039-extended",
       "status": "pending"
     },
     {
@@ -856,7 +830,7 @@
         "Ethereum"
       ],
       "angle": null,
-      "directory": "evm/042-cooler-loans",
+      "directory": "evm/040-cooler-loans",
       "status": "pending"
     },
     {
@@ -869,7 +843,7 @@
         "Scroll"
       ],
       "angle": null,
-      "directory": "evm/043-etherfi-borrowing-market",
+      "directory": "evm/041-etherfi-borrowing-market",
       "status": "pending"
     },
     {
@@ -882,20 +856,7 @@
         "Ethereum"
       ],
       "angle": null,
-      "directory": "evm/044-infinifi",
-      "status": "pending"
-    },
-    {
-      "name": "Suilend",
-      "slug": "suilend",
-      "category": "Lending",
-      "tvl": 175179337,
-      "vm": "evm",
-      "chains": [
-        "Sui"
-      ],
-      "angle": null,
-      "directory": "evm/045-suilend",
+      "directory": "evm/042-infinifi",
       "status": "pending"
     },
     {
@@ -908,7 +869,7 @@
         "Ethereum"
       ],
       "angle": null,
-      "directory": "evm/046-liquity-v1",
+      "directory": "evm/043-liquity-v1",
       "status": "pending"
     },
     {
@@ -921,7 +882,7 @@
         "Ethereum"
       ],
       "angle": null,
-      "directory": "evm/047-fluid-lite",
+      "directory": "evm/044-fluid-lite",
       "status": "pending"
     },
     {
@@ -934,7 +895,7 @@
         "Ethereum"
       ],
       "angle": null,
-      "directory": "evm/048-yield-basis",
+      "directory": "evm/045-yield-basis",
       "status": "pending"
     },
     {
@@ -947,7 +908,7 @@
         "Binance"
       ],
       "angle": null,
-      "directory": "evm/049-venus-flux",
+      "directory": "evm/046-venus-flux",
       "status": "pending"
     },
     {
@@ -967,7 +928,7 @@
         "Arbitrum"
       ],
       "angle": null,
-      "directory": "evm/050-reservoir-protocol",
+      "directory": "evm/047-reservoir-protocol",
       "status": "pending"
     },
     {
@@ -980,7 +941,7 @@
         "Binance"
       ],
       "angle": null,
-      "directory": "evm/051-aster-asbnb",
+      "directory": "evm/048-aster-asbnb",
       "status": "pending"
     },
     {
@@ -993,7 +954,7 @@
         "Hyperliquid L1"
       ],
       "angle": null,
-      "directory": "evm/052-sthype",
+      "directory": "evm/049-sthype",
       "status": "pending"
     },
     {
@@ -1015,7 +976,7 @@
         "xDai"
       ],
       "angle": null,
-      "directory": "evm/053-stake-dao",
+      "directory": "evm/050-stake-dao",
       "status": "pending"
     },
     {
@@ -1067,7 +1028,7 @@
         "MegaETH"
       ],
       "angle": null,
-      "directory": "evm/054-beefy",
+      "directory": "evm/051-beefy",
       "status": "pending"
     },
     {
@@ -1080,7 +1041,7 @@
         "Avalanche"
       ],
       "angle": null,
-      "directory": "evm/055-benqi-lending",
+      "directory": "evm/052-benqi-lending",
       "status": "pending"
     },
     {
@@ -1093,7 +1054,7 @@
         "Ethereum"
       ],
       "angle": null,
-      "directory": "evm/056-compound-v2",
+      "directory": "evm/053-compound-v2",
       "status": "pending"
     },
     {
@@ -1108,7 +1069,7 @@
         "Avalanche"
       ],
       "angle": null,
-      "directory": "evm/057-aave-v2",
+      "directory": "evm/054-aave-v2",
       "status": "pending"
     },
     {
@@ -1122,33 +1083,7 @@
         "Fraxtal"
       ],
       "angle": null,
-      "directory": "evm/058-frax-ether",
-      "status": "pending"
-    },
-    {
-      "name": "Echo Lending",
-      "slug": "echo-lending",
-      "category": "Lending",
-      "tvl": 129387863,
-      "vm": "evm",
-      "chains": [
-        "Aptos"
-      ],
-      "angle": null,
-      "directory": "evm/059-echo-lending",
-      "status": "pending"
-    },
-    {
-      "name": "dYdX V4",
-      "slug": "dydx-v4",
-      "category": "Derivatives",
-      "tvl": 124801804,
-      "vm": "evm",
-      "chains": [
-        "dYdX"
-      ],
-      "angle": null,
-      "directory": "evm/060-dydx-v4",
+      "directory": "evm/055-frax-ether",
       "status": "pending"
     },
     {
@@ -1174,7 +1109,7 @@
         "Cronos"
       ],
       "angle": null,
-      "directory": "evm/061-tectonic",
+      "directory": "evm/056-tectonic",
       "status": "pending"
     },
     {
@@ -1195,7 +1130,7 @@
         "Avalanche"
       ],
       "angle": null,
-      "directory": "evm/062-aura",
+      "directory": "evm/057-aura",
       "status": "pending"
     },
     {
@@ -1251,7 +1186,7 @@
         "Optimism"
       ],
       "angle": null,
-      "directory": "evm/063-homora-v2",
+      "directory": "evm/058-homora-v2",
       "status": "pending"
     },
     {
@@ -1266,7 +1201,7 @@
         "World Chain"
       ],
       "angle": null,
-      "directory": "evm/064-capyfi",
+      "directory": "evm/059-capyfi",
       "status": "pending"
     },
     {
@@ -1279,7 +1214,7 @@
         "Arbitrum"
       ],
       "angle": null,
-      "directory": "evm/065-ostium",
+      "directory": "evm/060-ostium",
       "status": "pending"
     },
     {
@@ -1305,20 +1240,7 @@
         "Ethereum"
       ],
       "angle": null,
-      "directory": "evm/066-liquity-v2",
-      "status": "pending"
-    },
-    {
-      "name": "Blend Pools V2",
-      "slug": "blend-pools-v2",
-      "category": "Lending",
-      "tvl": 95533447,
-      "vm": "evm",
-      "chains": [
-        "Stellar"
-      ],
-      "angle": null,
-      "directory": "evm/067-blend-pools-v2",
+      "directory": "evm/061-liquity-v2",
       "status": "pending"
     },
     {
@@ -1350,7 +1272,7 @@
         "Mode"
       ],
       "angle": null,
-      "directory": "evm/068-derive-v2",
+      "directory": "evm/062-derive-v2",
       "status": "pending"
     },
     {
@@ -1376,7 +1298,7 @@
         "xDai"
       ],
       "angle": null,
-      "directory": "evm/069-sdai",
+      "directory": "evm/063-sdai",
       "status": "pending"
     },
     {
@@ -1393,19 +1315,6 @@
       "status": "pending"
     },
     {
-      "name": "AlphaLend",
-      "slug": "alphalend",
-      "category": "Lending",
-      "tvl": 81967632,
-      "vm": "evm",
-      "chains": [
-        "Sui"
-      ],
-      "angle": null,
-      "directory": "evm/070-alphalend",
-      "status": "pending"
-    },
-    {
       "name": "Infrared Finance",
       "slug": "infrared-finance",
       "category": "Liquid Staking",
@@ -1415,7 +1324,7 @@
         "Berachain"
       ],
       "angle": null,
-      "directory": "evm/071-infrared-finance",
+      "directory": "evm/064-infrared-finance",
       "status": "pending"
     },
     {
@@ -1428,20 +1337,7 @@
         "Base"
       ],
       "angle": null,
-      "directory": "evm/072-avantis",
-      "status": "pending"
-    },
-    {
-      "name": "Rhea Lend",
-      "slug": "rhea-lend",
-      "category": "Lending",
-      "tvl": 80394810,
-      "vm": "evm",
-      "chains": [
-        "Near"
-      ],
-      "angle": null,
-      "directory": "evm/073-rhea-lend",
+      "directory": "evm/065-avantis",
       "status": "pending"
     },
     {
@@ -1469,7 +1365,7 @@
         "Ethereum"
       ],
       "angle": null,
-      "directory": "evm/074-lorenzo-susd1+",
+      "directory": "evm/066-lorenzo-susd1+",
       "status": "pending"
     },
     {
@@ -1497,7 +1393,7 @@
         "Arbitrum"
       ],
       "angle": null,
-      "directory": "evm/075-yo-protocol",
+      "directory": "evm/067-yo-protocol",
       "status": "pending"
     },
     {
@@ -1527,7 +1423,7 @@
         "Sonic"
       ],
       "angle": null,
-      "directory": "evm/076-autofinance",
+      "directory": "evm/068-autofinance",
       "status": "pending"
     },
     {
@@ -1543,7 +1439,7 @@
         "Binance"
       ],
       "angle": null,
-      "directory": "evm/077-arrakis-modular",
+      "directory": "evm/069-arrakis-modular",
       "status": "pending"
     },
     {
@@ -1556,7 +1452,7 @@
         "Hyperliquid"
       ],
       "angle": null,
-      "directory": "hyperliquid/001-perps-majors",
+      "directory": "hyperliquid/001-hyperliquid-perps-majors",
       "status": "pending"
     },
     {
@@ -1569,7 +1465,7 @@
         "Hyperliquid"
       ],
       "angle": null,
-      "directory": "hyperliquid/002-whale-tracker",
+      "directory": "hyperliquid/002-hyperliquid-whale-tracker",
       "status": "pending"
     },
     {
@@ -1582,7 +1478,7 @@
         "Hyperliquid"
       ],
       "angle": null,
-      "directory": "hyperliquid/003-funding-pnl",
+      "directory": "hyperliquid/003-hyperliquid-funding-pnl",
       "status": "pending"
     },
     {
@@ -1595,7 +1491,7 @@
         "Hyperliquid"
       ],
       "angle": null,
-      "directory": "hyperliquid/004-meme-coins",
+      "directory": "hyperliquid/004-hyperliquid-meme-coins",
       "status": "pending"
     },
     {
@@ -1608,7 +1504,7 @@
         "Hyperliquid"
       ],
       "angle": null,
-      "directory": "hyperliquid/005-liquidations",
+      "directory": "hyperliquid/005-hyperliquid-liquidations",
       "status": "pending"
     }
   ]
