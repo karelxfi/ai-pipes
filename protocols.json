@@ -482,9 +482,9 @@
         "Ethereum",
         "Binance"
       ],
-      "angle": null,
+      "angle": "Skipped \u2014 primarily Tron-based, not supported by Portal",
       "directory": "evm/021-usdd",
-      "status": "pending"
+      "status": "skipped"
     },
     {
       "name": "Euler V2",
@@ -510,9 +510,9 @@
         "Sonic",
         "Mantle"
       ],
-      "angle": null,
+      "angle": "Modular vault ecosystem \u2014 EVC interactions, vault creation, usage patterns",
       "directory": "evm/022-euler-v2",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Fira",
