@@ -207,9 +207,9 @@
         "Base",
         "Unichain"
       ],
-      "angle": null,
+      "angle": "Savings vault flows \u2014 sDAI & sUSDS tracking the DAI\u2192USDS savings migration",
       "directory": "evm/009-spark-savings",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Compound V3",

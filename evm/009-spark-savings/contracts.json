@@ -1,0 +1,13 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "sDAI": { "address": "0x83F20F44975D03b1b09e64809B757c47f942BEeA", "name": "Savings DAI (sDAI)", "type": "vault", "deploymentBlock": null, "verified": true, "proxy": true },
+        "sUSDS": { "address": "0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD", "name": "Savings USDS (sUSDS)", "type": "vault", "deploymentBlock": null, "verified": true, "proxy": true },
+        "sUSDS_implementation": { "address": "0x4e7991e5C547ce825BdEb665EE14a3274f9F61e0", "name": "sUSDS Implementation", "type": "core", "deploymentBlock": null, "verified": true }
+      },
+      "source": "etherscan",
+      "sourceUrl": "https://etherscan.io/address/0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD"
+    }
+  }
+}

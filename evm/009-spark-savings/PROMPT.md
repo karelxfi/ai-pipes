@@ -1,0 +1,1 @@
+Create a Spark Savings indexer tracking savings vault flows — deposits and withdrawals across both sDAI and sUSDS vaults on Ethereum mainnet. Index ERC-4626 Deposit and Withdraw events into a unified table with vault name, event type, user, assets, and shares. Dashboard should show the DAI→USDS savings migration over time, vault comparison, deposit volumes, and top depositors.

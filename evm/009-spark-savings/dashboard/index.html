@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200">
+  <title>Spark Savings — sDAI & sUSDS Vault Flows</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0d1117; color: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; width: 1200px; height: 675px; overflow: hidden; }
+    .header { padding: 14px 24px 6px; display: flex; justify-content: space-between; align-items: flex-start; }
+    .header h1 { font-size: 20px; font-weight: 600; }
+    .header .angle { font-size: 12px; color: #8b949e; margin-top: 2px; }
+    .stats { display: flex; gap: 2px; }
+    .stat { text-align: center; white-space: nowrap; padding: 4px 12px; background: #161b22; border-radius: 4px; }
+    .stat-value { font-size: 15px; font-weight: 700; line-height: 1.3; }
+    .stat-label { font-size: 7px; color: #6e7681; text-transform: uppercase; letter-spacing: 0.8px; }
+    .stat:nth-child(1) .stat-value { color: #58a6ff; }
+    .stat:nth-child(2) .stat-value { color: #3fb950; }
+    .stat:nth-child(3) .stat-value { color: #d2a8ff; }
+    .stat:nth-child(4) .stat-value { color: #f78166; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 8px; padding: 6px 16px; height: calc(100% - 62px - 22px); }
+    .panel { background: #161b22; border: 1px solid #30363d; border-radius: 6px; position: relative; }
+    .chart { width: 100%; height: 100%; }
+    .footer { padding: 2px 24px 4px; text-align: right; font-size: 9px; color: #484f58; }
+    .footer a { color: #484f58; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>Spark Savings — sDAI &amp; sUSDS Vault Flows</h1>
+      <div class="angle">Deposits &amp; withdrawals tracking the DAI→USDS savings migration | Ethereum Mainnet</div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="grid">
+    <div class="panel"><div class="chart" id="chart1"></div></div>
+    <div class="panel"><div class="chart" id="chart2"></div></div>
+    <div class="panel"><div class="chart" id="chart3"></div></div>
+    <div class="panel"><div class="chart" id="chart4"></div></div>
+  </div>
+  <div class="footer">Built with ai-pipes + SQD Pipes SDK | <a href="https://github.com/karelxfi">github.com/karelxfi</a> | <a href="https://x.com/karelxfi">x.com/karelxfi</a></div>
+<script>
+var CH = 'http://localhost:8123/?user=default&password=password&database=spark_savings';
+var COLORS = ['#58a6ff','#f78166','#3fb950','#d2a8ff','#f0883e','#79c0ff','#7ee787','#d29922','#ff7b72','#a5d6ff'];
+
+function query(sql) { return fetch(CH, { method: 'POST', body: sql + ' FORMAT JSON' }).then(function(r){return r.json()}).then(function(j){return j.data||[]}); }
+function fmt(n) { if(n>=1e6) return (n/1e6).toFixed(2)+'M'; if(n>=1e3) return (n/1e3).toFixed(1)+'K'; return String(n); }
+
+function buildStats(d) {
+  var el = document.getElementById('stats');
+  while(el.firstChild) el.removeChild(el.firstChild);
+  [{val:fmt(+d.total),label:'Total Events'},{val:fmt(+d.deposits),label:'Deposits'},{val:fmt(+d.withdrawals),label:'Withdrawals'},{val:fmt(+d.users),label:'Unique Users'},{val:d.first_ts.substring(0,10)+' \u2192 '+d.last_ts.substring(0,10),label:'Period',style:'font-size:11px;color:#8b949e'}].forEach(function(item){
+    var s=document.createElement('div');s.className='stat';
+    var v=document.createElement('div');v.className='stat-value';if(item.style)v.style.cssText=item.style;v.textContent=item.val;
+    var l=document.createElement('div');l.className='stat-label';l.textContent=item.label;
+    s.appendChild(v);s.appendChild(l);el.appendChild(s);
+  });
+}
+
+async function init() {
+  var stats = await query("SELECT count() as total, countIf(event_type='deposit') as deposits, countIf(event_type='withdrawal') as withdrawals, count(DISTINCT user) as users, min(timestamp) as first_ts, max(timestamp) as last_ts FROM savings_flows");
+  buildStats(stats[0]);
+
+  // Chart 1: Weekly activity by vault (stacked bar — deposits green, withdrawals red)
+  var weekly = await query("SELECT toStartOfWeek(timestamp) as week, vault_name, event_type, count() as cnt FROM savings_flows GROUP BY week, vault_name, event_type ORDER BY week");
+  var weeks = []; var wkSet = {};
+  weekly.forEach(function(d){var w=d.week.substring(0,10);if(!wkSet[w]){weeks.push(w);wkSet[w]=true;}});
+  weeks.sort();
+  // Create series for each vault+event_type combo
+  var series_keys = ['sDAI deposit','sDAI withdrawal','sUSDS deposit','sUSDS withdrawal'];
+  var seriesData = {}; series_keys.forEach(function(k){seriesData[k]={};});
+  weekly.forEach(function(d){var k=d.vault_name+' '+d.event_type; if(seriesData[k]) seriesData[k][d.week.substring(0,10)]=+d.cnt;});
+  var seriesColors = {'sDAI deposit':'#3fb950','sDAI withdrawal':'#f78166','sUSDS deposit':'#58a6ff','sUSDS withdrawal':'#d2a8ff'};
+
+  echarts.init(document.getElementById('chart1')).setOption({
+    title:{text:'Weekly Vault Activity',left:12,top:8,textStyle:{color:'#e6edf3',fontSize:13}},
+    tooltip:{trigger:'axis',backgroundColor:'#161b22',borderColor:'#30363d',textStyle:{color:'#e6edf3'}},
+    legend:{right:12,top:8,textStyle:{color:'#8b949e',fontSize:8},data:series_keys},
+    grid:{left:48,right:16,top:40,bottom:28},
+    xAxis:{type:'category',data:weeks,axisLabel:{color:'#6e7681',fontSize:9},axisLine:{lineStyle:{color:'#30363d'}}},
+    yAxis:{type:'value',axisLabel:{color:'#6e7681',fontSize:9},splitLine:{lineStyle:{color:'#21262d'}}},
+    series:series_keys.map(function(k){return{name:k,type:'bar',stack:'total',data:weeks.map(function(w){return seriesData[k][w]||0;}),itemStyle:{color:seriesColors[k]}};})
+  });
+
+  // Chart 2: Vault comparison (horizontal bar)
+  var vaults = await query("SELECT vault_name, event_type, count() as cnt FROM savings_flows GROUP BY vault_name, event_type ORDER BY vault_name");
+  var vaultNames = []; var vnSet = {};
+  vaults.forEach(function(d){if(!vnSet[d.vault_name]){vaultNames.push(d.vault_name);vnSet[d.vault_name]=true;}});
+  var depByVault = {}; var wdByVault = {};
+  vaults.forEach(function(d){if(d.event_type==='deposit') depByVault[d.vault_name]=+d.cnt; else wdByVault[d.vault_name]=+d.cnt;});
+
+  echarts.init(document.getElementById('chart2')).setOption({
+    title:{text:'Vault Comparison',left:12,top:8,textStyle:{color:'#e6edf3',fontSize:13}},
+    tooltip:{backgroundColor:'#161b22',borderColor:'#30363d',textStyle:{color:'#e6edf3'}},
+    legend:{right:12,top:8,textStyle:{color:'#8b949e',fontSize:9},data:['Deposits','Withdrawals']},
+    grid:{left:60,right:40,top:36,bottom:16},
+    xAxis:{type:'value',axisLabel:{color:'#6e7681',fontSize:9},splitLine:{lineStyle:{color:'#21262d'}}},
+    yAxis:{type:'category',data:vaultNames,axisLabel:{color:'#8b949e',fontSize:11},axisLine:{lineStyle:{color:'#30363d'}}},
+    series:[
+      {name:'Deposits',type:'bar',data:vaultNames.map(function(v){return depByVault[v]||0;}),itemStyle:{color:'#3fb950'},label:{show:true,position:'right',color:'#8b949e',fontSize:10,formatter:'{c}'}},
+      {name:'Withdrawals',type:'bar',data:vaultNames.map(function(v){return wdByVault[v]||0;}),itemStyle:{color:'#f78166'},label:{show:true,position:'right',color:'#8b949e',fontSize:10,formatter:'{c}'}}
+    ]
+  });
+
+  // Chart 3: Deposit volume per week (assets / 1e18 for DAI/USDS — both 18 decimals)
+  var volData = await query("SELECT toStartOfWeek(timestamp) as week, vault_name, sum(assets / 1000000000000000000) as volume FROM savings_flows WHERE event_type='deposit' GROUP BY week, vault_name ORDER BY week");
+  var volByVault = {}; var vNames = [];
+  volData.forEach(function(d){if(!volByVault[d.vault_name]){volByVault[d.vault_name]={};vNames.push(d.vault_name);}; volByVault[d.vault_name][d.week.substring(0,10)]=+d.volume;});
+  var vColors = {'sDAI':'#3fb950','sUSDS':'#58a6ff'};
+
+  echarts.init(document.getElementById('chart3')).setOption({
+    title:{text:'Weekly Deposit Volume',left:12,top:8,textStyle:{color:'#e6edf3',fontSize:13}},
+    tooltip:{trigger:'axis',backgroundColor:'#161b22',borderColor:'#30363d',textStyle:{color:'#e6edf3'},valueFormatter:function(v){return '$'+fmt(v);}},
+    legend:{right:12,top:8,textStyle:{color:'#8b949e',fontSize:9},data:vNames},
+    grid:{left:56,right:16,top:40,bottom:28},
+    xAxis:{type:'category',data:weeks,axisLabel:{color:'#6e7681',fontSize:9},axisLine:{lineStyle:{color:'#30363d'}}},
+    yAxis:{type:'value',axisLabel:{color:'#6e7681',fontSize:9,formatter:function(v){return '$'+fmt(v);}},splitLine:{lineStyle:{color:'#21262d'}}},
+    series:vNames.map(function(v){return{name:v,type:'line',stack:'vol',areaStyle:{opacity:0.4},data:weeks.map(function(w){return volByVault[v][w]||0;}),itemStyle:{color:vColors[v]||COLORS[0]},lineStyle:{width:1.5},symbol:'none'};})
+  });
+
+  // Chart 4: Top depositors
+  var topUsers = await query("SELECT user, count() as cnt FROM savings_flows WHERE event_type='deposit' GROUP BY user ORDER BY cnt DESC LIMIT 8");
+  function shortAddr(a){return a.substring(0,6)+'..'+a.substring(38);}
+  echarts.init(document.getElementById('chart4')).setOption({
+    title:{text:'Top Depositors (by event count)',left:12,top:8,textStyle:{color:'#e6edf3',fontSize:13}},
+    tooltip:{backgroundColor:'#161b22',borderColor:'#30363d',textStyle:{color:'#e6edf3'}},
+    grid:{left:110,right:40,top:36,bottom:16},
+    xAxis:{type:'value',axisLabel:{color:'#6e7681',fontSize:9},splitLine:{lineStyle:{color:'#21262d'}}},
+    yAxis:{type:'category',data:topUsers.map(function(d){return shortAddr(d.user);}).reverse(),axisLabel:{color:'#8b949e',fontSize:9},axisLine:{lineStyle:{color:'#30363d'}}},
+    series:[{type:'bar',data:topUsers.map(function(d,i){return{value:+d.cnt,itemStyle:{color:COLORS[i%COLORS.length]}};}).reverse(),
+      label:{show:true,position:'right',color:'#8b949e',fontSize:9,formatter:'{c}'}}]
+  });
+
+  window.__DASHBOARD_READY__ = true;
+}
+init().catch(console.error);
+</script>
+</body>
+</html>
