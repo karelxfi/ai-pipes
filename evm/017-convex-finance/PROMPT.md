@@ -1,0 +1,1 @@
+Create a Convex Finance indexer tracking Curve LP staking flows — Deposited and Withdrawn events from the Booster contract on Ethereum mainnet. Index deposits and withdrawals into a unified table with event type, user, and pool ID. Dashboard should show weekly deposit/withdrawal activity, top pools, event distribution, and top stakers.

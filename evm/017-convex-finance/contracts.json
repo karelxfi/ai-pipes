@@ -1,0 +1,15 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "booster": { "address": "0xF403C135812408BFbE8713b5A23a04b3D48AAE31", "name": "Convex Booster", "type": "core", "deploymentBlock": 12450992, "verified": true },
+        "voterProxy": { "address": "0x989AEb4d175e16225E39E87d0D97A3360524AD80", "name": "Voter Proxy", "type": "governance", "deploymentBlock": null, "verified": true },
+        "cvxToken": { "address": "0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B", "name": "CVX Token", "type": "token", "deploymentBlock": null, "verified": true },
+        "cvxCrv": { "address": "0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7", "name": "cvxCRV Token", "type": "token", "deploymentBlock": null, "verified": true },
+        "cvxRewards": { "address": "0xCF50b810E57Ac33B91dCF525C6ddd9881B139332", "name": "CVX Rewards", "type": "core", "deploymentBlock": null, "verified": true }
+      },
+      "source": "convex-docs",
+      "sourceUrl": "https://docs.convexfinance.com/convexfinance/faq/contract-addresses"
+    }
+  }
+}

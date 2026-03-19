@@ -426,9 +426,9 @@
         "Arbitrum",
         "Polygon"
       ],
-      "angle": null,
+      "angle": "Curve LP staking flows \u2014 deposits & withdrawals across Convex Booster pools",
       "directory": "evm/017-convex-finance",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "mETH Protocol",
