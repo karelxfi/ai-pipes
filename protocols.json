@@ -139,9 +139,9 @@
         "Ethereum",
         "Solana"
       ],
-      "angle": null,
+      "angle": "Institutional lending pool flows \u2014 deposits and withdrawals across Maple Syrup pools",
       "directory": "evm/006-maple",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Pendle",

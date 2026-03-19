@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200">
+  <title>Maple Finance — Institutional Lending Pool Flows</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      width: 1200px;
+      height: 675px;
+      overflow: hidden;
+    }
+    .header {
+      padding: 14px 24px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .header h1 { font-size: 20px; font-weight: 600; color: #e6edf3; }
+    .header .angle { font-size: 12px; color: #8b949e; margin-top: 2px; }
+    .stats { display: flex; gap: 2px; align-items: stretch; }
+    .stat { text-align: center; white-space: nowrap; padding: 4px 12px; background: #161b22; border-radius: 4px; }
+    .stat-value { font-size: 15px; font-weight: 700; color: #e6edf3; line-height: 1.3; }
+    .stat-label { font-size: 7px; color: #6e7681; text-transform: uppercase; letter-spacing: 0.8px; }
+    .stat:first-child .stat-value { color: #58a6ff; }
+    .stat:nth-child(2) .stat-value { color: #3fb950; }
+    .stat:nth-child(3) .stat-value { color: #d2a8ff; }
+    .stat:nth-child(4) .stat-value { color: #f78166; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 8px;
+      padding: 6px 16px;
+      height: calc(100% - 62px - 22px);
+    }
+    .panel {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      position: relative;
+    }
+    .chart { width: 100%; height: 100%; }
+    .footer {
+      padding: 2px 24px 4px;
+      text-align: right;
+      font-size: 9px;
+      color: #484f58;
+    }
+    .footer a { color: #484f58; text-decoration: none; }
+    .footer a:hover { color: #8b949e; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>Maple Finance — Institutional Lending Pool Flows</h1>
+      <div class="angle">Deposit &amp; withdrawal activity across Syrup pools | Ethereum Mainnet</div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="grid">
+    <div class="panel"><div class="chart" id="chart1"></div></div>
+    <div class="panel"><div class="chart" id="chart2"></div></div>
+    <div class="panel"><div class="chart" id="chart3"></div></div>
+    <div class="panel"><div class="chart" id="chart4"></div></div>
+  </div>
+  <div class="footer">Built with ai-pipes + SQD Pipes SDK | <a href="https://github.com/karelxfi">github.com/karelxfi</a> | <a href="https://x.com/karelxfi">x.com/karelxfi</a></div>
+
+<script>
+var CH = 'http://localhost:8123/?user=default&password=password&database=maple';
+var COLORS = ['#58a6ff','#f78166','#3fb950','#d2a8ff','#f0883e','#79c0ff','#7ee787','#d29922','#ff7b72','#a5d6ff'];
+
+function query(sql) {
+  return fetch(CH, { method: 'POST', body: sql + ' FORMAT JSON' })
+    .then(function(res) { return res.json(); })
+    .then(function(json) { return json.data || []; });
+}
+
+function fmt(n) {
+  if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+  return String(n);
+}
+
+function shortAddr(a) { return a.substring(0, 6) + '...' + a.substring(38); }
+
+function buildStats(d) {
+  var el = document.getElementById('stats');
+  while (el.firstChild) el.removeChild(el.firstChild);
+  var items = [
+    { val: fmt(+d.total), label: 'Total Events', cls: '' },
+    { val: fmt(+d.deposits), label: 'Deposits', cls: '' },
+    { val: fmt(+d.withdrawals), label: 'Withdrawals', cls: '' },
+    { val: fmt(+d.unique_users), label: 'Unique Users', cls: '' },
+    { val: d.first_ts.substring(0, 10) + ' \u2192 ' + d.last_ts.substring(0, 10), label: 'Period', cls: 'font-size:11px;color:#8b949e' }
+  ];
+  items.forEach(function(item) {
+    var stat = document.createElement('div');
+    stat.className = 'stat';
+    var v = document.createElement('div');
+    v.className = 'stat-value';
+    if (item.cls) v.style.cssText = item.cls;
+    v.textContent = item.val;
+    var l = document.createElement('div');
+    l.className = 'stat-label';
+    l.textContent = item.label;
+    stat.appendChild(v);
+    stat.appendChild(l);
+    el.appendChild(stat);
+  });
+}
+
+async function init() {
+  var statsRows = await query("SELECT count() as total, countIf(event_type = 'deposit') as deposits, countIf(event_type = 'withdrawal') as withdrawals, count(DISTINCT user) as unique_users, min(timestamp) as first_ts, max(timestamp) as last_ts FROM maple_pool_flows");
+  var statsData = statsRows[0];
+  buildStats(statsData);
+
+  // Chart 1: Deposits & Withdrawals per week
+  var weeklyData = await query("SELECT toStartOfWeek(timestamp) as week, countIf(event_type = 'deposit') as deposits, countIf(event_type = 'withdrawal') as withdrawals FROM maple_pool_flows GROUP BY week ORDER BY week");
+
+  echarts.init(document.getElementById('chart1')).setOption({
+    title: { text: 'Pool Activity Per Week', left: 12, top: 8, textStyle: { color: '#e6edf3', fontSize: 13 } },
+    tooltip: { trigger: 'axis', backgroundColor: '#161b22', borderColor: '#30363d', textStyle: { color: '#e6edf3' } },
+    legend: { right: 12, top: 8, textStyle: { color: '#8b949e', fontSize: 10 }, data: ['Deposits', 'Withdrawals'] },
+    grid: { left: 48, right: 16, top: 40, bottom: 28 },
+    xAxis: { type: 'category', data: weeklyData.map(function(d) { return d.week.substring(0, 10); }), axisLabel: { color: '#6e7681', fontSize: 9 }, axisLine: { lineStyle: { color: '#30363d' } } },
+    yAxis: { type: 'value', axisLabel: { color: '#6e7681', fontSize: 9 }, splitLine: { lineStyle: { color: '#21262d' } } },
+    series: [
+      { name: 'Deposits', type: 'bar', stack: 'total', data: weeklyData.map(function(d) { return +d.deposits; }),
+        itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#3fb950' }, { offset: 1, color: '#238636' }]) } },
+      { name: 'Withdrawals', type: 'bar', stack: 'total', data: weeklyData.map(function(d) { return +d.withdrawals; }),
+        itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#f78166' }, { offset: 1, color: '#da3633' }]) } }
+    ]
+  });
+
+  // Chart 2: Events by Pool
+  var poolData = await query("SELECT pool_name, count() as cnt FROM maple_pool_flows GROUP BY pool_name ORDER BY cnt DESC");
+
+  echarts.init(document.getElementById('chart2')).setOption({
+    title: { text: 'Events by Pool', left: 12, top: 8, textStyle: { color: '#e6edf3', fontSize: 13 } },
+    tooltip: { backgroundColor: '#161b22', borderColor: '#30363d', textStyle: { color: '#e6edf3' } },
+    grid: { left: 160, right: 40, top: 36, bottom: 16 },
+    xAxis: { type: 'value', axisLabel: { color: '#6e7681', fontSize: 9 }, splitLine: { lineStyle: { color: '#21262d' } } },
+    yAxis: { type: 'category', data: poolData.map(function(d) { return d.pool_name; }).reverse(), axisLabel: { color: '#8b949e', fontSize: 10 }, axisLine: { lineStyle: { color: '#30363d' } } },
+    series: [{ type: 'bar', data: poolData.map(function(d, i) { return { value: +d.cnt, itemStyle: { color: COLORS[i % COLORS.length] } }; }).reverse(),
+      label: { show: true, position: 'right', color: '#8b949e', fontSize: 10, formatter: '{c}' } }]
+  });
+
+  // Chart 3: Weekly Deposit Volume (USDC, 6 decimals)
+  var volumeData = await query("SELECT toStartOfWeek(timestamp) as week, pool_name, sum(assets / 1000000) as volume_usdc FROM maple_pool_flows WHERE event_type = 'deposit' GROUP BY week, pool_name ORDER BY week");
+  var pools = []; var poolSet = {};
+  volumeData.forEach(function(d) { if (!poolSet[d.pool_name]) { pools.push(d.pool_name); poolSet[d.pool_name] = true; } });
+  var weeks = []; var weekSet = {};
+  volumeData.forEach(function(d) { var w = d.week.substring(0, 10); if (!weekSet[w]) { weeks.push(w); weekSet[w] = true; } });
+  weeks.sort();
+  var volumeByPool = {};
+  pools.forEach(function(p) { volumeByPool[p] = {}; });
+  volumeData.forEach(function(d) { volumeByPool[d.pool_name][d.week.substring(0, 10)] = +d.volume_usdc; });
+
+  echarts.init(document.getElementById('chart3')).setOption({
+    title: { text: 'Weekly Deposit Volume (USDC)', left: 12, top: 8, textStyle: { color: '#e6edf3', fontSize: 13 } },
+    tooltip: { trigger: 'axis', backgroundColor: '#161b22', borderColor: '#30363d', textStyle: { color: '#e6edf3' },
+      valueFormatter: function(v) { return '$' + fmt(v); } },
+    legend: { right: 12, top: 8, textStyle: { color: '#8b949e', fontSize: 9 }, data: pools },
+    grid: { left: 56, right: 16, top: 40, bottom: 28 },
+    xAxis: { type: 'category', data: weeks, axisLabel: { color: '#6e7681', fontSize: 9 }, axisLine: { lineStyle: { color: '#30363d' } } },
+    yAxis: { type: 'value', axisLabel: { color: '#6e7681', fontSize: 9, formatter: function(v) { return '$' + fmt(v); } }, splitLine: { lineStyle: { color: '#21262d' } } },
+    series: pools.map(function(p, i) { return {
+      name: p, type: 'line', stack: 'vol', areaStyle: { opacity: 0.4 },
+      data: weeks.map(function(w) { return volumeByPool[p][w] || 0; }),
+      itemStyle: { color: COLORS[i % COLORS.length] }, lineStyle: { width: 1.5 }, symbol: 'none'
+    }; })
+  });
+
+  // Chart 4: Top Depositors by event count
+  var topUsers = await query("SELECT user, count() as cnt FROM maple_pool_flows WHERE event_type = 'deposit' GROUP BY user ORDER BY cnt DESC LIMIT 8");
+
+  echarts.init(document.getElementById('chart4')).setOption({
+    title: { text: 'Top Depositors (by event count)', left: 12, top: 8, textStyle: { color: '#e6edf3', fontSize: 13 } },
+    tooltip: { backgroundColor: '#161b22', borderColor: '#30363d', textStyle: { color: '#e6edf3' } },
+    grid: { left: 110, right: 40, top: 36, bottom: 16 },
+    xAxis: { type: 'value', axisLabel: { color: '#6e7681', fontSize: 9 }, splitLine: { lineStyle: { color: '#21262d' } } },
+    yAxis: { type: 'category', data: topUsers.map(function(d) { return shortAddr(d.user); }).reverse(), axisLabel: { color: '#8b949e', fontSize: 9 }, axisLine: { lineStyle: { color: '#30363d' } } },
+    series: [{ type: 'bar', data: topUsers.map(function(d, i) { return { value: +d.cnt, itemStyle: { color: COLORS[i % COLORS.length] } }; }).reverse(),
+      label: { show: true, position: 'right', color: '#8b949e', fontSize: 10, formatter: '{c}' } }]
+  });
+
+  window.__DASHBOARD_READY__ = true;
+}
+
+init().catch(console.error);
+</script>
+</body>
+</html>
