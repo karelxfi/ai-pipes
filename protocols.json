@@ -162,9 +162,9 @@
         "Avalanche",
         "Optimism"
       ],
-      "angle": null,
+      "angle": "Yield trading activity \u2014 PT and YT swap flows across Pendle markets",
       "directory": "evm/007-pendle",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "SparkLend",

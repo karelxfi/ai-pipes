@@ -1,0 +1,23 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "router": { "address": "0x888888888889758F76e7103c6CbF23ABbF58F946", "name": "Pendle Router V4", "type": "core", "deploymentBlock": null, "verified": true },
+        "routerStatic": { "address": "0x263833d47eA3fA4a30f269323aba6a107f9eB14C", "name": "Router Static", "type": "core", "deploymentBlock": null, "verified": true },
+        "limitRouter": { "address": "0x000000000000c9B3E2C3Ec88B1B4c0cD853f4321", "name": "Limit Router", "type": "core", "deploymentBlock": null, "verified": true },
+        "pendleToken": { "address": "0x808507121b80c02388fad14726482e061b8da827", "name": "PENDLE Token", "type": "token", "deploymentBlock": null, "verified": true },
+        "vePendle": { "address": "0x4f30A9D41B80ecC5B94306AB4364951AE3170210", "name": "vePENDLE", "type": "governance", "deploymentBlock": null, "verified": true },
+        "sPendle": { "address": "0x999999999991E178D52Cd95AFd4b00d066664144", "name": "sPENDLE", "type": "governance", "deploymentBlock": null, "verified": true },
+        "gaugeController": { "address": "0x47D74516B33eD5D70ddE7119A40839f6Fcc24e57", "name": "Gauge Controller", "type": "governance", "deploymentBlock": null, "verified": true },
+        "globals": { "address": "0x804a6F5F667170F545Bf14e5DDB48C70B788390C", "name": "Globals", "type": "core", "deploymentBlock": null, "verified": true },
+        "yieldFactoryV6": { "address": "0x3E6EBa46AbC5ab18ED95F6667d8B2fd4020E4637", "name": "Yield Factory V6", "type": "factory", "deploymentBlock": null, "verified": true },
+        "marketFactoryV6": { "address": "0x6d247b1c044fA1E22e6B04fA9F71Baf99EB29A9f", "name": "Market Factory V6", "type": "factory", "deploymentBlock": null, "verified": true },
+        "syFactory": { "address": "0x466CeD3b33045Ea986B2f306C8D0aA8067961CF8", "name": "SY Factory", "type": "factory", "deploymentBlock": null, "verified": true },
+        "treasury": { "address": "0x8270400d528c34e1596EF367eeDEc99080A1b592", "name": "Treasury", "type": "core", "deploymentBlock": null, "verified": true },
+        "oraclePyYtLp": { "address": "0x5542be50420E88dd7D5B4a3D488FA6ED82F6DAc2", "name": "PY/YT/LP Oracle", "type": "oracle", "deploymentBlock": null, "verified": true }
+      },
+      "source": "pendle-github",
+      "sourceUrl": "https://github.com/pendle-finance/pendle-core-v2-public/blob/main/deployments/1-core.json"
+    }
+  }
+}
