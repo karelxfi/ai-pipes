@@ -69,6 +69,18 @@ Tracked improvements for `subsquid-labs/agent-skills`, gathered from real indexe
 - **Issue:** When querying `createFrom` with multiple addresses (e.g., 10+ deployers), high-volume deployers (Rocket Pool: 5,577 minipools) dominate the response and traces from other deployers get lost. The `portal_query_traces` MCP tool doesn't warn about this.
 - **Fix:** Document that multi-address trace filters should be used cautiously. For comprehensive results, query each address individually.
 
+## pipes-new-indexer Skill (continued)
+
+### pipeComposite decoded event field access pattern
+- **Source:** evm/014-stakewise-v2
+- **Issue:** The skill extensively documents `enrichEvents` helper from CLI-generated code, but doesn't document the raw event structure when using `pipeComposite` + manual `.pipe()`. Fields are: `d.block.number`, `d.rawEvent.transactionHash`, `d.timestamp` (Date), `d.event.*`, `d.contract`. Using wrong field names (e.g., `d.blockNumber`, `d.txHash`) silently returns undefined → stored as 0/"".
+- **Fix:** Add a "Manual .pipe() field reference" section to the skill.
+
+### evmDecoder contracts field format confusion
+- **Source:** evm/014-stakewise-v2
+- **Issue:** `contracts` expects `['0xABC...']` (string array) but the factory pattern uses `factory({ address: ['0xABC...'] })`. Easy to confuse the two, causing `contract.toLowerCase is not a function`.
+- **Fix:** Add a clear note: "For static contracts, pass an array of address strings. For dynamic factory-deployed contracts, use the `factory()` helper."
+
 ## Pipes SDK Suggestions
 
 ### `solanaInstructionDecoder` classify-only mode

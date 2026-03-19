@@ -1,0 +1,32 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "vaultsRegistry": { "address": "0x3a0008a588772446f6e656133C2D5029CC4FC20E", "deploymentBlock": null, "verified": true },
+        "keeper": { "address": "0x6B5815467da09DaA7DC83Db21c9239d98Bb487b5", "deploymentBlock": null, "verified": true },
+        "sharedMevEscrow": { "address": "0x48319f97E5Da1233c21c48b80097c0FB7a20Ff86", "deploymentBlock": null, "verified": true },
+        "osToken": { "address": "0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38", "deploymentBlock": null, "verified": true },
+        "osTokenVaultController": { "address": "0x2A261e60FB14586B474C208b1B7AC6D0f5000306", "deploymentBlock": null, "verified": true },
+        "osTokenConfig": { "address": "0x287d1e2A8dE183A8bf8f2b09Fa1340fBd766eb59", "deploymentBlock": null, "verified": true },
+        "osTokenVaultEscrow": { "address": "0x09e84205DF7c68907e619D07aFD90143c5763605", "deploymentBlock": null, "verified": true },
+        "osTokenRedeemer": { "address": "0xdF3123dD182b8d3e0266a2DC37eEb8366d149B5A", "deploymentBlock": null, "verified": true },
+        "osTokenFlashLoans": { "address": "0xeBe12d858E55DDc5FC5A8153dC3e117824fbf5d2", "deploymentBlock": null, "verified": true },
+        "depositDataRegistry": { "address": "0x75AB6DdCe07556639333d3Df1eaa684F5735223e", "deploymentBlock": null, "verified": true },
+        "priceFeed": { "address": "0x8023518b2192FB5384DAdc596765B3dD1cdFe471", "deploymentBlock": null, "verified": true },
+        "validatorsChecker": { "address": "0x3b629aF425277FfD7cEB841a24e75d34F868651C", "deploymentBlock": null, "verified": true },
+        "vaultFactory": { "address": "0x7A8cbBf690084E43De778173cfAcf7313c9122DD", "deploymentBlock": null, "verified": true },
+        "erc20VaultFactory": { "address": "0x97795DA27138BD8d79204D37F3A2e80fA4d30488", "deploymentBlock": null, "verified": true },
+        "blocklistVaultFactory": { "address": "0x608d8Ca6916b96edf63Dd429e62Fe1366ae6f3B5", "deploymentBlock": null, "verified": true },
+        "privVaultFactory": { "address": "0x4C958642F1CD735F13aed02A4FB015153edDf8Fd", "deploymentBlock": null, "verified": true },
+        "metaVaultFactory": { "address": "0x6107dB0bdd84023228E0aB11099190E88B073c1D", "deploymentBlock": null, "verified": true },
+        "rewardSplitterFactory": { "address": "0xd12Df8543e0522CCbF12d231e822B7264c634775", "deploymentBlock": null, "verified": true },
+        "merkleDistributor": { "address": "0xa9dc250dF4EE9273D09CFa455da41FB1cAC78d34", "deploymentBlock": null, "verified": true },
+        "genesisVault": { "address": "0xAC0F906E433d58FA868F936E8A43230473652885", "deploymentBlock": null, "verified": true },
+        "foxVault": { "address": "0x4FEF9D741011476750A243aC70b9789a63dd47Df", "deploymentBlock": null, "verified": true },
+        "legacyPoolEscrow": { "address": "0x2296e122c1a20Fca3CAc3371357BdAd3be0dF079", "deploymentBlock": null, "verified": true }
+      },
+      "source": "stakewise-docs",
+      "sourceUrl": "https://docs.stakewise.io/contracts/networks/Mainnet"
+    }
+  }
+}

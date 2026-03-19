@@ -276,7 +276,8 @@
       ],
       "angle": null,
       "directory": "solana/002-doublezero-staked-sol",
-      "status": "pending"
+      "status": "skipped",
+      "skip_reason": "All dzSOL token flows route through single Sanctum Infinity pool account \u2014 no per-user data visible via token balances"
     },
     {
       "name": "Sanctum Validator LSTs",
@@ -357,9 +358,9 @@
         "Ethereum",
         "xDai"
       ],
-      "angle": null,
+      "angle": "Vault reward & MEV distribution",
       "directory": "evm/014-stakewise-v2",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Jupiter Perpetual Exchange",

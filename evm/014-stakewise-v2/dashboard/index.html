@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200">
+  <title>StakeWise V3 — Vault Rewards & MEV Distribution</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      width: 1200px;
+      height: 675px;
+      overflow: hidden;
+    }
+    .header {
+      padding: 14px 24px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .header h1 { font-size: 20px; font-weight: 600; color: #e6edf3; }
+    .header .angle { font-size: 12px; color: #8b949e; margin-top: 2px; }
+    .stats { display: flex; gap: 2px; align-items: stretch; }
+    .stat { text-align: center; white-space: nowrap; padding: 4px 12px; background: #161b22; border-radius: 4px; }
+    .stat-value { font-size: 15px; font-weight: 700; color: #e6edf3; line-height: 1.3; }
+    .stat-label { font-size: 7px; color: #6e7681; text-transform: uppercase; letter-spacing: 0.8px; }
+    .stat:first-child .stat-value { color: #58a6ff; }
+    .stat:nth-child(2) .stat-value { color: #3fb950; }
+    .stat:nth-child(3) .stat-value { color: #d2a8ff; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 8px;
+      padding: 6px 16px;
+      height: calc(100% - 62px - 22px);
+    }
+    .panel {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      position: relative;
+    }
+    .chart { width: 100%; height: 100%; }
+    .footer {
+      padding: 2px 24px 4px;
+      text-align: right;
+      font-size: 9px;
+      color: #484f58;
+    }
+    .footer a { color: #58a6ff; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>StakeWise V3 — Vault Rewards & MEV Distribution</h1>
+      <div class="angle">Per-vault reward harvests, osETH supply dynamics, and MEV income | Ethereum Mainnet</div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-value" id="total-harvests">—</div><div class="stat-label">Harvests</div></div>
+      <div class="stat"><div class="stat-value" id="total-vaults">—</div><div class="stat-label">Vaults</div></div>
+      <div class="stat"><div class="stat-value" id="total-mev">—</div><div class="stat-label">MEV (ETH)</div></div>
+      <div class="stat"><div class="stat-value" id="period">—</div><div class="stat-label">Period</div></div>
+    </div>
+  </div>
+  <div class="grid">
+    <div class="panel"><div class="chart" id="chart-harvests"></div></div>
+    <div class="panel"><div class="chart" id="chart-mev"></div></div>
+    <div class="panel"><div class="chart" id="chart-top-vaults"></div></div>
+    <div class="panel"><div class="chart" id="chart-ostoken"></div></div>
+  </div>
+  <div class="footer">Built with ai-pipes + SQD Pipes SDK | <a href="https://github.com/karelxfi">github.com/karelxfi</a> | <a href="https://x.com/karelxfi">x.com/karelxfi</a></div>
+
+  <script>
+    var CH = 'http://localhost:8123/?user=default&password=password&database=stakewise';
+    var WEI = 1e18;
+
+    function q(sql) {
+      return fetch(CH, { method: 'POST', body: sql + ' FORMAT JSONEachRow' })
+        .then(function(r) { return r.text(); })
+        .then(function(t) {
+          if (!t.trim()) return [];
+          return t.trim().split('\n').map(function(l) { return JSON.parse(l); });
+        });
+    }
+
+    function fmt(n) {
+      if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+      if (Math.abs(n) >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+      return n.toFixed(n < 10 ? 2 : 0);
+    }
+
+    Promise.all([
+      q('SELECT count() as cnt FROM keeper_harvests'),
+      q('SELECT count(DISTINCT vault) as cnt FROM keeper_harvests'),
+      q("SELECT sum(toFloat64(assets)) / 1e18 as total FROM mev_received"),
+      q("SELECT min(timestamp) as mn, max(timestamp) as mx FROM keeper_harvests"),
+      // Weekly harvest counts
+      q("SELECT toMonday(timestamp) as week, count() as cnt, count(DISTINCT vault) as vaults FROM keeper_harvests GROUP BY week ORDER BY week"),
+      // Cumulative MEV over time
+      q("SELECT toMonday(timestamp) as week, sum(toFloat64(assets)) / 1e18 as mev FROM mev_received GROUP BY week ORDER BY week"),
+      // Top vaults by harvest count
+      q("SELECT vault, count() as harvests, sum(toFloat64(total_assets_delta)) / 1e18 as total_delta FROM keeper_harvests GROUP BY vault ORDER BY harvests DESC LIMIT 10"),
+      // osETH mint/burn weekly
+      q("SELECT toMonday(timestamp) as week, count() as mints FROM ostoken_mints GROUP BY week ORDER BY week"),
+      q("SELECT toMonday(timestamp) as week, count() as burns FROM ostoken_burns GROUP BY week ORDER BY week"),
+    ]).then(function(results) {
+      var totalHarvests = results[0][0] ? Number(results[0][0].cnt) : 0;
+      var totalVaults = results[1][0] ? Number(results[1][0].cnt) : 0;
+      var totalMev = results[2][0] ? Number(results[2][0].total) : 0;
+      var minTs = results[3][0] ? results[3][0].mn.slice(0, 10) : '—';
+      var maxTs = results[3][0] ? results[3][0].mx.slice(0, 10) : '—';
+
+      document.getElementById('total-harvests').textContent = fmt(totalHarvests);
+      document.getElementById('total-vaults').textContent = fmt(totalVaults);
+      document.getElementById('total-mev').textContent = fmt(totalMev);
+      document.getElementById('period').textContent = minTs + ' → ' + maxTs;
+
+      // Chart 1: Weekly harvests
+      var weeklyData = results[4];
+      var ch1 = echarts.init(document.getElementById('chart-harvests'));
+      ch1.setOption({
+        title: { text: 'Weekly Vault Harvests', left: 12, top: 8, textStyle: { color: '#e6edf3', fontSize: 13 } },
+        tooltip: { trigger: 'axis', backgroundColor: '#161b22', borderColor: '#30363d', textStyle: { color: '#e6edf3' },
+          formatter: function(p) {
+            return p[0].axisValue + '<br/>' + p.map(function(i) { return i.marker + ' ' + i.seriesName + ': ' + i.value; }).join('<br/>');
+          }
+        },
+        legend: { top: 8, right: 12, textStyle: { color: '#8b949e', fontSize: 10 } },
+        grid: { left: 50, right: 16, top: 40, bottom: 28 },
+        xAxis: { type: 'category', data: weeklyData.map(function(d) { return d.week; }), axisLabel: { color: '#8b949e', fontSize: 9 }, axisLine: { lineStyle: { color: '#30363d' } } },
+        yAxis: { type: 'value', axisLabel: { color: '#8b949e', fontSize: 9 }, splitLine: { lineStyle: { color: '#21262d' } } },
+        series: [
+          {
+            name: 'Harvests',
+            type: 'bar',
+            data: weeklyData.map(function(d) { return Number(d.cnt); }),
+            itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#58a6ff' }, { offset: 1, color: '#1f6feb' }]) }
+          },
+          {
+            name: 'Unique Vaults',
+            type: 'line',
+            data: weeklyData.map(function(d) { return Number(d.vaults); }),
+            lineStyle: { color: '#3fb950', width: 2 },
+            showSymbol: false,
+            yAxisIndex: 0
+          }
+        ]
+      });
+
+      // Chart 2: Cumulative MEV
+      var mevData = results[5];
+      var cumMev = 0;
+      var cumMevData = mevData.map(function(d) { cumMev += Number(d.mev); return { week: d.week, cum: cumMev }; });
+      var ch2 = echarts.init(document.getElementById('chart-mev'));
+      ch2.setOption({
+        title: { text: 'Cumulative MEV Income (ETH)', left: 12, top: 8, textStyle: { color: '#e6edf3', fontSize: 13 } },
+        tooltip: { trigger: 'axis', backgroundColor: '#161b22', borderColor: '#30363d', textStyle: { color: '#e6edf3' },
+          formatter: function(p) { return p[0].axisValue + '<br/>Total MEV: ' + fmt(p[0].value) + ' ETH'; }
+        },
+        grid: { left: 60, right: 16, top: 40, bottom: 28 },
+        xAxis: { type: 'category', data: cumMevData.map(function(d) { return d.week; }), axisLabel: { color: '#8b949e', fontSize: 9 }, axisLine: { lineStyle: { color: '#30363d' } } },
+        yAxis: { type: 'value', axisLabel: { color: '#8b949e', fontSize: 9, formatter: function(v) { return fmt(v); } }, splitLine: { lineStyle: { color: '#21262d' } } },
+        series: [{
+          type: 'line',
+          data: cumMevData.map(function(d) { return d.cum; }),
+          smooth: true,
+          showSymbol: false,
+          lineStyle: { color: '#f78166', width: 2 },
+          areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(247,129,102,0.3)' }, { offset: 1, color: 'rgba(247,129,102,0.02)' }]) }
+        }]
+      });
+
+      // Chart 3: Top vaults by harvest count
+      var topVaults = results[6];
+      var ch3 = echarts.init(document.getElementById('chart-top-vaults'));
+      ch3.setOption({
+        title: { text: 'Top Vaults by Harvest Count', left: 12, top: 8, textStyle: { color: '#e6edf3', fontSize: 13 } },
+        tooltip: { trigger: 'axis', backgroundColor: '#161b22', borderColor: '#30363d', textStyle: { color: '#e6edf3' },
+          formatter: function(p) {
+            var idx = topVaults.length - 1 - p[0].dataIndex;
+            var v = topVaults[idx];
+            return v.vault.slice(0,8) + '...' + v.vault.slice(-4) + '<br/>Harvests: ' + v.harvests + '<br/>Total Delta: ' + fmt(Number(v.total_delta)) + ' ETH';
+          }
+        },
+        grid: { left: 100, right: 50, top: 36, bottom: 12 },
+        xAxis: { type: 'value', axisLabel: { color: '#8b949e', fontSize: 9 }, splitLine: { lineStyle: { color: '#21262d' } } },
+        yAxis: { type: 'category', data: topVaults.map(function(d) { return d.vault.slice(0,8) + '...' + d.vault.slice(-4); }).reverse(), axisLabel: { color: '#8b949e', fontSize: 9 } },
+        series: [{
+          type: 'bar',
+          data: topVaults.map(function(d) { return Number(d.harvests); }).reverse(),
+          itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{ offset: 0, color: '#d2a8ff' }, { offset: 1, color: '#8b5cf6' }]) },
+          label: { show: true, position: 'right', color: '#8b949e', fontSize: 9 }
+        }]
+      });
+
+      // Chart 4: osETH weekly mints vs burns
+      var mintData = results[7];
+      var burnData = results[8];
+      var allWeeks = new Set();
+      mintData.forEach(function(d) { allWeeks.add(d.week); });
+      burnData.forEach(function(d) { allWeeks.add(d.week); });
+      var weeks = Array.from(allWeeks).sort();
+      var mintMap = {}; mintData.forEach(function(d) { mintMap[d.week] = Number(d.mints); });
+      var burnMap = {}; burnData.forEach(function(d) { burnMap[d.week] = Number(d.burns); });
+
+      var ch4 = echarts.init(document.getElementById('chart-ostoken'));
+      ch4.setOption({
+        title: { text: 'osETH Mints vs Burns (Weekly)', left: 12, top: 8, textStyle: { color: '#e6edf3', fontSize: 13 } },
+        tooltip: { trigger: 'axis', backgroundColor: '#161b22', borderColor: '#30363d', textStyle: { color: '#e6edf3' } },
+        legend: { top: 8, right: 12, textStyle: { color: '#8b949e', fontSize: 10 } },
+        grid: { left: 50, right: 16, top: 40, bottom: 28 },
+        xAxis: { type: 'category', data: weeks, axisLabel: { color: '#8b949e', fontSize: 9 }, axisLine: { lineStyle: { color: '#30363d' } } },
+        yAxis: { type: 'value', axisLabel: { color: '#8b949e', fontSize: 9 }, splitLine: { lineStyle: { color: '#21262d' } } },
+        series: [
+          {
+            name: 'Mints',
+            type: 'bar',
+            data: weeks.map(function(w) { return mintMap[w] || 0; }),
+            itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#3fb950' }, { offset: 1, color: '#238636' }]) }
+          },
+          {
+            name: 'Burns',
+            type: 'bar',
+            data: weeks.map(function(w) { return -(burnMap[w] || 0); }),
+            itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#f78166' }, { offset: 1, color: '#da3633' }]) }
+          }
+        ]
+      });
+
+      window.__DASHBOARD_READY__ = true;
+    });
+  </script>
+</body>
+</html>

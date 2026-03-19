@@ -157,6 +157,21 @@ npx @subsquid/evm-typegen@latest <project>/src/contracts <IMPL_ADDRESS> --chain-
 ```
 Then update the import in `src/index.ts`. Keep the proxy address in the `contracts` array.
 
+### ClickHouse DateTime64(3) timestamp gotcha
+When using `DateTime64(3, 'UTC')` columns, **always pass ISO strings** (not epoch seconds). ClickHouse interprets numeric values as fractional seconds from epoch — passing `1700392127` results in `1970-01-20` instead of `2023-11-19`. Use `d.timestamp.toISOString()` with `date_time_input_format: 'best_effort'`.
+
+### evmDecoder contracts field
+`evmDecoder({ contracts: [...] })` expects **an array of address strings**: `['0xABC...']`. The object format `[{ address: ['0xABC...'] }]` is ONLY for factory patterns. Using the wrong format crashes with `contract.toLowerCase is not a function`.
+
+### pipeComposite decoded event field access
+Events from `pipeComposite` + `.pipe()` have these fields:
+- `d.block.number` — block number
+- `d.rawEvent.transactionHash` — tx hash
+- `d.timestamp` — Date object (use `.toISOString()`)
+- `d.event.*` — decoded event parameters
+- `d.contract` — contract address
+This differs from the CLI-generated `enrichEvents` helper which flattens everything.
+
 ### ClickHouse data persistence
 Always add a named volume in docker-compose.yml so data survives container restarts:
 ```yaml
