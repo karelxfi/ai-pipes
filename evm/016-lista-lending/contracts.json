@@ -1,0 +1,29 @@
+{
+  "deployments": {
+    "bsc": {
+      "contracts": {
+        "moolah": { "address": "0x8F73b65B4caAf64FBA2aF91cC5D4a2A1318E5D8C", "deploymentBlock": null, "verified": true, "proxy": true, "implementation": "0x0af5cd9555bc52c34a5f7b20042109d0136bc34f" },
+        "interestRateModel": { "address": "0xFe7dAe87Ebb11a7BEB9F534BB23267992d9cDe7c", "deploymentBlock": null, "verified": true },
+        "vaultAllocator": { "address": "0x9ECF66f016FCaA853FdA24d223bdb4276E5b524a", "deploymentBlock": null, "verified": true },
+        "liquidator": { "address": "0x6a87C15598929B2db22cF68a9a0dDE5Bf297a59a", "deploymentBlock": null, "verified": true },
+        "lendingRevenueDistributor": { "address": "0xea55952a51ddd771d6eBc45Bd0B512276dd0b866", "deploymentBlock": null, "verified": true },
+        "lendingRewardsDistributor": { "address": "0x665410ee5Ea96aa729589491bADC11E0FE163d29", "deploymentBlock": null, "verified": true },
+        "oracleAdaptor": { "address": "0x21650E416dC6C89486B2E654c86cC2c36c597b58", "deploymentBlock": null, "verified": true },
+        "lendingTimeLock": { "address": "0x2e2807F88C381Cb0CC55c808a751fC1E3fcCbb85", "deploymentBlock": null, "verified": true },
+        "lendingFeeRecipient": { "address": "0x2E2Eed557FAb1d2E11fEA1E1a23FF8f1b23551f3", "deploymentBlock": null, "verified": true },
+        "moolahVaultFactory": { "address": "0x2a0Cb6401FD3c6196750dc6b46702040761D9671", "deploymentBlock": null, "verified": true },
+        "lendingRewardsDistributorV2": { "address": "0x2993E9eA76f5839A20673e1B3cf6666ab5B3aE76", "deploymentBlock": null, "verified": true },
+        "rewardsRouter": { "address": "0xCb571b4ac0dB9c64B9ADdD2e6f3d1c7A84E5bfF4", "deploymentBlock": null, "verified": true }
+      },
+      "source": "lista-docs",
+      "sourceUrl": "https://docs.bsc.lista.org/lista-lending/smart-contract"
+    },
+    "ethereum": {
+      "contracts": {
+        "moolahUsd1": { "address": "0xf820fB4680712CD7263a0D3D024D5b5aEA82Fd70", "deploymentBlock": null, "verified": true }
+      },
+      "source": "lista-docs",
+      "sourceUrl": "https://docs.bsc.lista.org/lista-lending/smart-contract"
+    }
+  }
+}

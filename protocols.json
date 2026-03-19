@@ -386,7 +386,8 @@
       ],
       "angle": null,
       "directory": "evm/015-kinetiq-khype",
-      "status": "pending"
+      "status": "skipped",
+      "skip_reason": "Hyperliquid L1 not supported by Portal"
     },
     {
       "name": "Jupiter Staked SOL",
@@ -411,9 +412,9 @@
         "Binance",
         "Ethereum"
       ],
-      "angle": null,
+      "angle": "Isolated market activity on BSC Morpho fork",
       "directory": "evm/016-lista-lending",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Convex Finance",

@@ -1,0 +1,17 @@
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: lista-clickhouse
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    environment:
+      CLICKHOUSE_DB: lista_lending
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: password
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+      - ./clickhouse-cors.xml:/etc/clickhouse-server/config.d/cors.xml:ro
+
+volumes:
+  clickhouse-data:
