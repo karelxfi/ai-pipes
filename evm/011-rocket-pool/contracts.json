@@ -1,0 +1,27 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "rETH": { "address": "0xae78736Cd615f374D3085123A210448E74Fc6393", "name": "Rocket Pool ETH (rETH)", "type": "token", "deploymentBlock": 13325233, "verified": true },
+        "rocketStorage": { "address": "0x1d8f8f00cfa6758d7bE78336684788Fb0ee0Fa46", "name": "Rocket Storage", "type": "core", "deploymentBlock": null, "verified": true },
+        "rocketDepositPool": { "address": "0xDD3f50F8A6CafbE9b31a427582963f465E745AF8", "name": "Rocket Deposit Pool", "type": "core", "deploymentBlock": null, "verified": true }
+      },
+      "source": "etherscan",
+      "sourceUrl": "https://etherscan.io/address/0xae78736Cd615f374D3085123A210448E74Fc6393"
+    },
+    "arbitrum": {
+      "contracts": {
+        "rETH": { "address": "0xEC70Dcb4A1EFa46b8F2D97C310C9c4790ba5ffA8", "name": "rETH (Arbitrum)", "type": "token", "deploymentBlock": null, "verified": true }
+      },
+      "source": "arbiscan",
+      "sourceUrl": "https://arbiscan.io/address/0xEC70Dcb4A1EFa46b8F2D97C310C9c4790ba5ffA8"
+    },
+    "base": {
+      "contracts": {
+        "rETH": { "address": "0xB6fe221Fe9EEf5aBa221c348bA20A1Bf5e73624c", "name": "rETH (Base)", "type": "token", "deploymentBlock": null, "verified": true }
+      },
+      "source": "basescan",
+      "sourceUrl": "https://basescan.org/token/0xB6fe221Fe9EEf5aBa221c348bA20A1Bf5e73624c"
+    }
+  }
+}

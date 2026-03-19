@@ -241,9 +241,9 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": null,
+      "angle": "rETH mint/burn tracker \u2014 staking deposits & withdrawals with implied exchange rate",
       "directory": "evm/011-rocket-pool",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Venus Core Pool",
