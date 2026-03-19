@@ -176,9 +176,9 @@
         "Ethereum",
         "xDai"
       ],
-      "angle": null,
+      "angle": "Lending dynamics \u2014 supply, borrow, repay, withdraw flows across SparkLend",
       "directory": "evm/008-sparklend",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Kamino Lend",

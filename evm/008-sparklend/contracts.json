@@ -1,0 +1,21 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "pool": { "address": "0xC13e21B648A5Ee794902342038FF3aDAB66BE987", "name": "SparkLend Pool", "type": "pool", "deploymentBlock": null, "verified": true, "proxy": true },
+        "poolAddressesProvider": { "address": "0x02C3eA4e34C0cBd694D2adFa2c690EECbC1793eE", "name": "Pool Addresses Provider", "type": "registry", "deploymentBlock": null, "verified": true },
+        "poolAddressesProviderRegistry": { "address": "0x03cFa0C4622FF84E50E75062683F44c9587e6Cc1", "name": "Pool Addresses Provider Registry", "type": "registry", "deploymentBlock": null, "verified": true },
+        "poolImplementation": { "address": "0x5ae329203e00f76891094dcfedd5aca082a50e1b", "name": "Pool Implementation", "type": "core", "deploymentBlock": null, "verified": true }
+      },
+      "source": "spark-docs",
+      "sourceUrl": "https://docs.spark.fi/dev/deployments/"
+    },
+    "gnosis": {
+      "contracts": {
+        "pool": { "address": "0x2Dae5307c5E3FD1CF5A72Cb6F698f915860607CF", "name": "SparkLend Pool (Gnosis)", "type": "pool", "deploymentBlock": null, "verified": true, "proxy": true }
+      },
+      "source": "spark-docs",
+      "sourceUrl": "https://docs.spark.fi/dev/deployments/"
+    }
+  }
+}
