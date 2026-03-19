@@ -268,34 +268,46 @@ async function main() {
     const protocolMap = Object.fromEntries(discoveredDeployers)
 
     let totalDiscovered = 0
-    const CHUNK = 100000 // Smaller chunks for better Portal response handling
     const START = 11000000
     const END = 25000000
 
-    for (let from = START; from < END; from += CHUNK) {
-      const to = Math.min(from + CHUNK, END)
-      process.stdout.write(`  Blocks ${(from / 1e6).toFixed(1)}M → ${(to / 1e6).toFixed(1)}M: `)
+    // Query EACH deployer separately to avoid high-volume deployers
+    // (e.g., Rocket Pool with 3000+ minipools) overwhelming the response
+    for (const [deployer, protocol] of discoveredDeployers) {
+      console.log(`\n  Scanning: ${protocol} (${deployer.substring(0, 10)}...)`)
 
-      const discoveries = await forwardDiscovery(deployers, protocolMap, from, to)
-      if (discoveries.length > 0) {
-        // Mark which ones are known in registry
-        const enriched = discoveries.map(d => ({
-          ...d,
-          known_in_registry: knownContracts.has(d.contract_address) ? 1 : 0,
-        }))
+      let protocolTotal = 0
+      // 50K chunks — larger chunks (500K) cause Portal to drop traces in the stream
+      const CHUNK = 50000
 
-        await chClient.insert({
-          table: 'deployer_discoveries',
-          values: enriched,
+      for (let from = START; from < END; from += CHUNK) {
+        const to = Math.min(from + CHUNK, END)
+
+        const discoveries = await forwardDiscovery([deployer], { [deployer]: protocol }, from, to)
+        if (discoveries.length > 0) {
+          const enriched = discoveries.map(d => ({
+            ...d,
+            known_in_registry: knownContracts.has(d.contract_address) ? 1 : 0,
+          }))
+
+          await chClient.insert({
+            table: 'deployer_discoveries',
+            values: enriched,
+            format: 'JSONEachRow',
+          })
+          totalDiscovered += discoveries.length
+          protocolTotal += discoveries.length
+        }
+      }
+
+      if (protocolTotal > 0) {
+        const knownCount = (await chClient.query({
+          query: `SELECT sum(known_in_registry) as cnt FROM deployment_tracker.deployer_discoveries WHERE deployer = '${deployer}'`,
           format: 'JSONEachRow',
-        })
-        totalDiscovered += discoveries.length
-
-        const knownCount = enriched.filter(d => d.known_in_registry).length
-        const newCount = discoveries.length - knownCount
-        console.log(`${discoveries.length} (${knownCount} known, ${newCount} NEW)`)
+        }).then(r => r.json<{ cnt: string }>()))[0]?.cnt || '0'
+        console.log(`    Total: ${protocolTotal} contracts (${knownCount} known in registry)`)
       } else {
-        console.log('0')
+        console.log(`    Total: 0 contracts`)
       }
     }
 
