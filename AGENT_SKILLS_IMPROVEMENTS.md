@@ -46,6 +46,29 @@ Tracked improvements for `subsquid-labs/agent-skills`, gathered from real indexe
 - **Source:** evm/001-aave-v3
 - **Issue:** Skill documents "use separate database per indexer" but CLI defaults to `pipes`. Should make post-generation database setup more prominent.
 
+## Portal Query Skills
+
+### portal-query-evm-traces: chunk size critical for CREATE trace queries
+- **Source:** tools/deployment-tracker
+- **Issue:** Querying CREATE traces with `createFrom` filter in 500K block chunks causes Portal to silently drop trace results from the ndjson stream. 50K chunks work correctly. The skill doesn't mention this limit.
+- **Fix:** Add a warning about chunk size limits for trace queries. Recommend ≤50K blocks per request for CREATE traces.
+- **Status:** PR #10 submitted with contract registry use case, but chunk size warning not yet added.
+
+### portal-query-evm-traces: no createResultAddress filter support
+- **Source:** tools/deployment-tracker
+- **Issue:** The Portal stream API supports `createFrom` (deployer address) as a filter but NOT `createResultAddress` (deployed contract address). This means reverse lookup (finding who deployed a known contract) isn't possible directly. The skill doesn't explicitly state this limitation.
+- **Fix:** Add a note that reverse lookup by deployed address is not supported. Workaround: use `createFrom` with known deployer addresses.
+
+### portal-query-evm-logs: topic0 verification workflow
+- **Source:** evm/007-pendle, evm/003-binance-staked-eth
+- **Issue:** When indexing custom events (especially from Diamond proxies), the topic0 hash must be verified against actual on-chain data. The Portal query skills could recommend a standard verification workflow: (1) query contract activity to get topic0 list, (2) decode a few samples, (3) match against expected event signatures.
+- **Fix:** Add a "verify event signatures" section to portal-query-evm-logs.
+
+### Portal MCP tools: batch vs individual deployer queries
+- **Source:** tools/deployment-tracker
+- **Issue:** When querying `createFrom` with multiple addresses (e.g., 10+ deployers), high-volume deployers (Rocket Pool: 5,577 minipools) dominate the response and traces from other deployers get lost. The `portal_query_traces` MCP tool doesn't warn about this.
+- **Fix:** Document that multi-address trace filters should be used cautiously. For comprehensive results, query each address individually.
+
 ## Pipes SDK Suggestions
 
 ### `solanaInstructionDecoder` classify-only mode
