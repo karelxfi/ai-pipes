@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200">
+  <title>Compound V3 — Multi-Market Lending Flows</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0d1117; color: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; width: 1200px; height: 675px; overflow: hidden; }
+    .header { padding: 14px 24px 6px; display: flex; justify-content: space-between; align-items: flex-start; }
+    .header h1 { font-size: 20px; font-weight: 600; }
+    .header .angle { font-size: 12px; color: #8b949e; margin-top: 2px; }
+    .stats { display: flex; gap: 2px; }
+    .stat { text-align: center; white-space: nowrap; padding: 4px 12px; background: #161b22; border-radius: 4px; }
+    .stat-value { font-size: 15px; font-weight: 700; line-height: 1.3; }
+    .stat-label { font-size: 7px; color: #6e7681; text-transform: uppercase; letter-spacing: 0.8px; }
+    .stat:nth-child(1) .stat-value { color: #58a6ff; }
+    .stat:nth-child(2) .stat-value { color: #3fb950; }
+    .stat:nth-child(3) .stat-value { color: #d2a8ff; }
+    .stat:nth-child(4) .stat-value { color: #f78166; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 8px; padding: 6px 16px; height: calc(100% - 62px - 22px); }
+    .panel { background: #161b22; border: 1px solid #30363d; border-radius: 6px; position: relative; }
+    .chart { width: 100%; height: 100%; }
+    .footer { padding: 2px 24px 4px; text-align: right; font-size: 9px; color: #484f58; }
+    .footer a { color: #484f58; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>Compound V3 — Multi-Market Lending Flows</h1>
+      <div class="angle">Supply, withdraw &amp; collateral activity across Comet markets | Ethereum Mainnet</div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="grid">
+    <div class="panel"><div class="chart" id="chart1"></div></div>
+    <div class="panel"><div class="chart" id="chart2"></div></div>
+    <div class="panel"><div class="chart" id="chart3"></div></div>
+    <div class="panel"><div class="chart" id="chart4"></div></div>
+  </div>
+  <div class="footer">Built with ai-pipes + SQD Pipes SDK | <a href="https://github.com/karelxfi">github.com/karelxfi</a> | <a href="https://x.com/karelxfi">x.com/karelxfi</a></div>
+<script>
+var CH = 'http://localhost:8123/?user=default&password=password&database=compound_v3';
+var COLORS = ['#58a6ff','#f78166','#3fb950','#d2a8ff','#f0883e','#79c0ff','#7ee787','#d29922','#ff7b72','#a5d6ff'];
+
+function query(sql) { return fetch(CH, { method: 'POST', body: sql + ' FORMAT JSON' }).then(function(r){return r.json()}).then(function(j){return j.data||[]}); }
+function fmt(n) { if(n>=1e6) return (n/1e6).toFixed(2)+'M'; if(n>=1e3) return (n/1e3).toFixed(1)+'K'; return String(n); }
+function shortAddr(a) { return a.substring(0,6)+'..'+a.substring(38); }
+
+function buildStats(d) {
+  var el = document.getElementById('stats');
+  while(el.firstChild) el.removeChild(el.firstChild);
+  [{val:fmt(+d.total),label:'Total Actions'},{val:fmt(+d.users),label:'Unique Users'},{val:fmt(+d.markets),label:'Markets'},{val:d.first_ts.substring(0,10)+' \u2192 '+d.last_ts.substring(0,10),label:'Period',style:'font-size:11px;color:#8b949e'}].forEach(function(item){
+    var s=document.createElement('div');s.className='stat';
+    var v=document.createElement('div');v.className='stat-value';if(item.style)v.style.cssText=item.style;v.textContent=item.val;
+    var l=document.createElement('div');l.className='stat-label';l.textContent=item.label;
+    s.appendChild(v);s.appendChild(l);el.appendChild(s);
+  });
+}
+
+async function init() {
+  var stats = await query("SELECT count() as total, count(DISTINCT user) as users, count(DISTINCT market_name) as markets, min(timestamp) as first_ts, max(timestamp) as last_ts FROM compound_v3_actions");
+  buildStats(stats[0]);
+
+  // Chart 1: Weekly activity by action type
+  var weekly = await query("SELECT toStartOfWeek(timestamp) as week, action, count() as cnt FROM compound_v3_actions GROUP BY week, action ORDER BY week");
+  var actions = []; var actSet = {};
+  weekly.forEach(function(d){if(!actSet[d.action]){actions.push(d.action);actSet[d.action]=true;}});
+  var weeks = []; var wkSet = {};
+  weekly.forEach(function(d){var w=d.week.substring(0,10);if(!wkSet[w]){weeks.push(w);wkSet[w]=true;}});
+  weeks.sort();
+  var byAction = {}; actions.forEach(function(a){byAction[a]={};});
+  weekly.forEach(function(d){byAction[d.action][d.week.substring(0,10)]=+d.cnt;});
+  var actionColors = {supply:'#3fb950',withdraw:'#f78166',supply_collateral:'#58a6ff',withdraw_collateral:'#d2a8ff'};
+
+  echarts.init(document.getElementById('chart1')).setOption({
+    title:{text:'Weekly Activity by Action',left:12,top:8,textStyle:{color:'#e6edf3',fontSize:13}},
+    tooltip:{trigger:'axis',backgroundColor:'#161b22',borderColor:'#30363d',textStyle:{color:'#e6edf3'}},
+    legend:{right:12,top:8,textStyle:{color:'#8b949e',fontSize:8},data:actions},
+    grid:{left:48,right:16,top:40,bottom:28},
+    xAxis:{type:'category',data:weeks,axisLabel:{color:'#6e7681',fontSize:9},axisLine:{lineStyle:{color:'#30363d'}}},
+    yAxis:{type:'value',axisLabel:{color:'#6e7681',fontSize:9},splitLine:{lineStyle:{color:'#21262d'}}},
+    series:actions.map(function(a){return{name:a,type:'bar',stack:'total',data:weeks.map(function(w){return byAction[a][w]||0;}),itemStyle:{color:actionColors[a]||COLORS[0]}};})
+  });
+
+  // Chart 2: Market comparison
+  var markets = await query("SELECT market_name, action, count() as cnt FROM compound_v3_actions GROUP BY market_name, action ORDER BY market_name");
+  var mNames = []; var mnSet = {};
+  markets.forEach(function(d){if(!mnSet[d.market_name]){mNames.push(d.market_name);mnSet[d.market_name]=true;}});
+  var mActions = {}; // {market: {action: count}}
+  mNames.forEach(function(m){mActions[m]={};});
+  markets.forEach(function(d){mActions[d.market_name][d.action]=+d.cnt;});
+  var allActions = ['supply','withdraw','supply_collateral','withdraw_collateral'];
+
+  echarts.init(document.getElementById('chart2')).setOption({
+    title:{text:'Market Comparison',left:12,top:8,textStyle:{color:'#e6edf3',fontSize:13}},
+    tooltip:{backgroundColor:'#161b22',borderColor:'#30363d',textStyle:{color:'#e6edf3'}},
+    legend:{right:12,top:8,textStyle:{color:'#8b949e',fontSize:8},data:allActions},
+    grid:{left:70,right:16,top:36,bottom:16},
+    xAxis:{type:'value',axisLabel:{color:'#6e7681',fontSize:9},splitLine:{lineStyle:{color:'#21262d'}}},
+    yAxis:{type:'category',data:mNames,axisLabel:{color:'#8b949e',fontSize:11},axisLine:{lineStyle:{color:'#30363d'}}},
+    series:allActions.map(function(a){return{name:a,type:'bar',stack:'total',data:mNames.map(function(m){return mActions[m][a]||0;}),itemStyle:{color:actionColors[a]}};})
+  });
+
+  // Chart 3: Action distribution treemap
+  var actionBreak = await query("SELECT action, count() as cnt FROM compound_v3_actions GROUP BY action ORDER BY cnt DESC");
+  echarts.init(document.getElementById('chart3')).setOption({
+    title:{text:'Action Distribution',left:12,top:8,textStyle:{color:'#e6edf3',fontSize:13}},
+    series:[{type:'treemap',left:12,right:12,top:36,bottom:12,
+      data:actionBreak.map(function(d,i){return{name:d.action,value:+d.cnt,itemStyle:{color:actionColors[d.action]||COLORS[i]}};}),
+      label:{color:'#e6edf3',fontSize:12,formatter:function(p){return p.name+'\n'+fmt(p.value);}},breadcrumb:{show:false}}]
+  });
+
+  // Chart 4: Top users
+  var users = await query("SELECT user, count() as cnt FROM compound_v3_actions GROUP BY user ORDER BY cnt DESC LIMIT 8");
+  echarts.init(document.getElementById('chart4')).setOption({
+    title:{text:'Top Users (by action count)',left:12,top:8,textStyle:{color:'#e6edf3',fontSize:13}},
+    tooltip:{backgroundColor:'#161b22',borderColor:'#30363d',textStyle:{color:'#e6edf3'}},
+    grid:{left:110,right:40,top:36,bottom:16},
+    xAxis:{type:'value',axisLabel:{color:'#6e7681',fontSize:9},splitLine:{lineStyle:{color:'#21262d'}}},
+    yAxis:{type:'category',data:users.map(function(d){return shortAddr(d.user);}).reverse(),axisLabel:{color:'#8b949e',fontSize:9},axisLine:{lineStyle:{color:'#30363d'}}},
+    series:[{type:'bar',data:users.map(function(d,i){return{value:+d.cnt,itemStyle:{color:COLORS[i%COLORS.length]}};}).reverse(),
+      label:{show:true,position:'right',color:'#8b949e',fontSize:9,formatter:'{c}'}}]
+  });
+
+  window.__DASHBOARD_READY__ = true;
+}
+init().catch(console.error);
+</script>
+</body>
+</html>

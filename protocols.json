@@ -228,9 +228,9 @@
         "Ronin",
         "Scroll"
       ],
-      "angle": null,
+      "angle": "Multi-market lending flows \u2014 supply, withdraw & collateral across Compound V3 Comet markets",
       "directory": "evm/010-compound-v3",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Rocket Pool",

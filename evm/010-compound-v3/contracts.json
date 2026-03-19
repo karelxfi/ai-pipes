@@ -1,0 +1,16 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "cUSDCv3": { "address": "0xc3d688B66703497DAA19211EEdff47f25384cdc3", "name": "Compound USDC (cUSDCv3)", "type": "pool", "deploymentBlock": 15331586, "verified": true, "proxy": true },
+        "cWETHv3": { "address": "0xA17581A9E3356d9A858b789D68B4d866e593aE94", "name": "Compound WETH (cWETHv3)", "type": "pool", "deploymentBlock": null, "verified": true, "proxy": true },
+        "cometImplementation": { "address": "0xeB330B7c1622E0f8b18a7dd1dECC27cf3d980E61", "name": "Comet Implementation", "type": "core", "deploymentBlock": null, "verified": true },
+        "compToken": { "address": "0xc00e94Cb662C3520282E6f5717214004A7f26888", "name": "COMP Token", "type": "token", "deploymentBlock": null, "verified": true },
+        "configurator": { "address": "0x316f9708bB98af7dA9c68C1C3b5e79039cD336E3", "name": "Configurator", "type": "core", "deploymentBlock": null, "verified": true },
+        "cometFactory": { "address": "0xa7F7De6cCad4D83d7F21a2604032EBC0Dd1e1E5B", "name": "Comet Factory", "type": "factory", "deploymentBlock": null, "verified": true }
+      },
+      "source": "compound-docs",
+      "sourceUrl": "https://docs.compound.finance/"
+    }
+  }
+}
