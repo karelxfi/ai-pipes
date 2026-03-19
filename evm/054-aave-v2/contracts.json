@@ -1,0 +1,14 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "lendingPool": { "address": "0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9", "name": "Aave V2 LendingPool", "type": "pool", "deploymentBlock": 11362579, "verified": true, "proxy": true },
+        "lendingPoolImpl": { "address": "0xc6845a5c768bf8d7681249f8927877efda425baf", "name": "LendingPool Implementation", "type": "core", "deploymentBlock": null, "verified": true },
+        "lendingPoolAddressesProvider": { "address": "0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5", "name": "LendingPool Addresses Provider", "type": "registry", "deploymentBlock": null, "verified": true },
+        "aaveToken": { "address": "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9", "name": "AAVE Token", "type": "token", "deploymentBlock": null, "verified": true }
+      },
+      "source": "aave-docs",
+      "sourceUrl": "https://docs.aave.com/developers/v/2.0/deployed-contracts/deployed-contracts"
+    }
+  }
+}

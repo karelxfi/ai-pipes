@@ -1068,9 +1068,9 @@
         "Polygon",
         "Avalanche"
       ],
-      "angle": null,
+      "angle": "Legacy lending & liquidation \u2014 Aave V2 lifecycle from DeFi summer boom to V3 migration",
       "directory": "evm/054-aave-v2",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Frax Ether",
