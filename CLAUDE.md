@@ -253,8 +253,14 @@ These appear in MakerDAO and forks: `wad` = 18 decimals, `ray` = 27 decimals, `r
 - **`CLI_IMPROVEMENTS.md`** — Append any new Pipes CLI issues (templates, init bugs, missing features). Add the source example reference. Don't duplicate existing entries — update with new source refs if same issue recurs.
 - **`AGENT_SKILLS_IMPROVEMENTS.md`** — Append any new agent-skills issues (skill docs, workflows, missing patterns). Same dedup rules.
 
-### 2. Patch agent-skills locally (if applicable)
-If you learned something generalizable, edit files under `.agents/skills/`. Then commit separately and PR:
+### 2. Patch agent-skills and create PR (MANDATORY)
+After every indexer, review what you learned and determine if any agent-skills files need updating. This includes:
+- **Portal query skills** (portal-query-evm-logs, portal-query-evm-traces, etc.) — wrong filter docs, missing warnings, verification workflows
+- **pipes-new-indexer** — proxy patterns, ABI issues, scaffold gaps
+- **pipes-deploy** — Docker, ClickHouse, CORS issues
+- **pipes-troubleshooting** — new error patterns and fixes
+
+If changes are needed, edit files under `.agents/skills/`, commit separately, and create a PR:
 ```bash
 git add .agents/skills/
 git commit -m "fix(skills): <what and why>"
@@ -262,11 +268,13 @@ SKILL_COMMIT=$(git rev-parse HEAD)
 bash scripts/pr-skill-patches.sh "$SKILL_COMMIT" "<description>"
 ```
 
+The PR script syncs with upstream before patching — it will only submit actual changes, not formatting diffs. If nothing genuinely new was learned, skip the PR but still review.
+
 ### 3. Check — did you skip anything?
 Before committing the indexer, verify:
 - [ ] `CLI_IMPROVEMENTS.md` — reviewed, updated if needed (even if "no new issues")
 - [ ] `AGENT_SKILLS_IMPROVEMENTS.md` — reviewed, updated if needed
-- [ ] Skills PR submitted if patches were made
+- [ ] Skills PR submitted if patches were made (or confirmed nothing new to patch)
 - [ ] `contracts.json` created and pushed to contracts-registry
 
 ## Contracts Registry Integration
