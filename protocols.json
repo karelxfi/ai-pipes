@@ -467,9 +467,9 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": null,
+      "angle": "Validator growth & reward accumulation on enterprise-grade LsETH staking",
       "directory": "evm/020-liquid-collective",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "USDD",

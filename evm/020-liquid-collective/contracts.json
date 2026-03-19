@@ -1,0 +1,19 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "river": { "address": "0x8c1BEd5b9a0928467c9B1341Da1D7BD5e10b6549", "deploymentBlock": 19658747, "verified": true },
+        "oracle": { "address": "0x895a57eD71025D51fe4080530A3489D92E230683", "deploymentBlock": null, "verified": true },
+        "operatorsRegistry": { "address": "0x1235f1b60df026B2620e48E735C422425E06b725", "deploymentBlock": null, "verified": true },
+        "redeemManager": { "address": "0x080b3a41390b357Ad7e8097644d1DEDf57AD3375", "deploymentBlock": null, "verified": true },
+        "withdraw": { "address": "0x0AFd81862eEA47322Cf85Db39D3D07e8A3c25154", "deploymentBlock": null, "verified": true },
+        "allowlist": { "address": "0xebc83Bb472b2816Ec5B5de8D34F0eFc9088BB2ce", "deploymentBlock": null, "verified": true },
+        "elFeeRecipient": { "address": "0x7D16d2c4e96BCFC8f815E15b771aC847EcbDB48b", "deploymentBlock": null, "verified": true },
+        "coverageFund": { "address": "0x32aac358b627b9feaa971cc33304027a41e49a81", "deploymentBlock": null, "verified": true },
+        "tlc": { "address": "0xb5Fe6946836D687848B5aBd42dAbF531d5819632", "deploymentBlock": null, "verified": true }
+      },
+      "source": "liquid-collective-docs",
+      "sourceUrl": "https://docs.liquidcollective.io/eth/deployments"
+    }
+  }
+}

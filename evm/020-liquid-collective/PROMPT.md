@@ -1,0 +1,1 @@
+Index Liquid Collective (LsETH) staking activity on Ethereum to track validator growth, deposit flow, and reward accumulation. The River contract (proxy: 0x8c1BEd5b9a0928467c9B1341Da1D7BD5e10b6549) emits UserDeposit, SetDepositedValidatorCount, and RewardsEarned events. Track enterprise-grade ETH staking with validator count growth and TVL evolution.
