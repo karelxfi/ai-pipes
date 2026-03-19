@@ -261,9 +261,9 @@
         "Optimism",
         "Op_Bnb"
       ],
-      "angle": null,
+      "angle": "BSC lending activity \u2014 Mint, Redeem, Borrow, RepayBorrow across Venus vToken markets",
       "directory": "evm/012-venus-core-pool",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "DoubleZero Staked SOL",
