@@ -647,9 +647,9 @@
         "Binance",
         "Avalanche"
       ],
-      "angle": null,
+      "angle": "Skipped \u2014 no public Ethereum/Base contract addresses, API-based TVL only",
       "directory": "evm/031-multipli.fi",
-      "status": "pending"
+      "status": "skipped"
     },
     {
       "name": "Drift Trade",
@@ -673,9 +673,9 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": null,
+      "angle": "Skipped \u2014 cbETH is just an ERC-20 wrapper, only Transfer events (too generic)",
       "directory": "evm/032-coinbase-wrapped-staked-eth",
-      "status": "pending"
+      "status": "skipped"
     },
     {
       "name": "Dolomite",
@@ -692,9 +692,9 @@
         "Mantle",
         "X Layer"
       ],
-      "angle": null,
+      "angle": "Skipped \u2014 dYdX fork with library-emitted events (nested struct types), ABI not extractable via typegen",
       "directory": "evm/033-dolomite",
-      "status": "pending"
+      "status": "skipped"
     },
     {
       "name": "cap",
@@ -705,9 +705,9 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": null,
+      "angle": "Skipped \u2014 very new protocol (Jul 2025), only ~180 total events",
       "directory": "evm/034-cap",
-      "status": "pending"
+      "status": "skipped"
     },
     {
       "name": "Strata Markets",
@@ -718,9 +718,9 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": null,
+      "angle": "Skipped \u2014 needs research, likely new protocol",
       "directory": "evm/035-strata-markets",
-      "status": "pending"
+      "status": "skipped"
     },
     {
       "name": "GMX V2 Perps",
