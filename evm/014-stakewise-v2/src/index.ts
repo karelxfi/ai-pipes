@@ -63,13 +63,14 @@ const mevDecoder = evmDecoder({
 
 export async function main() {
   await evmPortalSource({
+    id: 'stakewise-v3-rewards',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
-  })
-    .pipeComposite({
+    outputs: {
       keeper: keeperDecoder,
       osToken: osTokenDecoder,
       mev: mevDecoder,
-    })
+    },
+  })
     .pipe(({ keeper, osToken, mev }) => ({
       harvests: keeper.harvested.map((d: any, i: number) => {
         return {

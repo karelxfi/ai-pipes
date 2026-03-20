@@ -3,7 +3,6 @@ import path from 'node:path'
 import { createClient } from '@clickhouse/client'
 import { solanaPortalSource, SolanaQueryBuilder } from '@subsquid/pipes/solana'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
-import { createTransformer } from '@subsquid/pipes'
 import { z } from 'zod'
 
 const env = z
@@ -92,73 +91,69 @@ function extractLstMint(programId: string, accounts: string[]): string | null {
   return null
 }
 
-const sanctumClassifier = createTransformer({
-  profiler: { id: 'sanctum-classifier' },
-  query: async ({ queryBuilder }: { queryBuilder: SolanaQueryBuilder }) => {
-    queryBuilder.addFields({
-      block: { number: true, timestamp: true },
-      transaction: { transactionIndex: true, signatures: true, accountKeys: true },
-      instruction: {
-        transactionIndex: true,
-        programId: true,
-        data: true,
-        accounts: true,
-        instructionAddress: true,
-      },
-    })
-    queryBuilder.addInstruction({
-      range: { from: FROM_SLOT },
-      request: {
-        programId: ALL_PROGRAMS,
-        isCommitted: true,
-        transaction: true,
-      },
-    })
-  },
-  transform: async (data: any) => {
-    const actions: SanctumAction[] = []
-
-    for (const block of data.blocks) {
-      if (!block.instructions) continue
-
-      for (const instruction of block.instructions) {
-        if (!ALL_PROGRAMS.includes(instruction.programId)) continue
-
-        const lstMint = extractLstMint(instruction.programId, instruction.accounts)
-        if (!lstMint) continue
-
-        const tx = block.transactions?.find(
-          (t: any) => t.transactionIndex === instruction.transactionIndex
-        )
-        if (!tx) continue
-
-        let program = 'unknown'
-        if (instruction.programId === S_CONTROLLER) program = 'infinity'
-        else if (instruction.programId === ROUTER_PROGRAM) program = 'router'
-        else if (instruction.programId === UNSTAKE_PROGRAM) program = 'unstake'
-
-        actions.push({
-          slot: block.header.number,
-          timestamp: new Date(block.header.timestamp * 1000).toISOString(),
-          tx_signature: tx.signatures?.[0] ?? '',
-          fee_payer: tx.accountKeys?.[0] ?? '',
-          program,
-          lst_mint: lstMint,
-          sign: 1,
-        })
-      }
-    }
-
-    return { actions }
-  },
-})
+// Build the query that fetches Sanctum instructions filtered by program IDs
+const query = new SolanaQueryBuilder()
+  .addFields({
+    block: { number: true, timestamp: true },
+    transaction: { transactionIndex: true, signatures: true, accountKeys: true },
+    instruction: {
+      transactionIndex: true,
+      programId: true,
+      data: true,
+      accounts: true,
+      instructionAddress: true,
+    },
+  })
+  .addInstruction({
+    range: { from: FROM_SLOT },
+    request: {
+      programId: ALL_PROGRAMS,
+      isCommitted: true,
+      transaction: true,
+    },
+  })
 
 export async function main() {
   await solanaPortalSource({
+    id: 'sanctum-router',
     portal: 'https://portal.sqd.dev/datasets/solana-mainnet',
+    outputs: query,
   })
-    .pipeComposite({
-      sanctum: sanctumClassifier,
+    .pipe((blocks: any[]) => {
+      const actions: SanctumAction[] = []
+
+      for (const block of blocks) {
+        if (!block.instructions) continue
+
+        for (const instruction of block.instructions) {
+          if (!ALL_PROGRAMS.includes(instruction.programId)) continue
+
+          const lstMint = extractLstMint(instruction.programId, instruction.accounts)
+          if (!lstMint) continue
+
+          const tx = block.transactions?.find(
+            (t: any) => t.transactionIndex === instruction.transactionIndex
+          )
+          if (!tx) continue
+
+          let program = 'unknown'
+          if (instruction.programId === S_CONTROLLER) program = 'infinity'
+          else if (instruction.programId === ROUTER_PROGRAM) program = 'router'
+          else if (instruction.programId === UNSTAKE_PROGRAM) program = 'unstake'
+
+          actions.push({
+            slot: block.header.number,
+            timestamp: new Date(block.header.timestamp * 1000).toISOString(),
+            tx_signature: tx.signatures?.[0] ?? '',
+            fee_payer: tx.accountKeys?.[0] ?? '',
+            program,
+            lst_mint: lstMint,
+            sign: 1,
+          })
+        }
+      }
+
+      return { actions }
     })
     .pipeTo(
       clickhouseTarget({
@@ -183,7 +178,7 @@ export async function main() {
           await store.executeFiles(migrationsDir)
         },
         onData: async ({ data, store }) => {
-          const actions = (data as any).sanctum.actions as SanctumAction[]
+          const actions = data.actions as SanctumAction[]
           if (actions.length === 0) return
           await store.insert({
             table: 'sanctum_actions',

@@ -42,10 +42,11 @@ const query = new HyperliquidFillsQueryBuilder()
 
 export async function main() {
   await hyperliquidFillsPortalSource({
+    id: 'hl-funding-pnl',
     portal: 'https://portal.sqd.dev/datasets/hyperliquid-fills',
-    query,
+    outputs: query,
   })
-    .pipe(({ blocks }) => {
+    .pipe((blocks) => {
       const fills = blocks.flatMap((block) =>
         block.fills
           .filter((fill) => fill.closedPnl !== 0) // only closing trades with realized PnL

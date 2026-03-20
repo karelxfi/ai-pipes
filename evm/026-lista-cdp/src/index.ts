@@ -60,11 +60,12 @@ interface CdpEvent {
 
 export async function main() {
   await evmPortalSource({
+    id: 'lista-cdp-events',
     portal: 'https://portal.sqd.dev/datasets/binance-mainnet',
-  })
-    .pipeComposite({
+    outputs: {
       cdp: cdpDecoder,
-    })
+    },
+  })
     .pipe(({ cdp }) => {
       const events: CdpEvent[] = []
 

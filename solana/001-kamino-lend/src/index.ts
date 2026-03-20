@@ -3,7 +3,6 @@ import path from 'node:path'
 import { createClient } from '@clickhouse/client'
 import { solanaPortalSource, SolanaQueryBuilder } from '@subsquid/pipes/solana'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
-import { createTransformer } from '@subsquid/pipes'
 import { z } from 'zod'
 
 const env = z
@@ -47,71 +46,28 @@ function serializeJsonWithBigInt(obj: unknown): string {
   )
 }
 
-// Build a custom query that fetches Kamino Lend instructions filtered by program ID + d8
-const kaminoClassifier = createTransformer({
-  profiler: { id: 'kamino-classifier' },
-  query: async ({ queryBuilder }: { queryBuilder: SolanaQueryBuilder }) => {
-    queryBuilder.addFields({
-      block: { number: true, timestamp: true },
-      transaction: { transactionIndex: true, signatures: true, accountKeys: true },
-      instruction: {
-        transactionIndex: true,
-        programId: true,
-        data: true,
-        accounts: true,
-        instructionAddress: true,
-      },
-    })
-    queryBuilder.addInstruction({
-      range: { from: FROM_SLOT },
-      request: {
-        programId: [PROGRAM_ID],
-        d8: D8_VALUES,
-        isCommitted: true,
-        transaction: true,
-      },
-    })
-  },
-  transform: async (data: any) => {
-    const actions: KaminoAction[] = []
-
-    for (const block of data.blocks) {
-      if (!block.instructions) continue
-
-      for (const instruction of block.instructions) {
-        if (instruction.programId !== PROGRAM_ID) continue
-
-        // Compute d8 from raw instruction data (base58-encoded)
-        // The Pipes SDK provides instruction.data as base58.
-        // We need to get the first 8 bytes as a hex d8 discriminator.
-        const d8Hex = getD8FromBase58(instruction.data)
-        const action = DISCRIMINATORS[d8Hex]
-        if (!action) continue
-
-        // Find the parent transaction to get signatures and fee_payer
-        const tx = block.transactions?.find(
-          (t: any) => t.transactionIndex === instruction.transactionIndex
-        )
-        if (!tx) continue
-
-        const txSignature = tx.signatures?.[0] ?? ''
-        // Fee payer is the first account key in the transaction
-        const feePayer = tx.accountKeys?.[0] ?? ''
-
-        actions.push({
-          slot: block.header.number,
-          timestamp: new Date(block.header.timestamp * 1000).toISOString(),
-          tx_signature: txSignature,
-          fee_payer: feePayer,
-          action,
-          sign: 1,
-        })
-      }
-    }
-
-    return { actions }
-  },
-})
+// Build the query that fetches Kamino Lend instructions filtered by program ID + d8
+const query = new SolanaQueryBuilder()
+  .addFields({
+    block: { number: true, timestamp: true },
+    transaction: { transactionIndex: true, signatures: true, accountKeys: true },
+    instruction: {
+      transactionIndex: true,
+      programId: true,
+      data: true,
+      accounts: true,
+      instructionAddress: true,
+    },
+  })
+  .addInstruction({
+    range: { from: FROM_SLOT },
+    request: {
+      programId: [PROGRAM_ID],
+      d8: D8_VALUES,
+      isCommitted: true,
+      transaction: true,
+    },
+  })
 
 // Helper: decode base58 to bytes and extract d8 hex discriminator
 function getD8FromBase58(base58Data: string): string {
@@ -165,10 +121,43 @@ function base58Decode(str: string): Uint8Array {
 
 export async function main() {
   await solanaPortalSource({
+    id: 'kamino-lend',
     portal: 'https://portal.sqd.dev/datasets/solana-mainnet',
+    outputs: query,
   })
-    .pipeComposite({
-      kamino: kaminoClassifier,
+    .pipe((blocks: any[]) => {
+      const actions: KaminoAction[] = []
+
+      for (const block of blocks) {
+        if (!block.instructions) continue
+
+        for (const instruction of block.instructions) {
+          if (instruction.programId !== PROGRAM_ID) continue
+
+          const d8Hex = getD8FromBase58(instruction.data)
+          const action = DISCRIMINATORS[d8Hex]
+          if (!action) continue
+
+          const tx = block.transactions?.find(
+            (t: any) => t.transactionIndex === instruction.transactionIndex
+          )
+          if (!tx) continue
+
+          const txSignature = tx.signatures?.[0] ?? ''
+          const feePayer = tx.accountKeys?.[0] ?? ''
+
+          actions.push({
+            slot: block.header.number,
+            timestamp: new Date(block.header.timestamp * 1000).toISOString(),
+            tx_signature: txSignature,
+            fee_payer: feePayer,
+            action,
+            sign: 1,
+          })
+        }
+      }
+
+      return { actions }
     })
     .pipeTo(
       clickhouseTarget({
@@ -193,7 +182,7 @@ export async function main() {
           await store.executeFiles(migrationsDir)
         },
         onData: async ({ data, store }) => {
-          const actions = (data as any).kamino.actions as KaminoAction[]
+          const actions = data.actions as KaminoAction[]
           if (actions.length === 0) return
           await store.insert({
             table: 'kamino_actions',

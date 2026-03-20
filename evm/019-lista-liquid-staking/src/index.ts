@@ -55,11 +55,12 @@ interface StakingEvent {
 
 export async function main() {
   await evmPortalSource({
+    id: 'lista-liquid-staking',
     portal: 'https://portal.sqd.dev/datasets/binance-mainnet',
-  })
-    .pipeComposite({
+    outputs: {
       staking: stakingDecoder,
-    })
+    },
+  })
     .pipe(({ staking }) => {
       const events: StakingEvent[] = []
 

@@ -71,9 +71,10 @@ const operations = evmDecoder({
 
 export async function main() {
   await evmPortalSource({
+    id: 'fluid-lending-operations',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
+    outputs: { operations },
   })
-    .pipeComposite({ operations })
     .pipeTo(
       clickhouseTarget({
         client: createClient({

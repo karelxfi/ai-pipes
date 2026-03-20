@@ -32,11 +32,10 @@ const custom = evmDecoder({
 
 export async function main() {
   await evmPortalSource({
+    id: 'lido-rebases',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
+    outputs: { custom },
   })
-    .pipeComposite({
-      custom,
-    })
     .pipeTo(
       clickhouseTarget({
         client: createClient({

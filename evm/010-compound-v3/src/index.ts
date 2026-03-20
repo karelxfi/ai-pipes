@@ -91,9 +91,10 @@ const actions = evmDecoder({
 
 export async function main() {
   await evmPortalSource({
+    id: 'compound-v3-actions',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
+    outputs: { actions },
   })
-    .pipeComposite({ actions })
     .pipeTo(
       clickhouseTarget({
         client: createClient({

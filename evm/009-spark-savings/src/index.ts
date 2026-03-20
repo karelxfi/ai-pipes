@@ -68,9 +68,10 @@ const flows = evmDecoder({
 
 export async function main() {
   await evmPortalSource({
+    id: 'spark-savings-flows',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
+    outputs: { flows },
   })
-    .pipeComposite({ flows })
     .pipeTo(
       clickhouseTarget({
         client: createClient({

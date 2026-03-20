@@ -63,11 +63,12 @@ interface LcEvent {
 
 export async function main() {
   await evmPortalSource({
+    id: 'liquid-collective-staking',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
-  })
-    .pipeComposite({
+    outputs: {
       river: riverDecoder,
-    })
+    },
+  })
     .pipe(({ river }) => {
       const events: LcEvent[] = []
 

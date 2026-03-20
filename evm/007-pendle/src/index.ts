@@ -70,9 +70,10 @@ const swaps = evmDecoder({
 
 export async function main() {
   await evmPortalSource({
+    id: 'pendle-swaps',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
+    outputs: { swaps },
   })
-    .pipeComposite({ swaps })
     .pipeTo(
       clickhouseTarget({
         client: createClient({

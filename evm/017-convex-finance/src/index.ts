@@ -53,9 +53,10 @@ const staking = evmDecoder({
 
 export async function main() {
   await evmPortalSource({
+    id: 'convex-finance-staking',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
+    outputs: { staking },
   })
-    .pipeComposite({ staking })
     .pipeTo(
       clickhouseTarget({
         client: createClient({

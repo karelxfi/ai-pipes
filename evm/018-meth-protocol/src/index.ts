@@ -58,11 +58,12 @@ interface MethEvent {
 
 export async function main() {
   await evmPortalSource({
+    id: 'meth-protocol-staking',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
-  })
-    .pipeComposite({
+    outputs: {
       staking: stakingDecoder,
-    })
+    },
+  })
     .pipe(({ staking }) => {
       const events: MethEvent[] = []
 

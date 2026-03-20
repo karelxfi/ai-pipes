@@ -66,13 +66,14 @@ function toIso(d: any): string {
 
 export async function main() {
   await evmPortalSource({
+    id: 'lista-lending-moolah',
     portal: 'https://portal.sqd.dev/datasets/binance-mainnet',
-  })
-    .pipeComposite({
+    outputs: {
       lending: lendingDecoder,
       interest: interestDecoder,
       flash: flashDecoder,
-    })
+    },
+  })
     .pipe(({ lending, interest, flash }) => {
       const events: any[] = []
 

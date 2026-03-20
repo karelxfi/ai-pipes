@@ -60,12 +60,13 @@ interface GmxEvent {
 
 export async function main() {
   await evmPortalSource({
+    id: 'gmx-v2-perps',
     portal: 'https://portal.sqd.dev/datasets/arbitrum-one',
-  })
-    .pipeComposite({
+    outputs: {
       log1: eventLog1Decoder,
       log2: eventLog2Decoder,
-    })
+    },
+  })
     .pipe(({ log1, log2 }) => {
       const events: GmxEvent[] = []
 

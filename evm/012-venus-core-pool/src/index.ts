@@ -90,9 +90,10 @@ const actions = evmDecoder({
 
 export async function main() {
   await evmPortalSource({
+    id: 'venus-core-pool-actions',
     portal: 'https://portal.sqd.dev/datasets/binance-mainnet',
+    outputs: { actions },
   })
-    .pipeComposite({ actions })
     .pipeTo(
       clickhouseTarget({
         client: createClient({

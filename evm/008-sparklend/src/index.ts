@@ -82,9 +82,10 @@ const actions = evmDecoder({
 
 export async function main() {
   await evmPortalSource({
+    id: 'sparklend-actions',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
+    outputs: { actions },
   })
-    .pipeComposite({ actions })
     .pipeTo(
       clickhouseTarget({
         client: createClient({

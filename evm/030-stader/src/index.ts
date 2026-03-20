@@ -64,11 +64,12 @@ interface StaderEvent {
 
 export async function main() {
   await evmPortalSource({
+    id: 'stader-ethx-staking',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
-  })
-    .pipeComposite({
+    outputs: {
       pool: poolDecoder,
-    })
+    },
+  })
     .pipe(({ pool }) => {
       const events: StaderEvent[] = []
 

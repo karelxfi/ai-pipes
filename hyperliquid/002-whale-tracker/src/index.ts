@@ -43,10 +43,11 @@ const query = new HyperliquidFillsQueryBuilder()
 
 export async function main() {
   await hyperliquidFillsPortalSource({
+    id: 'hl-whale-tracker',
     portal: 'https://portal.sqd.dev/datasets/hyperliquid-fills',
-    query,
+    outputs: query,
   })
-    .pipe(({ blocks }) => {
+    .pipe((blocks) => {
       const fills = blocks.flatMap((block) =>
         block.fills
           .filter((fill) => fill.px * fill.sz >= WHALE_THRESHOLD)

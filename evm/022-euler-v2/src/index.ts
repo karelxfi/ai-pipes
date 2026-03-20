@@ -68,12 +68,13 @@ interface EulerEvent {
 
 export async function main() {
   await evmPortalSource({
+    id: 'euler-v2-events',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
-  })
-    .pipeComposite({
+    outputs: {
       evc: evcDecoder,
       factory: factoryDecoder,
-    })
+    },
+  })
     .pipe(({ evc, factory }) => {
       const events: EulerEvent[] = []
 
