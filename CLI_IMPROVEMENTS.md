@@ -57,8 +57,8 @@ Tracked improvements for the Pipes CLI (`@iankressin/pipes-cli`), gathered from 
 - **Issue:** EVM has `@subsquid/evm-typegen`. Solana needs an equivalent that takes an Anchor IDL and generates Pipes-compatible instruction definitions (d8 discriminators, account maps, borsh codecs). Without this, every Solana indexer requires manual instruction definition.
 
 ### No Hyperliquid CLI template
-- **Source:** hyperliquid/001-perps-majors
-- **Issue:** Hyperliquid fills require fully manual project setup. Should add a `hyperliquidFills` template to the CLI that generates the boilerplate (HyperliquidFillsQueryBuilder, coin filter, ClickHouse schema).
+- **Source:** hyperliquid/001-perps-majors, 002-whale-tracker, 003-funding-pnl, 004-meme-coins, 005-liquidations
+- **Issue:** Hyperliquid fills require fully manual project setup. All 5 Hyperliquid indexers share 90%+ identical boilerplate (HyperliquidFillsQueryBuilder, clickhouseTarget, CollapsingMergeTree migration, .env, docker-compose). Should add a `hyperliquidFills` template that generates: package.json with `@subsquid/pipes` dep, src/index.ts with query builder + clickhouse target, migrations dir, docker-compose.yml with CORS, .env with dedicated database name. The only per-indexer differences are: coin filter, fill field selection, pipe transform logic, and ClickHouse schema columns.
 
 ### Solana Stake Pool programs not indexable via events
 - **Source:** protocols.json (DoubleZero, Sanctum, Jito, Jupiter Staked SOL, etc.)
