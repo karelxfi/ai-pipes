@@ -1,0 +1,1 @@
+Index GMX V2 perpetual trading activity on Arbitrum via the EventEmitter contract (0xC8ee91A54287DB53897056e12D9819156D3822Fb). GMX V2 routes ALL protocol events through a single EventEmitter using generic EventLog1/EventLog2 events with embedded event names. Track order creation, execution, position changes, fee collection, and oracle updates to show the trading activity pulse.

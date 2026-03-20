@@ -733,9 +733,9 @@
         "Avalanche",
         "Botanix"
       ],
-      "angle": null,
+      "angle": "Perpetual trading activity pulse \u2014 37 event types via centralized EventEmitter",
       "directory": "evm/036-gmx-v2-perps",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Yearn Finance",
