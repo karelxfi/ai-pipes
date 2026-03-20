@@ -156,7 +156,7 @@ Open `dashboard/index.html` in your browser to see the charts.
 | 43 | cap | Lending | evm | ⏭️ |
 | 44 | Strata Markets | Yield | evm | ⏭️ |
 | 45 | GMX V2 Perps | Derivatives | evm | ✅ |
-| 46 | Yearn Finance | Yield Aggregator | evm | ⏳ |
+| 46 | Yearn Finance | Yield Aggregator | evm | ✅ |
 | 47 | Marinade Liquid Staking | Liquid Staking | solana | ⏳ |
 | 48 | Drift Staked SOL | Liquid Staking | solana | ⏳ |
 | 49 | Benqi Staked Avax | Liquid Staking | evm | ⏳ |

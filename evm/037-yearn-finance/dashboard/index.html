@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200">
+  <title>Yearn V2 Strategy Harvests — ai-pipes Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      width: 1200px;
+      height: 675px;
+      overflow: hidden;
+    }
+    .header {
+      padding: 14px 24px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .header h1 { font-size: 20px; font-weight: 600; color: #e6edf3; }
+    .header .angle { font-size: 12px; color: #8b949e; margin-top: 2px; }
+    .stats { display: flex; gap: 20px; }
+    .stat { text-align: center; }
+    .stat-value { font-size: 22px; font-weight: 700; color: #58a6ff; line-height: 1.2; }
+    .stat-label { font-size: 8px; color: #6e7681; text-transform: uppercase; letter-spacing: 1px; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 8px;
+      padding: 6px 16px;
+      height: calc(100% - 62px - 22px);
+    }
+    .panel {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      position: relative;
+    }
+    .chart { width: 100%; height: 100%; }
+    .footer {
+      padding: 2px 24px 4px;
+      text-align: right;
+      font-size: 9px;
+      color: #484f58;
+    }
+    .footer a { color: #58a6ff; text-decoration: none; opacity: 0.5; }
+    .footer a:hover { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>Yearn V2 — Strategy Harvests</h1>
+      <div class="angle" id="period">Yield generation across all Yearn V2 vaults — strategy gains, losses & debt allocation</div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="grid">
+    <div class="panel"><div class="chart" id="chart1"></div></div>
+    <div class="panel"><div class="chart" id="chart2"></div></div>
+    <div class="panel"><div class="chart" id="chart3"></div></div>
+    <div class="panel"><div class="chart" id="chart4"></div></div>
+  </div>
+  <div class="footer">
+    Built with ai-pipes + SQD Pipes SDK |
+    <a href="https://github.com/karelxfi">github.com/karelxfi</a> |
+    <a href="https://x.com/karelxfi">x.com/karelxfi</a>
+  </div>
+
+  <script>
+    var CH = 'http://localhost:8123';
+    var DB = 'yearn_v2';
+
+    function query(sql) {
+      return fetch(CH + '/?database=' + DB + '&user=default&password=password&query=' + encodeURIComponent(sql + ' FORMAT JSON'))
+        .then(function(r) { return r.json(); })
+        .then(function(j) { return j.data; });
+    }
+
+    var PALETTE = ['#58a6ff','#f78166','#3fb950','#d2a8ff','#f0883e','#79c0ff','#7ee787','#d29922','#ff7b72','#a5d6ff'];
+
+    function darkOpts(title) {
+      return {
+        backgroundColor: 'transparent',
+        title: { text: title, textStyle: { color: '#8b949e', fontSize: 11, fontWeight: 'normal' }, left: 10, top: 8 },
+        textStyle: { color: '#8b949e', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial' },
+        tooltip: { backgroundColor: '#1c2128', borderColor: '#30363d', textStyle: { color: '#e6edf3', fontSize: 11 } },
+        grid: { left: 50, right: 16, top: 36, bottom: 28 },
+      };
+    }
+
+    function formatNum(n) {
+      if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B';
+      if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+      return n.toString();
+    }
+
+    function shortAddr(a) { return a.slice(0, 6) + '...' + a.slice(-4); }
+
+    async function init() {
+      // Summary stats
+      var totals = await query("SELECT count() as total, uniqExact(vault) as vaults, uniqExact(strategy) as strategies, min(timestamp) as min_ts, max(timestamp) as max_ts FROM yearn_v2_strategy_reported");
+      var t = totals[0];
+      document.getElementById('period').textContent = 'Yield generation across all Yearn V2 vaults — ' + t.min_ts.slice(0,10) + ' \u2192 ' + t.max_ts.slice(0,10);
+
+      var statsEl = document.getElementById('stats');
+      [{v: formatNum(parseInt(t.total)), l: 'Harvests'}, {v: t.vaults, l: 'Vaults'}, {v: t.strategies, l: 'Strategies'}].forEach(function(s) {
+        var d = document.createElement('div'); d.className = 'stat';
+        var vl = document.createElement('div'); vl.className = 'stat-value'; vl.textContent = s.v;
+        var lb = document.createElement('div'); lb.className = 'stat-label'; lb.textContent = s.l;
+        d.appendChild(vl); d.appendChild(lb); statsEl.appendChild(d);
+      });
+
+      // Chart 1: Harvests per week (vertical bar with gradient)
+      var ch1 = echarts.init(document.getElementById('chart1'));
+      var daily = await query("SELECT toMonday(timestamp) as week, count() as n FROM yearn_v2_strategy_reported GROUP BY week ORDER BY week");
+      ch1.setOption(Object.assign(darkOpts('Harvests Per Week'), {
+        xAxis: { type: 'category', data: daily.map(function(d) { return d.week; }), axisLabel: { color: '#6e7681', fontSize: 9, rotate: 30 }, axisLine: { lineStyle: { color: '#30363d' } } },
+        yAxis: { type: 'value', axisLabel: { color: '#6e7681', fontSize: 9 }, splitLine: { lineStyle: { color: '#21262d' } } },
+        series: [{
+          type: 'bar', data: daily.map(function(d) { return parseInt(d.n); }),
+          itemStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#58a6ff'},{offset:1,color:'#1f6feb'}]), borderRadius: [2,2,0,0] },
+          barMaxWidth: 16,
+        }],
+        tooltip: { trigger: 'axis' },
+        grid: { left: 50, right: 16, top: 36, bottom: 40 },
+      }));
+
+      // Chart 2: Top 10 vaults by harvest count (horizontal bar)
+      var ch2 = echarts.init(document.getElementById('chart2'));
+      var topVaults = await query("SELECT vault, count() as n FROM yearn_v2_strategy_reported GROUP BY vault ORDER BY n DESC LIMIT 10");
+      topVaults.reverse();
+      ch2.setOption(Object.assign(darkOpts('Top 10 Vaults by Harvest Count'), {
+        xAxis: { type: 'value', axisLabel: { color: '#6e7681', fontSize: 9 }, splitLine: { lineStyle: { color: '#21262d' } } },
+        yAxis: { type: 'category', data: topVaults.map(function(d) { return shortAddr(d.vault); }), axisLabel: { color: '#8b949e', fontSize: 9 } },
+        series: [{
+          type: 'bar', data: topVaults.map(function(d,i) { return { value: parseInt(d.n), itemStyle: { color: PALETTE[i % PALETTE.length] } }; }),
+          label: { show: true, position: 'right', color: '#8b949e', fontSize: 9 },
+          barMaxWidth: 18,
+        }],
+        grid: { left: 90, right: 40, top: 36, bottom: 16 },
+      }));
+
+      // Chart 3: Gain vs Loss events over time (stacked area)
+      var ch3 = echarts.init(document.getElementById('chart3'));
+      var gainLoss = await query("SELECT toMonday(timestamp) as week, countIf(toUInt256(gain) > 0) as gains, countIf(toUInt256(loss) > 0) as losses FROM yearn_v2_strategy_reported GROUP BY week ORDER BY week");
+      ch3.setOption(Object.assign(darkOpts('Gain vs Loss Reports Per Week'), {
+        legend: { data: ['Gains', 'Losses'], textStyle: { color: '#8b949e', fontSize: 9 }, top: 6, right: 16 },
+        xAxis: { type: 'category', data: gainLoss.map(function(d) { return d.week; }), axisLabel: { color: '#6e7681', fontSize: 9, rotate: 30 }, axisLine: { lineStyle: { color: '#30363d' } } },
+        yAxis: { type: 'value', axisLabel: { color: '#6e7681', fontSize: 9 }, splitLine: { lineStyle: { color: '#21262d' } } },
+        series: [
+          { name: 'Gains', type: 'line', areaStyle: { opacity: 0.3 }, smooth: true, data: gainLoss.map(function(d) { return parseInt(d.gains); }), itemStyle: { color: '#3fb950' }, lineStyle: { color: '#3fb950' } },
+          { name: 'Losses', type: 'line', areaStyle: { opacity: 0.3 }, smooth: true, data: gainLoss.map(function(d) { return parseInt(d.losses); }), itemStyle: { color: '#f78166' }, lineStyle: { color: '#f78166' } },
+        ],
+        tooltip: { trigger: 'axis' },
+        grid: { left: 50, right: 16, top: 36, bottom: 40 },
+      }));
+
+      // Chart 4: Top 10 strategies by harvest count (treemap)
+      var ch4 = echarts.init(document.getElementById('chart4'));
+      var topStrats = await query("SELECT strategy, count() as n FROM yearn_v2_strategy_reported GROUP BY strategy ORDER BY n DESC LIMIT 10");
+      ch4.setOption(Object.assign(darkOpts('Strategy Activity Share (Top 10)'), {
+        series: [{
+          type: 'treemap', data: topStrats.map(function(d,i) {
+            return { name: shortAddr(d.strategy), value: parseInt(d.n), itemStyle: { color: PALETTE[i % PALETTE.length] } };
+          }),
+          label: { show: true, fontSize: 10, color: '#e6edf3', formatter: function(p) { return p.name + '\n' + p.value; } },
+          breadcrumb: { show: false },
+          itemStyle: { borderColor: '#161b22', borderWidth: 2, gapWidth: 2 },
+          left: 10, right: 10, top: 32, bottom: 10,
+        }],
+      }));
+
+      window.__DASHBOARD_READY__ = true;
+    }
+
+    init().catch(function(err) {
+      console.error('Dashboard error:', err);
+      var e = document.createElement('div');
+      e.style.cssText = 'color:#f78166;padding:24px;font-size:14px';
+      e.textContent = 'Error: ' + err.message;
+      document.body.appendChild(e);
+    });
+  </script>
+</body>
+</html>

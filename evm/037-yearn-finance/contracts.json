@@ -1,0 +1,18 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "v2VaultRegistry": { "address": "0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804", "deploymentBlock": 12045555, "verified": true },
+        "v2yvWETH": { "address": "0xa258C4606Ca8206D8aA700cE2143D7db854D168c", "deploymentBlock": 11773079, "verified": true },
+        "v2yvUSDC": { "address": "0xa354F35829Ae975e850e23e9615b11Da1B3dC4DE", "deploymentBlock": 12789472, "verified": true },
+        "v2yvDAI": { "address": "0xdA816459F1AB5631232FE5e97a05BBBb94970c95", "deploymentBlock": 12789472, "verified": true },
+        "v2yvWBTC": { "address": "0xA696a63cc78DfFa1a63E9E50587C197387FF6C7E", "deploymentBlock": 12369954, "verified": true },
+        "v3VaultFactory": { "address": "0x770D0d1Fb036483Ed4AbB6d53c1C88fb277D812F", "deploymentBlock": 18906786, "verified": true },
+        "v3VaultFactory2": { "address": "0x444045c5C13C246e117eD36437303cac8E250aB0", "deploymentBlock": 19011506, "verified": true },
+        "v3TokenizedStrategy": { "address": "0xBB51273D6c746910C7C06fe718f30c936170feD0", "deploymentBlock": 18911488, "verified": true }
+      },
+      "source": "yearn-docs",
+      "sourceUrl": "https://docs.yearn.fi/getting-started/products/yVaults/v2"
+    }
+  }
+}
