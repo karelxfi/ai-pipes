@@ -1,0 +1,1 @@
+Index Lista CDP (lisUSD stablecoin) activity on BSC to track the full CDP lifecycle. The Interaction contract (proxy: 0xB68443Ee3e828baD1526b3e0Bdf2Dfc6b1975ec4) emits Deposit, Borrow, Payback, Withdraw, and Liquidation events. Track collateral deposits, lisUSD borrowing, repayments, withdrawals, and liquidations across 11+ collateral types.

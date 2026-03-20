@@ -523,9 +523,9 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": null,
+      "angle": "Skipped \u2014 extremely low event volume (~7 events/month), not enough for dashboard",
       "directory": "evm/023-fira",
-      "status": "pending"
+      "status": "skipped"
     },
     {
       "name": "Hyperliquid HLP",
@@ -536,9 +536,9 @@
       "chains": [
         "Hyperliquid L1"
       ],
-      "angle": null,
+      "angle": "Skipped \u2014 primary chain(s) Hyperliquid L1 not supported",
       "directory": "evm/024-hyperliquid-hlp",
-      "status": "pending"
+      "status": "skipped"
     },
     {
       "name": "Tydro",
@@ -549,9 +549,9 @@
       "chains": [
         "Ink"
       ],
-      "angle": null,
+      "angle": "Skipped \u2014 primary chain(s) Ink not supported",
       "directory": "evm/025-tydro",
-      "status": "pending"
+      "status": "skipped"
     },
     {
       "name": "Lista CDP",
@@ -562,9 +562,9 @@
       "chains": [
         "Binance"
       ],
-      "angle": null,
+      "angle": "lisUSD stablecoin lifecycle \u2014 deposits, borrows, repayments, liquidations across 11 collateral types",
       "directory": "evm/026-lista-cdp",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "HyperLend Pooled",
@@ -575,9 +575,9 @@
       "chains": [
         "Hyperliquid L1"
       ],
-      "angle": null,
+      "angle": "Skipped \u2014 chain(s) Hyperliquid L1 not supported by Portal",
       "directory": "evm/027-hyperlend-pooled",
-      "status": "pending"
+      "status": "skipped"
     },
     {
       "name": "Avalon USDa",
@@ -955,9 +955,9 @@
       "chains": [
         "Hyperliquid L1"
       ],
-      "angle": null,
+      "angle": "Skipped \u2014 chain(s) Hyperliquid L1 not supported by Portal",
       "directory": "evm/049-sthype",
-      "status": "pending"
+      "status": "skipped"
     },
     {
       "name": "Stake DAO",
@@ -1110,9 +1110,9 @@
       "chains": [
         "Cronos"
       ],
-      "angle": null,
+      "angle": "Skipped \u2014 chain(s) Cronos not supported by Portal",
       "directory": "evm/056-tectonic",
-      "status": "pending"
+      "status": "skipped"
     },
     {
       "name": "Aura",
@@ -1299,9 +1299,9 @@
       "chains": [
         "xDai"
       ],
-      "angle": null,
+      "angle": "Skipped \u2014 chain(s) xDai not supported by Portal",
       "directory": "evm/063-sdai",
-      "status": "pending"
+      "status": "skipped"
     },
     {
       "name": "Loopscale",
@@ -1325,9 +1325,9 @@
       "chains": [
         "Berachain"
       ],
-      "angle": null,
+      "angle": "Skipped \u2014 chain(s) Berachain not supported by Portal",
       "directory": "evm/064-infrared-finance",
-      "status": "pending"
+      "status": "skipped"
     },
     {
       "name": "Avantis",

@@ -1,0 +1,21 @@
+{
+  "deployments": {
+    "bsc": {
+      "contracts": {
+        "interaction": { "address": "0xB68443Ee3e828baD1526b3e0Bdf2Dfc6b1975ec4", "deploymentBlock": null, "verified": true },
+        "vat": { "address": "0x33A34eAB3ee892D40420507B820347b1cA2201c4", "deploymentBlock": null, "verified": true },
+        "lisUSD": { "address": "0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5", "deploymentBlock": null, "verified": true },
+        "hayJoin": { "address": "0x4C798F81de7736620Cd8e6510158b1fE758e22F7", "deploymentBlock": null, "verified": true },
+        "dog": { "address": "0xd57E7b53a1572d27A04d9c1De2c4D423f1926d0B", "deploymentBlock": null, "verified": true },
+        "jug": { "address": "0x787BdEaa29A253e40feB35026c3d05C18CbCA7B3", "deploymentBlock": null, "verified": true },
+        "spot": { "address": "0x49bc2c4E5B035341b7d92Da4e6B267F7426F3038", "deploymentBlock": null, "verified": true },
+        "vow": { "address": "0x2078A1969Ea581D618FDBEa2C0Dc13Fc15CB9fa7", "deploymentBlock": null, "verified": true },
+        "jar": { "address": "0x0a1Fd12F73432928C190CAF0810b3B767A59717e", "deploymentBlock": null, "verified": true },
+        "cdpLiquidator": { "address": "0x556D96dFB7BDcf14B73E663CB46669f7826c7B87", "deploymentBlock": null, "verified": true },
+        "listaToken": { "address": "0xFCeB31A79F71AC9CBDCF853519c1b12D379EdC46", "deploymentBlock": null, "verified": true }
+      },
+      "source": "lista-docs",
+      "sourceUrl": "https://docs.bsc.lista.org/for-developer/collateral-debt-position/smart-contract"
+    }
+  }
+}

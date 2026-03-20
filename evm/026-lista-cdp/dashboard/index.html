@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200">
+  <title>Lista CDP — lisUSD Stablecoin Lifecycle</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0d1117; color: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; width: 1200px; height: 675px; overflow: hidden; }
+    .header { padding: 14px 24px 6px; display: flex; justify-content: space-between; align-items: flex-start; }
+    .header h1 { font-size: 20px; font-weight: 600; }
+    .header .angle { font-size: 12px; color: #8b949e; margin-top: 2px; }
+    .stats { display: flex; gap: 20px; }
+    .stat { text-align: center; }
+    .stat-value { font-size: 22px; font-weight: 700; color: #58a6ff; line-height: 1.2; }
+    .stat-label { font-size: 8px; color: #6e7681; text-transform: uppercase; letter-spacing: 1px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 8px; padding: 6px 16px; height: calc(100% - 62px - 22px); }
+    .panel { background: #161b22; border: 1px solid #30363d; border-radius: 6px; position: relative; }
+    .chart { width: 100%; height: 100%; }
+    .footer { padding: 2px 24px 4px; text-align: right; font-size: 9px; color: #484f58; }
+    .footer a { color: #58a6ff; text-decoration: none; opacity: 0.5; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>Lista CDP — lisUSD Stablecoin Lifecycle</h1>
+      <div class="angle">Deposits, borrows, repayments, and liquidations on Lista DAO's CDP module | BSC</div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="grid">
+    <div class="panel"><div class="chart" id="chart1"></div></div>
+    <div class="panel"><div class="chart" id="chart2"></div></div>
+    <div class="panel"><div class="chart" id="chart3"></div></div>
+    <div class="panel"><div class="chart" id="chart4"></div></div>
+  </div>
+  <div class="footer">Built with ai-pipes + SQD Pipes SDK | <a href="https://github.com/karelxfi">github.com/karelxfi</a> | <a href="https://x.com/karelxfi">x.com/karelxfi</a></div>
+
+  <script>
+    var CH = 'http://localhost:8123';
+    var DB = 'lista_cdp';
+    var T = 'lista_cdp_events';
+
+    function q(sql) {
+      return fetch(CH + '/?database=' + DB + '&user=default&password=password&query=' + encodeURIComponent(sql + ' FORMAT JSON'))
+        .then(function(r) { return r.json(); })
+        .then(function(j) { return j.data; });
+    }
+
+    var PALETTE = ['#58a6ff','#f78166','#3fb950','#d2a8ff','#f0883e','#79c0ff','#7ee787','#d29922','#ff7b72','#a5d6ff'];
+    var typeColors = { deposit: '#3fb950', borrow: '#58a6ff', payback: '#d2a8ff', withdraw: '#f0883e', liquidation: '#ff7b72' };
+
+    // Known collateral token addresses on BSC
+    var COLLATERAL_NAMES = {
+      '0xb0b84d294e0c75a6abe60171b70edeb2efd14a1b': 'slisBNB',
+      '0xa2e3356610840701bdf5611a53974510ae27e2e1': 'wBETH',
+      '0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c': 'BTCB',
+      '0x2170ed0880ac9a755fd29b2688956bd959f933f8': 'ETH',
+      '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c': 'WBNB',
+      '0x55d398326f99059ff775485246999027b3197955': 'USDT',
+      '0xc5f0f7b66764f6ec8c8dff7ba683102295e16409': 'FDUSD',
+    };
+    function collateralName(addr) {
+      if (!addr) return 'unknown';
+      var lower = addr.toLowerCase();
+      return COLLATERAL_NAMES[lower] || (addr.slice(0,6) + '..' + addr.slice(-4));
+    }
+
+    function darkOpts(title) {
+      return {
+        backgroundColor: 'transparent',
+        title: { text: title, textStyle: { color: '#8b949e', fontSize: 11, fontWeight: 'normal' }, left: 10, top: 8 },
+        textStyle: { color: '#8b949e' },
+        tooltip: { backgroundColor: '#1c2128', borderColor: '#30363d', textStyle: { color: '#e6edf3', fontSize: 11 } },
+        grid: { left: 50, right: 16, top: 36, bottom: 28 },
+      };
+    }
+
+    function fmt(n) {
+      if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+      return String(Math.round(n));
+    }
+
+    async function init() {
+      var totals = await q("SELECT count() as total, countIf(event_type='deposit') as deposits, countIf(event_type='borrow') as borrows, countIf(event_type='liquidation') as liquidations, uniq(user_address) as users, min(timestamp) as min_ts, max(timestamp) as max_ts FROM " + T);
+      var st = totals[0];
+      var period = (st.min_ts || '').slice(0, 10) + ' \u2192 ' + (st.max_ts || '').slice(0, 10);
+      var statsEl = document.getElementById('stats');
+      [
+        {v: fmt(parseInt(st.total)), l: 'Total Events'},
+        {v: fmt(parseInt(st.deposits)), l: 'Deposits'},
+        {v: fmt(parseInt(st.borrows)), l: 'Borrows'},
+        {v: fmt(parseInt(st.liquidations)), l: 'Liquidations'},
+        {v: fmt(parseInt(st.users)), l: 'Users'},
+        {v: period, l: 'Period', small: true}
+      ].forEach(function(s) {
+        var d = document.createElement('div'); d.className = 'stat';
+        var vl = document.createElement('div'); vl.className = 'stat-value';
+        if (s.small) vl.style.fontSize = '11px';
+        vl.textContent = s.v;
+        var lb = document.createElement('div'); lb.className = 'stat-label'; lb.textContent = s.l;
+        d.appendChild(vl); d.appendChild(lb); statsEl.appendChild(d);
+      });
+
+      // Chart 1: Monthly Activity — stacked bar by event type
+      var monthly = await q("SELECT toStartOfMonth(timestamp) as month, event_type, count() as n FROM " + T + " GROUP BY month, event_type ORDER BY month");
+      var months = []; var monthSet = {}; var seriesData = {};
+      var types = ['deposit', 'borrow', 'payback', 'withdraw', 'liquidation'];
+      types.forEach(function(t) { seriesData[t] = {}; });
+      monthly.forEach(function(r) {
+        if (!monthSet[r.month]) { monthSet[r.month] = true; months.push(r.month); }
+        seriesData[r.event_type][r.month] = parseInt(r.n);
+      });
+      var ch1 = echarts.init(document.getElementById('chart1'));
+      ch1.setOption(Object.assign(darkOpts('Monthly CDP Activity'), {
+        legend: { data: types, textStyle: { color: '#8b949e', fontSize: 9 }, top: 6, right: 16, itemWidth: 10, itemHeight: 10 },
+        grid: { left: 50, right: 16, top: 32, bottom: 28 },
+        xAxis: { type: 'category', data: months, axisLabel: { color: '#6e7681', fontSize: 9 }, axisLine: { lineStyle: { color: '#30363d' } }, splitLine: { show: false } },
+        yAxis: { type: 'value', axisLabel: { color: '#6e7681', fontSize: 9 }, axisLine: { show: false }, splitLine: { lineStyle: { color: '#21262d' } } },
+        tooltip: { trigger: 'axis' },
+        series: types.map(function(t) {
+          return { name: t, type: 'bar', stack: 'total', itemStyle: { color: typeColors[t] },
+            data: months.map(function(m) { return seriesData[t][m] || 0; }) };
+        }),
+      }));
+
+      // Chart 2: Collateral Distribution — horizontal bar
+      var collDist = await q("SELECT collateral, count() as n FROM " + T + " WHERE collateral != '' GROUP BY collateral ORDER BY n DESC LIMIT 10");
+      var ch2 = echarts.init(document.getElementById('chart2'));
+      ch2.setOption(Object.assign(darkOpts('Collateral Types (by event count)'), {
+        grid: { left: 80, right: 40, top: 36, bottom: 12 },
+        xAxis: { type: 'value', axisLabel: { color: '#6e7681', fontSize: 9 }, splitLine: { lineStyle: { color: '#21262d' } } },
+        yAxis: { type: 'category', data: collDist.map(function(d){return collateralName(d.collateral);}).reverse(), axisLabel: { color: '#e6edf3', fontSize: 10 }, axisLine: { lineStyle: { color: '#30363d' } } },
+        series: [{
+          type: 'bar',
+          data: collDist.map(function(d,i){return {value: parseInt(d.n), itemStyle: {color: PALETTE[i % PALETTE.length]}};}).reverse(),
+          label: { show: true, position: 'right', color: '#8b949e', fontSize: 9, formatter: function(p){return fmt(p.value);} },
+          barMaxWidth: 18
+        }],
+      }));
+
+      // Chart 3: Event Type Treemap
+      var dist = await q("SELECT event_type, count() as n FROM " + T + " GROUP BY event_type ORDER BY n DESC");
+      var ch3 = echarts.init(document.getElementById('chart3'));
+      ch3.setOption({
+        backgroundColor: 'transparent',
+        title: { text: 'Event Type Distribution', textStyle: { color: '#8b949e', fontSize: 11, fontWeight: 'normal' }, left: 10, top: 8 },
+        tooltip: { backgroundColor: '#1c2128', borderColor: '#30363d', textStyle: { color: '#e6edf3', fontSize: 11 } },
+        series: [{
+          type: 'treemap', top: 32, left: 8, right: 8, bottom: 8, roam: false, nodeClick: false, breadcrumb: { show: false },
+          label: { show: true, color: '#e6edf3', fontSize: 13, fontWeight: 'bold', formatter: function(p) { return p.name + '\n' + fmt(p.value); } },
+          itemStyle: { borderColor: '#0d1117', borderWidth: 2, gapWidth: 2 },
+          data: dist.map(function(d) { return { value: parseInt(d.n), name: d.event_type, itemStyle: { color: typeColors[d.event_type] || PALETTE[0] } }; }),
+        }],
+      });
+
+      // Chart 4: Unique Users Per Month
+      var users = await q("SELECT toStartOfMonth(timestamp) as month, uniq(user_address) as n FROM " + T + " GROUP BY month ORDER BY month");
+      var ch4 = echarts.init(document.getElementById('chart4'));
+      ch4.setOption(Object.assign(darkOpts('Unique Users Per Month'), {
+        xAxis: { type: 'category', data: users.map(function(d){return d.month;}), axisLabel: { color: '#6e7681', fontSize: 9 }, axisLine: { lineStyle: { color: '#30363d' } }, splitLine: { show: false } },
+        yAxis: { type: 'value', axisLabel: { color: '#6e7681', fontSize: 9 }, axisLine: { show: false }, splitLine: { lineStyle: { color: '#21262d' } } },
+        tooltip: { trigger: 'axis', formatter: function(p) { return p[0].axisValue + '<br/>Users: <b>' + p[0].value + '</b>'; } },
+        series: [{
+          type: 'bar', data: users.map(function(d){return parseInt(d.n);}),
+          itemStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#58a6ff'},{offset:1,color:'#1f6feb'}]), borderRadius: [2,2,0,0] },
+          barMaxWidth: 20
+        }],
+      }));
+
+      window.__DASHBOARD_READY__ = true;
+    }
+
+    init().catch(function(err) {
+      console.error('Dashboard error:', err);
+      var e = document.createElement('div');
+      e.style.cssText = 'color:#f78166;padding:24px;font-size:14px';
+      e.textContent = 'Error: ' + err.message;
+      document.body.appendChild(e);
+    });
+  </script>
+</body>
+</html>
