@@ -159,7 +159,7 @@ Open `dashboard/index.html` in your browser to see the charts.
 | 46 | Yearn Finance | Yield Aggregator | evm | ✅ |
 | 47 | Marinade Liquid Staking | Liquid Staking | solana | ⏳ |
 | 48 | Drift Staked SOL | Liquid Staking | solana | ⏳ |
-| 49 | Benqi Staked Avax | Liquid Staking | evm | ⏳ |
+| 49 | Benqi Staked Avax | Liquid Staking | evm | ✅ |
 | 50 | Kamino Liquidity | Liquidity Manager | solana | ⏳ |
 | 51 | Extended | Derivatives | evm | ⏳ |
 | 52 | Cooler Loans | Lending | evm | ⏳ |

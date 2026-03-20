@@ -791,9 +791,9 @@
       "chains": [
         "Avalanche"
       ],
-      "angle": null,
+      "angle": "sAVAX staking lifecycle & reward accrual — deposits, unlocks, redemptions, and yield tracking",
       "directory": "evm/038-benqi-staked-avax",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Kamino Liquidity",

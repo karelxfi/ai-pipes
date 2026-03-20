@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200">
+  <title>BENQI sAVAX — Staking Lifecycle & Reward Accrual</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0d1117; color: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; width: 1200px; height: 675px; overflow: hidden; }
+    .header { padding: 14px 24px 6px; display: flex; justify-content: space-between; align-items: flex-start; }
+    .header h1 { font-size: 20px; font-weight: 600; }
+    .header .angle { font-size: 12px; color: #8b949e; margin-top: 2px; }
+    .stats { display: flex; gap: 20px; }
+    .stat { text-align: center; }
+    .stat-value { font-size: 22px; font-weight: 700; color: #58a6ff; line-height: 1.2; }
+    .stat-label { font-size: 8px; color: #6e7681; text-transform: uppercase; letter-spacing: 1px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 8px; padding: 6px 16px; height: calc(100% - 62px - 22px); }
+    .panel { background: #161b22; border: 1px solid #30363d; border-radius: 6px; position: relative; }
+    .chart { width: 100%; height: 100%; }
+    .footer { padding: 2px 24px 4px; text-align: right; font-size: 9px; color: #484f58; }
+    .footer a { color: #58a6ff; text-decoration: none; opacity: 0.5; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>BENQI sAVAX — Staking Lifecycle & Reward Accrual</h1>
+      <div class="angle">AVAX liquid staking: deposits, unlock requests, redemptions, and yield accumulation on Avalanche C-Chain</div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="grid">
+    <div class="panel"><div class="chart" id="chart1"></div></div>
+    <div class="panel"><div class="chart" id="chart2"></div></div>
+    <div class="panel"><div class="chart" id="chart3"></div></div>
+    <div class="panel"><div class="chart" id="chart4"></div></div>
+  </div>
+  <div class="footer">Built with ai-pipes + SQD Pipes SDK | <a href="https://github.com/karelxfi">github.com/karelxfi</a> | <a href="https://x.com/karelxfi">x.com/karelxfi</a></div>
+
+  <script>
+    var CH = 'http://localhost:8123';
+    var DB = 'benqi_staked_avax';
+    var T = 'savax_events';
+
+    function q(sql) {
+      return fetch(CH + '/?database=' + DB + '&user=default&password=password&query=' + encodeURIComponent(sql + ' FORMAT JSON'))
+        .then(function(r) { return r.json(); })
+        .then(function(j) { return j.data; });
+    }
+
+    var PALETTE = ['#58a6ff','#f78166','#3fb950','#d2a8ff','#f0883e','#79c0ff','#7ee787','#d29922','#ff7b72','#a5d6ff'];
+    var typeColors = {
+      submitted: '#3fb950', deposit: '#7ee787',
+      unlock_requested: '#f78166', unlock_cancelled: '#d29922',
+      redeem: '#ff7b72', redeem_overdue: '#f0883e',
+      accrue_rewards: '#58a6ff', withdraw: '#d2a8ff'
+    };
+
+    function darkOpts(title) {
+      return {
+        backgroundColor: 'transparent',
+        title: { text: title, textStyle: { color: '#8b949e', fontSize: 11, fontWeight: 'normal' }, left: 10, top: 8 },
+        textStyle: { color: '#8b949e' },
+        tooltip: { backgroundColor: '#1c2128', borderColor: '#30363d', textStyle: { color: '#e6edf3', fontSize: 11 } },
+        grid: { left: 60, right: 16, top: 36, bottom: 28 },
+      };
+    }
+
+    function fmt(n) {
+      if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+      return String(Math.round(n));
+    }
+
+    async function init() {
+      // Summary stats
+      var totals = await q("SELECT count() as total, countIf(event_type='submitted') as stakes, countIf(event_type='redeem') as redeems, countIf(event_type='accrue_rewards') as rewards, uniqIf(user, user != '') as users, min(timestamp) as min_ts, max(timestamp) as max_ts FROM " + T);
+      var st = totals[0];
+      var period = (st.min_ts || '').slice(0, 10) + ' \u2192 ' + (st.max_ts || '').slice(0, 10);
+      var statsEl = document.getElementById('stats');
+      [
+        {v: fmt(parseInt(st.total)), l: 'Total Events'},
+        {v: fmt(parseInt(st.stakes)), l: 'Stakes'},
+        {v: fmt(parseInt(st.redeems)), l: 'Redeems'},
+        {v: fmt(parseInt(st.rewards)), l: 'Reward Accruals'},
+        {v: period, l: 'Period', small: true}
+      ].forEach(function(s) {
+        var d = document.createElement('div'); d.className = 'stat';
+        var vl = document.createElement('div'); vl.className = 'stat-value';
+        if (s.small) vl.style.fontSize = '11px';
+        vl.textContent = s.v;
+        var lb = document.createElement('div'); lb.className = 'stat-label'; lb.textContent = s.l;
+        d.appendChild(vl); d.appendChild(lb); statsEl.appendChild(d);
+      });
+
+      // Chart 1: Monthly staking activity — stacked bar (submitted + deposit vs unlock + redeem)
+      var monthly = await q("SELECT toStartOfMonth(timestamp) as month, countIf(event_type IN ('submitted','deposit')) as inflows, countIf(event_type IN ('unlock_requested','redeem','redeem_overdue')) as outflows FROM " + T + " GROUP BY month ORDER BY month");
+      var ch1 = echarts.init(document.getElementById('chart1'));
+      ch1.setOption(Object.assign(darkOpts('Monthly Staking Activity (Inflows vs Outflows)'), {
+        legend: { data: ['Inflows (stake)', 'Outflows (unstake)'], textStyle: { color: '#8b949e', fontSize: 9 }, top: 6, right: 16, itemWidth: 10, itemHeight: 10 },
+        xAxis: { type: 'category', data: monthly.map(function(r) { return r.month.slice(0, 7); }), axisLabel: { color: '#6e7681', fontSize: 9, rotate: 45 }, axisLine: { lineStyle: { color: '#30363d' } } },
+        yAxis: { type: 'value', axisLabel: { color: '#6e7681', fontSize: 9 }, splitLine: { lineStyle: { color: '#21262d' } } },
+        series: [
+          { name: 'Inflows (stake)', type: 'bar', stack: 'flow', data: monthly.map(function(r) { return parseInt(r.inflows); }),
+            itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#3fb950' }, { offset: 1, color: '#238636' }]) } },
+          { name: 'Outflows (unstake)', type: 'bar', stack: 'flow2', data: monthly.map(function(r) { return parseInt(r.outflows); }),
+            itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#f78166' }, { offset: 1, color: '#da3633' }]) } }
+        ]
+      }));
+
+      // Chart 2: Cumulative reward accrual over time (line)
+      var rewards = await q("SELECT toStartOfMonth(timestamp) as month, sum(toFloat64OrZero(reward_value)) / 1e18 as total_reward FROM " + T + " WHERE event_type='accrue_rewards' GROUP BY month ORDER BY month");
+      var cumReward = 0;
+      var cumData = rewards.map(function(r) { cumReward += parseFloat(r.total_reward); return { month: r.month.slice(0, 7), val: cumReward }; });
+      var ch2 = echarts.init(document.getElementById('chart2'));
+      ch2.setOption(Object.assign(darkOpts('Cumulative Reward Accrual (AVAX)'), {
+        xAxis: { type: 'category', data: cumData.map(function(r) { return r.month; }), axisLabel: { color: '#6e7681', fontSize: 9, rotate: 45 }, axisLine: { lineStyle: { color: '#30363d' } } },
+        yAxis: { type: 'value', axisLabel: { color: '#6e7681', fontSize: 9, formatter: function(v) { return fmt(v); } }, splitLine: { lineStyle: { color: '#21262d' } } },
+        series: [{
+          type: 'line', data: cumData.map(function(r) { return r.val.toFixed(2); }), smooth: true,
+          lineStyle: { color: '#58a6ff', width: 2 },
+          areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(88,166,255,0.3)' }, { offset: 1, color: 'rgba(88,166,255,0.02)' }]) },
+          itemStyle: { color: '#58a6ff' }
+        }]
+      }));
+
+      // Chart 3: Event type breakdown — horizontal bar
+      var byType = await q("SELECT event_type, count() as n FROM " + T + " GROUP BY event_type ORDER BY n DESC");
+      var ch3 = echarts.init(document.getElementById('chart3'));
+      ch3.setOption(Object.assign(darkOpts('Event Type Breakdown'), {
+        grid: { left: 120, right: 40, top: 36, bottom: 16 },
+        xAxis: { type: 'value', axisLabel: { color: '#6e7681', fontSize: 9 }, splitLine: { lineStyle: { color: '#21262d' } } },
+        yAxis: { type: 'category', data: byType.map(function(r) { return r.event_type; }).reverse(), axisLabel: { color: '#8b949e', fontSize: 9 } },
+        series: [{
+          type: 'bar',
+          data: byType.map(function(r) { return { value: parseInt(r.n), itemStyle: { color: typeColors[r.event_type] || '#58a6ff' } }; }).reverse(),
+          label: { show: true, position: 'right', color: '#8b949e', fontSize: 9 }
+        }]
+      }));
+
+      // Chart 4: Top stakers by number of events — horizontal bar
+      var topUsers = await q("SELECT user, count() as n FROM " + T + " WHERE user != '' AND event_type='submitted' GROUP BY user ORDER BY n DESC LIMIT 10");
+      var ch4 = echarts.init(document.getElementById('chart4'));
+      ch4.setOption(Object.assign(darkOpts('Top 10 Stakers (by Submit Count)'), {
+        grid: { left: 110, right: 40, top: 36, bottom: 16 },
+        xAxis: { type: 'value', axisLabel: { color: '#6e7681', fontSize: 9 }, splitLine: { lineStyle: { color: '#21262d' } } },
+        yAxis: { type: 'category', data: topUsers.map(function(r) { return r.user.slice(0, 8) + '...' + r.user.slice(-4); }).reverse(), axisLabel: { color: '#8b949e', fontSize: 9 } },
+        series: [{
+          type: 'bar',
+          data: topUsers.map(function(r, i) { return { value: parseInt(r.n), itemStyle: { color: PALETTE[i % PALETTE.length] } }; }).reverse(),
+          label: { show: true, position: 'right', color: '#8b949e', fontSize: 9 }
+        }]
+      }));
+
+      window.__DASHBOARD_READY__ = true;
+    }
+
+    init().catch(function(e) { console.error(e); });
+  </script>
+</body>
+</html>

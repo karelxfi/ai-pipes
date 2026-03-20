@@ -1,0 +1,10 @@
+{
+  "date": "2026-03-20",
+  "pipes_sdk_version": "1.0.0-alpha.1",
+  "agent_skills_version": "latest",
+  "claude_model": "claude-opus-4-6",
+  "prompt_file": "PROMPT.md",
+  "angle": "sAVAX staking lifecycle & reward accrual — full deposit/unlock/redeem flow with yield tracking",
+  "runtime_status": "working",
+  "validation_status": "passed"
+}

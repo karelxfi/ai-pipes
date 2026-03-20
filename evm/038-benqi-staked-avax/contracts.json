@@ -1,0 +1,27 @@
+{
+  "deployments": {
+    "avalanche": {
+      "contracts": {
+        "sAVAX": {
+          "address": "0x2b2C81e08f1Af8835a78Bb2A90AE924ACE0eA4bE",
+          "deploymentBlock": null,
+          "verified": true,
+          "proxy": true,
+          "implementation": "0x0ce7f620eb645a4fbf688a1c1937bc6cb0cbdd29"
+        },
+        "veQI": {
+          "address": "0x7Ee65Fdc1C534A6b4f9ea2Cc3ca9aC8d6c602aBd",
+          "deploymentBlock": null,
+          "verified": true
+        },
+        "QI": {
+          "address": "0x8729438EB15e2C8B576fCc6AeCdA6A148776C0F5",
+          "deploymentBlock": null,
+          "verified": true
+        }
+      },
+      "source": "benqi-docs",
+      "sourceUrl": "https://docs.benqi.fi/resources/contracts/liquid-staking"
+    }
+  }
+}
