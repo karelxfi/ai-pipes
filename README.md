@@ -204,10 +204,10 @@ Open `dashboard/index.html` in your browser to see the charts.
 | 91 | AUTOfinance | Yield | evm | ⏳ |
 | 92 | Arrakis Modular | Liquidity Manager | evm | ⏳ |
 | 93 | Hyperliquid Perps (BTC/ETH/SOL) | Derivatives | hyperliquid | ✅ |
-| 94 | Hyperliquid Whale Tracker | Derivatives | hyperliquid | ⏳ |
-| 95 | Hyperliquid Funding & PnL | Derivatives | hyperliquid | ⏳ |
-| 96 | Hyperliquid Meme Coins | Derivatives | hyperliquid | ⏳ |
-| 97 | Hyperliquid Liquidations | Derivatives | hyperliquid | ⏳ |
+| 94 | Hyperliquid Whale Tracker | Derivatives | hyperliquid | ✅ |
+| 95 | Hyperliquid Funding & PnL | Derivatives | hyperliquid | ✅ |
+| 96 | Hyperliquid Meme Coins | Derivatives | hyperliquid | ✅ |
+| 97 | Hyperliquid Liquidations | Derivatives | hyperliquid | ✅ |
 <!-- PROTOCOLS:END -->
 
 ## Links

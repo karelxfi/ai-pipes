@@ -1,0 +1,9 @@
+{
+  "deployments": {
+    "hyperliquid": {
+      "contracts": {},
+      "source": "hyperliquid-fills-portal",
+      "sourceUrl": "https://portal.sqd.dev/datasets/hyperliquid-fills"
+    }
+  }
+}

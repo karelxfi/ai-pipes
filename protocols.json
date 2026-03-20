@@ -1466,9 +1466,9 @@
       "chains": [
         "Hyperliquid"
       ],
-      "angle": null,
+      "angle": "Whale tracker \u2014 $50K+ trades across all coins, top whales, favorite markets",
       "directory": "hyperliquid/002-hyperliquid-whale-tracker",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Hyperliquid Funding & PnL",
@@ -1479,9 +1479,9 @@
       "chains": [
         "Hyperliquid"
       ],
-      "angle": null,
+      "angle": "Realized PnL tracker \u2014 top winners, losers, daily net PnL, fee burn on majors",
       "directory": "hyperliquid/003-hyperliquid-funding-pnl",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Hyperliquid Meme Coins",
@@ -1492,9 +1492,9 @@
       "chains": [
         "Hyperliquid"
       ],
-      "angle": null,
+      "angle": "Meme coin frenzy \u2014 TRUMP, FARTCOIN, DOGE, WIF & more degen favorites",
       "directory": "hyperliquid/004-hyperliquid-meme-coins",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Hyperliquid Liquidations",
@@ -1505,9 +1505,9 @@
       "chains": [
         "Hyperliquid"
       ],
-      "angle": null,
-      "directory": "hyperliquid/005-hyperliquid-liquidations",
-      "status": "pending"
+      "angle": "Liquidation tracker — forced closes, rekt leaderboard, cascade patterns",
+      "directory": "hyperliquid/005-liquidations",
+      "status": "done"
     }
   ]
 }

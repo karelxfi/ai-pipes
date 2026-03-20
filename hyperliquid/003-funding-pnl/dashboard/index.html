@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200">
+  <title>Hyperliquid — Funding &amp; PnL</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0d1117; color: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; width: 1200px; height: 675px; overflow: hidden; }
+    .header { padding: 14px 24px 6px; display: flex; justify-content: space-between; align-items: flex-start; }
+    .header h1 { font-size: 20px; font-weight: 600; }
+    .header .angle { font-size: 12px; color: #8b949e; margin-top: 2px; }
+    .stats { display: flex; gap: 2px; }
+    .stat { text-align: center; white-space: nowrap; padding: 4px 12px; background: #161b22; border-radius: 4px; }
+    .stat-value { font-size: 15px; font-weight: 700; line-height: 1.3; }
+    .stat-label { font-size: 7px; color: #6e7681; text-transform: uppercase; letter-spacing: 0.8px; }
+    .stat:nth-child(1) .stat-value { color: #58a6ff; }
+    .stat:nth-child(2) .stat-value { color: #3fb950; }
+    .stat:nth-child(3) .stat-value { color: #f78166; }
+    .stat:nth-child(4) .stat-value { color: #d2a8ff; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 8px; padding: 6px 16px; height: calc(100% - 62px - 22px); }
+    .panel { background: #161b22; border: 1px solid #30363d; border-radius: 6px; position: relative; }
+    .chart { width: 100%; height: 100%; }
+    .footer { padding: 2px 24px 4px; text-align: right; font-size: 9px; color: #484f58; }
+    .footer a { color: #484f58; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>Hyperliquid — Funding &amp; PnL</h1>
+      <div class="angle">Realized PnL from closing trades on BTC/ETH/SOL/HYPE | top winners, losers, fee burn</div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="grid">
+    <div class="panel"><div class="chart" id="chart1"></div></div>
+    <div class="panel"><div class="chart" id="chart2"></div></div>
+    <div class="panel"><div class="chart" id="chart3"></div></div>
+    <div class="panel"><div class="chart" id="chart4"></div></div>
+  </div>
+  <div class="footer">Built with ai-pipes + SQD Pipes SDK | <a href="https://github.com/karelxfi">github.com/karelxfi</a> | <a href="https://x.com/karelxfi">x.com/karelxfi</a></div>
+<script>
+var CH = 'http://localhost:8123/?user=default&password=password&database=hl_pnl';
+var COLORS = ['#58a6ff','#f78166','#3fb950','#d2a8ff','#f0883e','#79c0ff','#7ee787','#d29922','#ff7b72','#a5d6ff'];
+
+function query(sql) { return fetch(CH, { method: 'POST', body: sql + ' FORMAT JSON' }).then(function(r){return r.json()}).then(function(j){return j.data||[]}); }
+function fmt(n) { if(Math.abs(n)>=1e9) return '$'+(n/1e9).toFixed(2)+'B'; if(Math.abs(n)>=1e6) return '$'+(n/1e6).toFixed(1)+'M'; if(Math.abs(n)>=1e3) return '$'+(n/1e3).toFixed(1)+'K'; return '$'+n.toFixed(0); }
+function addr(s) { return s.slice(0,6)+'..'+s.slice(-4); }
+
+function renderStats(s) {
+  var el = document.getElementById('stats');
+  while (el.firstChild) el.removeChild(el.firstChild);
+  var items = [
+    { val: (+(s.fills)).toLocaleString(), label: 'Closing Trades' },
+    { val: fmt(+s.total_pnl), label: 'Net PnL' },
+    { val: fmt(+s.total_fee), label: 'Fees Paid' },
+    { val: s.t0.split('T')[0] + ' \u2192 ' + s.t1.split('T')[0], label: 'Period' }
+  ];
+  items.forEach(function(item) {
+    var div = document.createElement('div');
+    div.className = 'stat';
+    var v = document.createElement('div');
+    v.className = 'stat-value';
+    v.textContent = item.val;
+    var l = document.createElement('div');
+    l.className = 'stat-label';
+    l.textContent = item.label;
+    div.appendChild(v);
+    div.appendChild(l);
+    el.appendChild(div);
+  });
+}
+
+Promise.all([
+  query("SELECT count() as fills, sum(closed_pnl) as total_pnl, sum(fee) as total_fee, min(timestamp) as t0, max(timestamp) as t1 FROM hl_pnl_fills"),
+  query("SELECT toDate(timestamp) as d, sum(closed_pnl) as pnl, sum(fee) as fees, countIf(closed_pnl > 0) as wins, countIf(closed_pnl < 0) as losses FROM hl_pnl_fills GROUP BY d ORDER BY d"),
+  query("SELECT user, sum(closed_pnl) as pnl, count() as trades FROM hl_pnl_fills GROUP BY user ORDER BY pnl DESC LIMIT 10"),
+  query("SELECT user, sum(closed_pnl) as pnl, count() as trades FROM hl_pnl_fills GROUP BY user ORDER BY pnl ASC LIMIT 10"),
+  query("SELECT coin, sum(closed_pnl) as pnl, sum(fee) as fees, count() as trades FROM hl_pnl_fills GROUP BY coin ORDER BY trades DESC")
+]).then(function(res) {
+  renderStats(res[0][0]);
+
+  // Chart 1: Daily realized PnL (bar, green/red)
+  var daily = res[1];
+  echarts.init(document.getElementById('chart1')).setOption({
+    title: { text: 'Daily Net Realized PnL', left: 12, top: 8, textStyle: { color: '#e6edf3', fontSize: 13 } },
+    tooltip: { trigger: 'axis', formatter: function(p) { return p[0].axisValue+'<br>PnL: '+fmt(+p[0].value)+'<br>Wins: '+daily[p[0].dataIndex].wins+' / Losses: '+daily[p[0].dataIndex].losses; } },
+    grid: { left: 60, right: 16, top: 36, bottom: 28 },
+    xAxis: { type: 'category', data: daily.map(function(d){return d.d}), axisLabel: { color: '#8b949e', fontSize: 9, rotate: 30 }, axisLine: { lineStyle: { color: '#30363d' } } },
+    yAxis: { type: 'value', axisLabel: { color: '#8b949e', fontSize: 9, formatter: function(v){return fmt(v)} }, splitLine: { lineStyle: { color: '#21262d' } } },
+    series: [{
+      type: 'bar',
+      data: daily.map(function(d){ var v=+d.pnl; return { value: v, itemStyle: { color: v>=0 ? '#3fb950' : '#f78166' } }; })
+    }]
+  });
+
+  // Chart 2: Top winners (horizontal bar)
+  var winners = res[2];
+  echarts.init(document.getElementById('chart2')).setOption({
+    title: { text: 'Top Winners (Realized PnL)', left: 12, top: 8, textStyle: { color: '#e6edf3', fontSize: 13 } },
+    tooltip: { trigger: 'axis', formatter: function(p) { return p[0].name+': '+fmt(+p[0].value)+' ('+p[0].data.trades+' trades)'; } },
+    grid: { left: 80, right: 16, top: 36, bottom: 12 },
+    xAxis: { type: 'value', axisLabel: { color: '#8b949e', fontSize: 9, formatter: function(v){return fmt(v)} }, splitLine: { lineStyle: { color: '#21262d' } } },
+    yAxis: { type: 'category', data: winners.map(function(d){return addr(d.user)}).reverse(), axisLabel: { color: '#3fb950', fontSize: 9, fontFamily: 'monospace' } },
+    series: [{
+      type: 'bar',
+      data: winners.map(function(d){return {value:+d.pnl, trades:d.trades}}).reverse(),
+      itemStyle: { color: new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#3fb950'},{offset:1,color:'#238636'}]) },
+      label: { show: true, position: 'right', color: '#8b949e', fontSize: 9, formatter: function(p){return fmt(p.value)} }
+    }]
+  });
+
+  // Chart 3: Top losers (horizontal bar)
+  var losers = res[3];
+  echarts.init(document.getElementById('chart3')).setOption({
+    title: { text: 'Top Losers (Realized PnL)', left: 12, top: 8, textStyle: { color: '#e6edf3', fontSize: 13 } },
+    tooltip: { trigger: 'axis', formatter: function(p) { return p[0].name+': '+fmt(+p[0].value)+' ('+p[0].data.trades+' trades)'; } },
+    grid: { left: 80, right: 16, top: 36, bottom: 12 },
+    xAxis: { type: 'value', axisLabel: { color: '#8b949e', fontSize: 9, formatter: function(v){return fmt(v)} }, splitLine: { lineStyle: { color: '#21262d' } } },
+    yAxis: { type: 'category', data: losers.map(function(d){return addr(d.user)}).reverse(), axisLabel: { color: '#f78166', fontSize: 9, fontFamily: 'monospace' } },
+    series: [{
+      type: 'bar',
+      data: losers.map(function(d){return {value:+d.pnl, trades:d.trades}}).reverse(),
+      itemStyle: { color: new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#f78166'},{offset:1,color:'#da3633'}]) },
+      label: { show: true, position: 'left', color: '#8b949e', fontSize: 9, formatter: function(p){return fmt(p.value)} }
+    }]
+  });
+
+  // Chart 4: PnL & fees by coin (treemap)
+  var coins = res[4];
+  var treeData = coins.map(function(c) {
+    var pnl = +c.pnl;
+    return { name: c.coin, value: +c.trades, pnl: pnl, fees: +c.fees,
+      itemStyle: { color: pnl >= 0 ? '#3fb950' : '#f78166' } };
+  });
+  echarts.init(document.getElementById('chart4')).setOption({
+    title: { text: 'PnL by Coin (size = trades)', left: 12, top: 8, textStyle: { color: '#e6edf3', fontSize: 13 } },
+    tooltip: { formatter: function(p) { return p.name+'<br>Trades: '+p.value+'<br>PnL: '+fmt(p.data.pnl)+'<br>Fees: '+fmt(p.data.fees); } },
+    series: [{
+      type: 'treemap',
+      top: 36, left: 8, right: 8, bottom: 8,
+      data: treeData,
+      label: { show: true, color: '#e6edf3', fontSize: 14, formatter: function(p){return p.name+'\n'+fmt(p.data.pnl)} },
+      breadcrumb: { show: false },
+      levels: [{ itemStyle: { borderColor: '#0d1117', borderWidth: 2, gapWidth: 2 } }]
+    }]
+  });
+
+  window.__DASHBOARD_READY__ = true;
+});
+</script>
+</body>
+</html>

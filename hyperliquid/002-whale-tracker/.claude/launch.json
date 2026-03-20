@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "whale-dashboard",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["http-server", "hyperliquid/002-whale-tracker/dashboard", "-p", "8080", "-c-1"],
+      "port": 8080
+    }
+  ]
+}

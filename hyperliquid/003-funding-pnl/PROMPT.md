@@ -1,0 +1,1 @@
+Create a Hyperliquid PnL tracker indexer that captures only closing trades (non-zero closedPnl) for BTC, ETH, SOL, and HYPE. Track realized profit/loss per trader, daily net PnL, top winners and losers, and fee burn. Use the hyperliquid-fills Portal dataset filtering by closedPnl != 0 in the pipe.

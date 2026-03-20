@@ -1,0 +1,4 @@
+{
+  "note": "Hyperliquid is an L1 chain — no traditional smart contracts to register. Fills data comes from the Hyperliquid exchange API indexed by SQD Portal.",
+  "deployments": {}
+}

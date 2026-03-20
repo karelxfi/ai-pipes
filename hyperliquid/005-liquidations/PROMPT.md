@@ -1,0 +1,1 @@
+Create a Hyperliquid liquidation tracker indexer. Since fills don't have an explicit liquidation flag, use a proxy: closing trades (Close Long, Close Short, Long > Short, Short > Long) with closedPnl < -$100. Track daily liquidation volume, most liquidated coins, rekt leaderboard, and hourly patterns.

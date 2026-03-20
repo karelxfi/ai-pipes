@@ -1,0 +1,1 @@
+Create a Hyperliquid meme coin indexer tracking trades for 20 popular meme coins (DOGE, PEPE, WIF, TRUMP, FARTCOIN, etc.). Show trading volume by coin, daily activity trends, top meme pairs, and trader concentration. Use the hyperliquid-fills Portal dataset with a coin filter for meme tokens.

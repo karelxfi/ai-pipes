@@ -1,0 +1,1 @@
+Create a Hyperliquid whale tracker indexer that captures all trades with $50K+ notional value across all coins. Track whale addresses, their favorite markets, position directions, and volume over time. Use the hyperliquid-fills Portal dataset with no coin filter, filtering by notional threshold in the pipe.
