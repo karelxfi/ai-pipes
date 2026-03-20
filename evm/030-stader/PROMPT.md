@@ -1,0 +1,1 @@
+Index Stader ETHx staking activity on Ethereum to track deposit flow and pool funding. The StakePoolManager (proxy: 0xcf5EA1b38380f6aF39068375516Daf40Ed70D299) emits Deposited, DepositReferral, ETHTransferredToPool, and TransferredETHToUserWithdrawManager events. Track staking inflows, referral vs direct deposits, and pool funding patterns.

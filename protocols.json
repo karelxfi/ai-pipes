@@ -593,9 +593,9 @@
         "Sonic",
         "Mantle"
       ],
-      "angle": null,
+      "angle": "Skipped \u2014 CeDeFi model with near-zero on-chain activity (~3 events/week)",
       "directory": "evm/028-avalon-usda",
-      "status": "pending"
+      "status": "skipped"
     },
     {
       "name": "CIAN Yield Layer",
@@ -612,9 +612,9 @@
         "Binance",
         "Scroll"
       ],
-      "angle": null,
+      "angle": "Skipped \u2014 very low on-chain event volume (~4 events/week)",
       "directory": "evm/029-cian-yield-layer",
-      "status": "pending"
+      "status": "skipped"
     },
     {
       "name": "Stader",
@@ -630,9 +630,9 @@
         "Terra2",
         "Near"
       ],
-      "angle": null,
+      "angle": "ETHx staking flow \u2014 deposits, referrals, pool funding on permissionless staking",
       "directory": "evm/030-stader",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Multipli.fi",
