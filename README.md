@@ -116,98 +116,99 @@ Open `dashboard/index.html` in your browser to see the charts.
 | 3 | Binance staked ETH | Liquid Staking | evm | ✅ |
 | 4 | Sky Lending | CDP | evm | ✅ |
 | 5 | Morpho V1 | Lending | evm | ✅ |
-| 6 | Maple | Lending | evm | ✅ |
-| 7 | Pendle | Yield | evm | ✅ |
-| 8 | SparkLend | Lending | evm | ✅ |
-| 9 | Kamino Lend | Lending | solana | ✅ |
-| 10 | Spark Savings | Yield | evm | ✅ |
-| 11 | Compound V3 | Lending | evm | ✅ |
-| 12 | Rocket Pool | Liquid Staking | evm | ✅ |
-| 13 | Venus Core Pool | Lending | evm | ✅ |
-| 14 | DoubleZero Staked SOL | Liquid Staking | solana | ⏭️ |
-| 15 | Sanctum Validator LSTs | Liquid Staking | solana | ✅ |
-| 16 | Jito Liquid Staking | Liquid Staking | solana | ⏳ |
-| 17 | Jupiter Lend | Lending | solana | ⏳ |
-| 18 | Fluid Lending | Lending | evm | ✅ |
-| 19 | Binance Staked SOL | Liquid Staking | solana | ⏳ |
-| 20 | StakeWise V2 | Liquid Staking | evm | ✅ |
-| 21 | Jupiter Perpetual Exchange | Derivatives | solana | ⏳ |
-| 22 | Kinetiq kHYPE | Liquid Staking | evm | ⏭️ |
-| 23 | Jupiter Staked SOL | Liquid Staking | solana | ⏳ |
-| 24 | Lista Lending | Lending | evm | ✅ |
-| 25 | Convex Finance | Yield | evm | ✅ |
-| 26 | mETH Protocol | Liquid Staking | evm | ✅ |
-| 27 | Lista Liquid Staking | Liquid Staking | evm | ✅ |
-| 28 | Liquid Collective | Liquid Staking | evm | ✅ |
-| 29 | USDD | CDP | evm | ⏭️ |
-| 30 | Euler V2 | Lending | evm | ✅ |
-| 31 | Fira | Lending | evm | ⏭️ |
-| 32 | Hyperliquid HLP | Derivatives | evm | ⏭️ |
-| 33 | Tydro | Lending | evm | ⏭️ |
-| 34 | Lista CDP | CDP | evm | ✅ |
-| 35 | HyperLend Pooled | Lending | evm | ⏭️ |
-| 36 | Avalon USDa | CDP | evm | ⏭️ |
-| 37 | CIAN Yield Layer | Yield Aggregator | evm | ⏭️ |
-| 38 | Stader | Liquid Staking | evm | ✅ |
-| 39 | Multipli.fi | Yield | evm | ⏭️ |
-| 40 | Drift Trade | Derivatives | solana | ⏳ |
-| 41 | Coinbase Wrapped Staked ETH | Liquid Staking | evm | ⏭️ |
-| 42 | Dolomite | Lending | evm | ⏭️ |
-| 43 | cap | Lending | evm | ⏭️ |
-| 44 | Strata Markets | Yield | evm | ⏭️ |
-| 45 | GMX V2 Perps | Derivatives | evm | ✅ |
-| 46 | Yearn Finance | Yield Aggregator | evm | ✅ |
-| 47 | Marinade Liquid Staking | Liquid Staking | solana | ⏳ |
-| 48 | Drift Staked SOL | Liquid Staking | solana | ⏳ |
-| 49 | Benqi Staked Avax | Liquid Staking | evm | ✅ |
-| 50 | Kamino Liquidity | Liquidity Manager | solana | ⏳ |
-| 51 | Extended | Derivatives | evm | ⏳ |
-| 52 | Cooler Loans | Lending | evm | ⏳ |
-| 53 | EtherFi Borrowing Market | Lending | evm | ⏳ |
-| 54 | infiniFi | Yield | evm | ⏳ |
-| 55 | Liquity V1 | CDP | evm | ⏳ |
-| 56 | Fluid Lite | Yield Aggregator | evm | ⏳ |
-| 57 | Yield Basis | Leveraged Farming | evm | ⏳ |
-| 58 | Venus Flux | Lending | evm | ⏳ |
-| 59 | Reservoir Protocol | CDP | evm | ⏳ |
-| 60 | Aster asBNB | Yield | evm | ⏳ |
-| 61 | stHYPE | Liquid Staking | evm | ⏭️ |
-| 62 | Stake DAO | Yield | evm | ⏳ |
-| 63 | Beefy | Yield Aggregator | evm | ⏳ |
-| 64 | Benqi Lending | Lending | evm | ⏳ |
-| 65 | Compound V2 | Lending | evm | ⏳ |
-| 66 | Aave V2 | Lending | evm | ✅ |
-| 67 | Frax Ether | Liquid Staking | evm | ⏳ |
-| 68 | Phantom SOL | Liquid Staking | solana | ⏳ |
-| 69 | Tectonic | Lending | evm | ⏭️ |
-| 70 | Aura | Yield | evm | ⏳ |
-| 71 | The Vault Liquid Staking | Liquid Staking | solana | ⏳ |
-| 72 | JPool | Liquid Staking | solana | ⏳ |
-| 73 | Bybit Staked SOL | Liquid Staking | solana | ⏳ |
-| 74 | Homora V2 | Leveraged Farming | evm | ⏳ |
-| 75 | Capyfi | Lending | evm | ⏳ |
-| 76 | Ostium | Derivatives | evm | ⏳ |
-| 77 | Lulo | Yield Aggregator | solana | ⏳ |
-| 78 | Liquity V2 | CDP | evm | ⏳ |
-| 79 | BlazeStake | Liquid Staking | solana | ⏳ |
-| 80 | Derive V2 | Derivatives | evm | ⏳ |
-| 81 | Project 0 | Lending | solana | ⏳ |
-| 82 | sDAI | Yield | evm | ⏭️ |
-| 83 | Loopscale | Lending | solana | ⏳ |
-| 84 | Infrared Finance | Liquid Staking | evm | ⏭️ |
-| 85 | Avantis | Derivatives | evm | ⏳ |
-| 86 | Save | Lending | solana | ⏳ |
-| 87 | Lorenzo sUSD1+ | Yield | evm | ⏳ |
-| 88 | Exponent | Yield | solana | ⏳ |
-| 89 | YO Protocol | Yield Aggregator | evm | ⏳ |
-| 90 | Edgevana | Liquid Staking | solana | ⏳ |
-| 91 | AUTOfinance | Yield | evm | ⏳ |
-| 92 | Arrakis Modular | Liquidity Manager | evm | ⏳ |
-| 93 | Hyperliquid Perps (BTC/ETH/SOL) | Derivatives | hyperliquid | ✅ |
-| 94 | Hyperliquid Whale Tracker | Derivatives | hyperliquid | ✅ |
-| 95 | Hyperliquid Funding & PnL | Derivatives | hyperliquid | ✅ |
-| 96 | Hyperliquid Meme Coins | Derivatives | hyperliquid | ✅ |
-| 97 | Hyperliquid Liquidations | Derivatives | hyperliquid | ✅ |
+| 6 | MetaMorpho Vaults | Lending | evm | ✅ |
+| 7 | Maple | Lending | evm | ✅ |
+| 8 | Pendle | Yield | evm | ✅ |
+| 9 | SparkLend | Lending | evm | ✅ |
+| 10 | Kamino Lend | Lending | solana | ✅ |
+| 11 | Spark Savings | Yield | evm | ✅ |
+| 12 | Compound V3 | Lending | evm | ✅ |
+| 13 | Rocket Pool | Liquid Staking | evm | ✅ |
+| 14 | Venus Core Pool | Lending | evm | ✅ |
+| 15 | DoubleZero Staked SOL | Liquid Staking | solana | ⏭️ |
+| 16 | Sanctum Validator LSTs | Liquid Staking | solana | ✅ |
+| 17 | Jito Liquid Staking | Liquid Staking | solana | ⏳ |
+| 18 | Jupiter Lend | Lending | solana | ⏳ |
+| 19 | Fluid Lending | Lending | evm | ✅ |
+| 20 | Binance Staked SOL | Liquid Staking | solana | ⏳ |
+| 21 | StakeWise V2 | Liquid Staking | evm | ✅ |
+| 22 | Jupiter Perpetual Exchange | Derivatives | solana | ⏳ |
+| 23 | Kinetiq kHYPE | Liquid Staking | evm | ⏭️ |
+| 24 | Jupiter Staked SOL | Liquid Staking | solana | ⏳ |
+| 25 | Lista Lending | Lending | evm | ✅ |
+| 26 | Convex Finance | Yield | evm | ✅ |
+| 27 | mETH Protocol | Liquid Staking | evm | ✅ |
+| 28 | Lista Liquid Staking | Liquid Staking | evm | ✅ |
+| 29 | Liquid Collective | Liquid Staking | evm | ✅ |
+| 30 | USDD | CDP | evm | ⏭️ |
+| 31 | Euler V2 | Lending | evm | ✅ |
+| 32 | Fira | Lending | evm | ⏭️ |
+| 33 | Hyperliquid HLP | Derivatives | evm | ⏭️ |
+| 34 | Tydro | Lending | evm | ⏭️ |
+| 35 | Lista CDP | CDP | evm | ✅ |
+| 36 | HyperLend Pooled | Lending | evm | ⏭️ |
+| 37 | Avalon USDa | CDP | evm | ⏭️ |
+| 38 | CIAN Yield Layer | Yield Aggregator | evm | ⏭️ |
+| 39 | Stader | Liquid Staking | evm | ✅ |
+| 40 | Multipli.fi | Yield | evm | ⏭️ |
+| 41 | Drift Trade | Derivatives | solana | ⏳ |
+| 42 | Coinbase Wrapped Staked ETH | Liquid Staking | evm | ⏭️ |
+| 43 | Dolomite | Lending | evm | ⏭️ |
+| 44 | cap | Lending | evm | ⏭️ |
+| 45 | Strata Markets | Yield | evm | ⏭️ |
+| 46 | GMX V2 Perps | Derivatives | evm | ✅ |
+| 47 | Yearn Finance | Yield Aggregator | evm | ✅ |
+| 48 | Marinade Liquid Staking | Liquid Staking | solana | ⏳ |
+| 49 | Drift Staked SOL | Liquid Staking | solana | ⏳ |
+| 50 | Benqi Staked Avax | Liquid Staking | evm | ✅ |
+| 51 | Kamino Liquidity | Liquidity Manager | solana | ⏳ |
+| 52 | Extended | Derivatives | evm | ⏳ |
+| 53 | Cooler Loans | Lending | evm | ⏳ |
+| 54 | EtherFi Borrowing Market | Lending | evm | ⏳ |
+| 55 | infiniFi | Yield | evm | ⏳ |
+| 56 | Liquity V1 | CDP | evm | ⏳ |
+| 57 | Fluid Lite | Yield Aggregator | evm | ⏳ |
+| 58 | Yield Basis | Leveraged Farming | evm | ⏳ |
+| 59 | Venus Flux | Lending | evm | ⏳ |
+| 60 | Reservoir Protocol | CDP | evm | ⏳ |
+| 61 | Aster asBNB | Yield | evm | ⏳ |
+| 62 | stHYPE | Liquid Staking | evm | ⏭️ |
+| 63 | Stake DAO | Yield | evm | ⏳ |
+| 64 | Beefy | Yield Aggregator | evm | ⏳ |
+| 65 | Benqi Lending | Lending | evm | ⏳ |
+| 66 | Compound V2 | Lending | evm | ⏳ |
+| 67 | Aave V2 | Lending | evm | ✅ |
+| 68 | Frax Ether | Liquid Staking | evm | ⏳ |
+| 69 | Phantom SOL | Liquid Staking | solana | ⏳ |
+| 70 | Tectonic | Lending | evm | ⏭️ |
+| 71 | Aura | Yield | evm | ⏳ |
+| 72 | The Vault Liquid Staking | Liquid Staking | solana | ⏳ |
+| 73 | JPool | Liquid Staking | solana | ⏳ |
+| 74 | Bybit Staked SOL | Liquid Staking | solana | ⏳ |
+| 75 | Homora V2 | Leveraged Farming | evm | ⏳ |
+| 76 | Capyfi | Lending | evm | ⏳ |
+| 77 | Ostium | Derivatives | evm | ⏳ |
+| 78 | Lulo | Yield Aggregator | solana | ⏳ |
+| 79 | Liquity V2 | CDP | evm | ⏳ |
+| 80 | BlazeStake | Liquid Staking | solana | ⏳ |
+| 81 | Derive V2 | Derivatives | evm | ⏳ |
+| 82 | Project 0 | Lending | solana | ⏳ |
+| 83 | sDAI | Yield | evm | ⏭️ |
+| 84 | Loopscale | Lending | solana | ⏳ |
+| 85 | Infrared Finance | Liquid Staking | evm | ⏭️ |
+| 86 | Avantis | Derivatives | evm | ⏳ |
+| 87 | Save | Lending | solana | ⏳ |
+| 88 | Lorenzo sUSD1+ | Yield | evm | ⏳ |
+| 89 | Exponent | Yield | solana | ⏳ |
+| 90 | YO Protocol | Yield Aggregator | evm | ⏳ |
+| 91 | Edgevana | Liquid Staking | solana | ⏳ |
+| 92 | AUTOfinance | Yield | evm | ⏳ |
+| 93 | Arrakis Modular | Liquidity Manager | evm | ⏳ |
+| 94 | Hyperliquid Perps (BTC/ETH/SOL) | Derivatives | hyperliquid | ✅ |
+| 95 | Hyperliquid Whale Tracker | Derivatives | hyperliquid | ✅ |
+| 96 | Hyperliquid Funding & PnL | Derivatives | hyperliquid | ✅ |
+| 97 | Hyperliquid Meme Coins | Derivatives | hyperliquid | ✅ |
+| 98 | Hyperliquid Liquidations | Derivatives | hyperliquid | ✅ |
 <!-- PROTOCOLS:END -->
 
 ## Links

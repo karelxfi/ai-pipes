@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "pnl-dashboard",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["http-server", "hyperliquid/003-funding-pnl/dashboard", "-p", "8080", "-c-1"],
+      "port": 8080
+    },
+    {
+      "name": "aave-bloomberg",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["http-server", "evm/001-aave-v3/dashboard", "-p", "8081", "-c-1"],
+      "port": 8081
+    },
+    {
+      "name": "benqi-savax",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["http-server", "evm/038-benqi-staked-avax/dashboard", "-p", "8082", "-c-1"],
+      "port": 8082
+    },
+    {
+      "name": "morpho-vaults",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["http-server", "evm/039-morpho-vaults/dashboard", "-p", "8083", "-c-1"],
+      "port": 8083
+    }
+  ]
+}

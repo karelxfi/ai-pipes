@@ -1,0 +1,14 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "morphoBlue": { "address": "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb", "deploymentBlock": 18883124, "verified": true },
+        "metaMorphoFactoryV1_1": { "address": "0x1897A8997241C1cD4bD0698647e4EB7213535c24", "deploymentBlock": null, "verified": true },
+        "metaMorphoFactoryOld": { "address": "0xA9c3D3a366466Fa809d1Ae982Fb2c46E5fC41101", "deploymentBlock": null, "verified": true },
+        "publicAllocator": { "address": "0xfd32fA2ca22c76dD6E550706Ad913FC6CE91c75D", "deploymentBlock": null, "verified": true }
+      },
+      "source": "morpho-docs",
+      "sourceUrl": "https://docs.morpho.org/get-started/resources/addresses/"
+    }
+  }
+}

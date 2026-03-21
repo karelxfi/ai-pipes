@@ -130,6 +130,19 @@
       "status": "done"
     },
     {
+      "name": "MetaMorpho Vaults",
+      "slug": "metamorpho-vaults",
+      "category": "Lending",
+      "tvl": null,
+      "vm": "evm",
+      "chains": [
+        "Ethereum"
+      ],
+      "angle": "Curator reallocation activity — how vault curators shift capital across Morpho Blue markets",
+      "directory": "evm/039-morpho-vaults",
+      "status": "done"
+    },
+    {
       "name": "Maple",
       "slug": "maple",
       "category": "Lending",

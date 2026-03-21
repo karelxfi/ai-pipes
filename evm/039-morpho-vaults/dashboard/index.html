@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200">
+  <title>METAMORPHO VAULTS — Curator Reallocation Activity</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #000000;
+      color: #cccccc;
+      font-family: 'Consolas', 'SF Mono', 'Source Code Pro', 'JetBrains Mono', monospace;
+      font-size: 11px;
+      line-height: 1.3;
+      width: 1200px;
+      height: 675px;
+      overflow: hidden;
+    }
+    .header {
+      padding: 8px 12px 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    .header-left h1 {
+      font-size: 11px;
+      font-weight: normal;
+      color: #4A7AB5;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .header-left .angle {
+      font-size: 10px;
+      color: #666;
+      margin-top: 1px;
+    }
+    .stats { display: flex; gap: 16px; }
+    .stat { text-align: right; }
+    .stat-value {
+      font-size: 16px;
+      font-weight: normal;
+      color: #ffffff;
+      font-family: 'Consolas', 'SF Mono', monospace;
+      font-feature-settings: 'tnum';
+    }
+    .stat-label {
+      font-size: 9px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 0;
+      height: calc(100% - 48px - 16px);
+    }
+    .panel {
+      background: #0a0a0a;
+      border: 1px solid #1a1a1a;
+      border-radius: 0;
+      position: relative;
+      padding: 0;
+    }
+    .chart { width: 100%; height: 100%; }
+    .footer {
+      padding: 2px 12px;
+      text-align: right;
+      font-size: 9px;
+      color: #666;
+    }
+    .footer a { color: #4A7AB5; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-left">
+      <h1>MetaMorpho Vaults — Curator Reallocation Activity</h1>
+      <div class="angle">Supply &amp; withdraw reallocations across all MetaMorpho vaults on Ethereum</div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="grid">
+    <div class="panel"><div class="chart" id="chart1"></div></div>
+    <div class="panel"><div class="chart" id="chart2"></div></div>
+    <div class="panel"><div class="chart" id="chart3"></div></div>
+    <div class="panel"><div class="chart" id="chart4"></div></div>
+  </div>
+  <div class="footer">Built with ai-pipes + SQD Pipes SDK | <a href="https://github.com/karelxfi">github.com/karelxfi</a> | <a href="https://x.com/karelxfi">x.com/karelxfi</a></div>
+
+  <script>
+    var CH = 'http://localhost:8123';
+    var DB = 'metamorpho_vaults';
+    var T = 'vault_reallocations';
+
+    function q(sql) {
+      return fetch(CH + '/?database=' + DB + '&user=default&password=password&query=' + encodeURIComponent(sql + ' FORMAT JSON'))
+        .then(function(r) { return r.json(); })
+        .then(function(j) { return j.data; });
+    }
+
+    var PALETTE = ['#1E3A5F','#2B4F7E','#1A3050','#3D6494','#4A7AB5','#2E5480','#5A8ABF','#1F4470','#3B6A9E','#274D73'];
+
+    function terminalOpts(title) {
+      return {
+        backgroundColor: 'transparent',
+        title: {
+          text: title.toUpperCase(),
+          textStyle: { color: '#666', fontSize: 10, fontWeight: 'normal', fontFamily: 'Consolas, SF Mono, monospace' },
+          left: 8, top: 4
+        },
+        textStyle: { color: '#666', fontFamily: 'Consolas, SF Mono, Source Code Pro, monospace' },
+        tooltip: {
+          backgroundColor: '#1a1a1a',
+          borderColor: '#333',
+          textStyle: { color: '#ccc', fontSize: 10, fontFamily: 'Consolas, monospace' },
+          padding: [4, 8]
+        },
+        grid: { left: 48, right: 8, top: 24, bottom: 24 },
+        animation: false
+      };
+    }
+
+    function fmt(n) {
+      if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+      return String(Math.round(n));
+    }
+
+    async function init() {
+      var totals = await q("SELECT count() as total, countIf(event_type='supply') as supplies, countIf(event_type='withdraw') as withdraws, uniq(vault) as vaults, uniq(market_id) as markets, min(timestamp) as min_ts, max(timestamp) as max_ts FROM " + T);
+      var st = totals[0];
+      var period = (st.min_ts || '').slice(0, 10) + ' \u2192 ' + (st.max_ts || '').slice(0, 10);
+
+      var statsEl = document.getElementById('stats');
+      var statsHtml = document.createElement('div');
+      statsHtml.style.display = 'flex';
+      statsHtml.style.gap = '16px';
+
+      var items = [
+        { val: fmt(Number(st.total)), label: 'Reallocations' },
+        { val: fmt(Number(st.vaults)), label: 'Vaults' },
+        { val: fmt(Number(st.markets)), label: 'Markets' },
+        { val: period, label: 'Period', small: true }
+      ];
+      items.forEach(function(item) {
+        var div = document.createElement('div');
+        div.className = 'stat';
+        var valDiv = document.createElement('div');
+        valDiv.className = 'stat-value';
+        if (item.small) { valDiv.style.fontSize = '10px'; valDiv.style.color = '#666'; }
+        valDiv.textContent = item.val;
+        var lblDiv = document.createElement('div');
+        lblDiv.className = 'stat-label';
+        lblDiv.textContent = item.label;
+        div.appendChild(valDiv);
+        div.appendChild(lblDiv);
+        statsEl.appendChild(div);
+      });
+
+      // Chart 1: Weekly reallocation activity (stacked bar: supply vs withdraw)
+      var weekly = await q("SELECT toMonday(timestamp) as week, event_type, count() as n FROM " + T + " GROUP BY week, event_type ORDER BY week");
+      var weeks = []; var supplyMap = {}; var withdrawMap = {};
+      weekly.forEach(function(r) {
+        var w = r.week.slice(0, 10);
+        if (weeks.indexOf(w) === -1) weeks.push(w);
+        if (r.event_type === 'supply') supplyMap[w] = Number(r.n);
+        else withdrawMap[w] = Number(r.n);
+      });
+      var c1 = echarts.init(document.getElementById('chart1'));
+      c1.setOption(Object.assign(terminalOpts('Weekly Reallocation Activity'), {
+        xAxis: { type: 'category', data: weeks, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace', rotate: 0, interval: Math.floor(weeks.length / 6) } },
+        yAxis: { type: 'value', axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' }, splitLine: { lineStyle: { color: '#1a1a1a', type: 'dashed' } } },
+        legend: { data: ['Supply', 'Withdraw'], textStyle: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' }, right: 8, top: 4 },
+        series: [
+          { name: 'Supply', type: 'bar', stack: 'total', data: weeks.map(function(w) { return supplyMap[w] || 0; }), itemStyle: { color: '#2B4F7E' }, barMaxWidth: 12 },
+          { name: 'Withdraw', type: 'bar', stack: 'total', data: weeks.map(function(w) { return withdrawMap[w] || 0; }), itemStyle: { color: '#8B3A3A' }, barMaxWidth: 12 }
+        ]
+      }));
+
+      // Chart 2: Top vaults by reallocation count (horizontal bar)
+      var topVaults = await q("SELECT vault, count() as n FROM " + T + " GROUP BY vault ORDER BY n DESC LIMIT 10");
+      var c2 = echarts.init(document.getElementById('chart2'));
+      c2.setOption(Object.assign(terminalOpts('Top Vaults by Reallocation Count'), {
+        grid: { left: 100, right: 48, top: 24, bottom: 24 },
+        xAxis: { type: 'value', axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' }, splitLine: { lineStyle: { color: '#1a1a1a', type: 'dashed' } } },
+        yAxis: { type: 'category', data: topVaults.map(function(r) { return r.vault.slice(0, 6) + '..' + r.vault.slice(-4); }).reverse(), axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' } },
+        series: [{ type: 'bar', data: topVaults.map(function(r) { return Number(r.n); }).reverse(), itemStyle: { color: '#2B4F7E' }, barMaxWidth: 10, label: { show: true, position: 'right', color: '#ccc', fontSize: 9, fontFamily: 'Consolas, monospace' } }]
+      }));
+
+      // Chart 3: Top markets by reallocation count (horizontal bar)
+      var topMarkets = await q("SELECT market_id, count() as n FROM " + T + " GROUP BY market_id ORDER BY n DESC LIMIT 10");
+      var c3 = echarts.init(document.getElementById('chart3'));
+      c3.setOption(Object.assign(terminalOpts('Top Markets by Reallocation Count'), {
+        grid: { left: 100, right: 48, top: 24, bottom: 24 },
+        xAxis: { type: 'value', axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' }, splitLine: { lineStyle: { color: '#1a1a1a', type: 'dashed' } } },
+        yAxis: { type: 'category', data: topMarkets.map(function(r) { return r.market_id.slice(0, 6) + '..' + r.market_id.slice(-4); }).reverse(), axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' } },
+        series: [{ type: 'bar', data: topMarkets.map(function(r) { return Number(r.n); }).reverse(), itemStyle: { color: function(p) { return PALETTE[p.dataIndex % PALETTE.length]; } }, barMaxWidth: 10, label: { show: true, position: 'right', color: '#ccc', fontSize: 9, fontFamily: 'Consolas, monospace' } }]
+      }));
+
+      // Chart 4: Top callers (allocators) by reallocation count
+      var topCallers = await q("SELECT caller, count() as n FROM " + T + " GROUP BY caller ORDER BY n DESC LIMIT 10");
+      var c4 = echarts.init(document.getElementById('chart4'));
+      c4.setOption(Object.assign(terminalOpts('Top Allocators (Callers)'), {
+        grid: { left: 100, right: 48, top: 24, bottom: 24 },
+        xAxis: { type: 'value', axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' }, splitLine: { lineStyle: { color: '#1a1a1a', type: 'dashed' } } },
+        yAxis: { type: 'category', data: topCallers.map(function(r) { return r.caller.slice(0, 6) + '..' + r.caller.slice(-4); }).reverse(), axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' } },
+        series: [{ type: 'bar', data: topCallers.map(function(r) { return Number(r.n); }).reverse(), itemStyle: { color: '#3D6494' }, barMaxWidth: 10, label: { show: true, position: 'right', color: '#ccc', fontSize: 9, fontFamily: 'Consolas, monospace' } }]
+      }));
+
+      window.__DASHBOARD_READY__ = true;
+    }
+
+    init().catch(function(e) { console.error(e); });
+  </script>
+</body>
+</html>

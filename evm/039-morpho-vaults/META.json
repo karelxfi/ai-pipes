@@ -1,0 +1,10 @@
+{
+  "date": "2026-03-21",
+  "pipes_sdk_version": "1.0.0-alpha.1",
+  "agent_skills_version": "3b9cd3c",
+  "claude_model": "claude-opus-4-6",
+  "prompt_file": "PROMPT.md",
+  "angle": "Curator reallocation activity — how vault curators shift capital across Morpho Blue markets",
+  "runtime_status": "working",
+  "validation_status": "passed"
+}
