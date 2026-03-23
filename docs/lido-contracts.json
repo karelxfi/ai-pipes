@@ -1,0 +1,453 @@
+{
+  "protocol": "Lido",
+  "description": "Liquid staking protocol for Ethereum and multi-chain wstETH deployments",
+  "sourceUrl": "https://docs.lido.fi/deployed-contracts/",
+  "lastUpdated": "2026-03-19",
+  "deployments": {
+    "ethereum": {
+      "chainId": 1,
+      "contracts": {
+        "stETH": {
+          "address": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
+          "description": "Lido staked ETH token (rebasing)",
+          "verified": true
+        },
+        "wstETH": {
+          "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+          "description": "Wrapped stETH (non-rebasing)",
+          "verified": true
+        },
+        "LDO": {
+          "address": "0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32",
+          "description": "Lido DAO governance token",
+          "verified": true
+        },
+        "LidoLocator": {
+          "address": "0xC1d0b3DE6792Bf6b4b37EccdcC24e45978Cfd2Eb",
+          "description": "Service locator for Lido protocol contracts",
+          "verified": true
+        },
+        "StakingRouter": {
+          "address": "0xFdDf38947aFB03C621C71b06C9C70bce73f12999",
+          "description": "Routes stake to staking modules",
+          "verified": true
+        },
+        "WithdrawalQueueERC721": {
+          "address": "0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1",
+          "description": "NFT-based withdrawal queue",
+          "verified": true
+        },
+        "WithdrawalVault": {
+          "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
+          "description": "Vault for withdrawal funds",
+          "verified": true
+        },
+        "AccountingOracle": {
+          "address": "0x852deD011285fe67063a08005c71a85690503Cee",
+          "description": "Reports CL balance and withdrawal data",
+          "verified": true
+        },
+        "AccountingOracleHashConsensus": {
+          "address": "0xD624B08C83bAECF0807Dd2c6880C3154a5F0B288",
+          "description": "Hash consensus for Accounting Oracle",
+          "verified": true
+        },
+        "ValidatorsExitBusOracle": {
+          "address": "0x0De4Ea0184c2ad0BacA7183356Aea5B8d5Bf5c6e",
+          "description": "Signals validators to exit",
+          "verified": true
+        },
+        "ValidatorsExitBusOracleHashConsensus": {
+          "address": "0x7FaDB6358950c5fAA66Cb5EB8eE5147De3df355a",
+          "description": "Hash consensus for Exit Bus Oracle",
+          "verified": true
+        },
+        "Accounting": {
+          "address": "0x23ED611be0e1a820978875C0122F92260804cdDf",
+          "description": "Accounting module",
+          "verified": true
+        },
+        "DepositSecurityModule": {
+          "address": "0xffa96d84def2ea035c7ab153d8b991128e3d72fd",
+          "description": "Guards deposit operations",
+          "verified": true
+        },
+        "OracleReportSanityChecker": {
+          "address": "0xf1647c86E6D7959f638DD9CE1d90e2F3C9503129",
+          "description": "Validates oracle report sanity",
+          "verified": true
+        },
+        "OracleDaemonConfig": {
+          "address": "0xbf05A929c3D7885a6aeAd833a992dA6E5ac23b09",
+          "description": "Configuration for oracle daemons",
+          "verified": true
+        },
+        "Burner": {
+          "address": "0xE76c52750019b80B43E36DF30bf4060EB73F573a",
+          "description": "Burns stETH for cover/penalties",
+          "verified": true
+        },
+        "ExecutionLayerRewardsVault": {
+          "address": "0x388C818CA8B9251b393131C08a736A67ccB19297",
+          "description": "Collects execution layer rewards",
+          "verified": true
+        },
+        "InsuranceFund": {
+          "address": "0x8B3f33234ABD88493c0Cd28De33D583B70beDe35",
+          "description": "Insurance fund",
+          "verified": true
+        },
+        "TokenRateNotifier": {
+          "address": "0x25e35855783bec3E49355a29e110f02Ed8b05ba9",
+          "description": "Notifies L2s of token rate changes",
+          "verified": true
+        },
+        "CuratedNodeOperatorsRegistry": {
+          "address": "0x55032650b14df07b85bF18A3a3eC8E0Af2e028d5",
+          "description": "Registry of curated node operators",
+          "verified": true
+        },
+        "SimpleDVTNodeOperatorsRegistry": {
+          "address": "0xaE7B191A31f627b4eB1d4DaC64eaB9976995b433",
+          "description": "Simple DVT node operators registry",
+          "verified": true
+        },
+        "CommunityStakingModule": {
+          "address": "0xdA7dE2ECdDfccC6c3AF10108Db212ACBBf9EA83F",
+          "description": "Permissionless community staking module",
+          "verified": true
+        },
+        "EasyTrack": {
+          "address": "0xF0211b7660680B49De1A7E9f25C65660F0a13Fea",
+          "description": "Lightweight governance motions",
+          "verified": true
+        },
+        "LidoDAOKernel": {
+          "address": "0xb8FFC3Cd6e7Cf5a098A1c92F48009765B24088Dc",
+          "description": "Aragon DAO kernel",
+          "verified": true
+        },
+        "AragonVoting": {
+          "address": "0x2e59A20f205bB85a89C53f1936454680651E618e",
+          "description": "Aragon voting app",
+          "verified": true
+        },
+        "AragonTokenManager": {
+          "address": "0xf73a1260d222f447210581DDf212D915c09a3249",
+          "description": "Aragon token manager",
+          "verified": true
+        },
+        "AragonFinance": {
+          "address": "0xB9E5CBB9CA5b0d659238807E84D0176930753d86",
+          "description": "Aragon finance app",
+          "verified": true
+        },
+        "AragonAgent": {
+          "address": "0x3e40D73EB977Dc6a537aF587D48316feE66E9C8c",
+          "description": "Aragon agent (treasury)",
+          "verified": true
+        }
+      },
+      "bridges": {
+        "arbitrum": {
+          "L1Gateway": "0x0F25c1DC2a9922304f2eac71DCa9B07E310e8E5a"
+        },
+        "optimism": {
+          "L1Bridge": "0x76943C0D61395d8F2edF9060e1533529cAe05dE6"
+        },
+        "base": {
+          "L1Bridge": "0x9de443AdC5A411E83F1878Ef24C3F52C61571e72"
+        },
+        "scroll": {
+          "L1Gateway": "0x6625c6332c9f91f2d27c304e729b86db87a3f504"
+        },
+        "zksync-era": {
+          "L1Bridge": "0x41527B2d03844dB6b0945f25702cB958b6d55989"
+        },
+        "polygon": {
+          "L1Predicate": "0x40ec5B33f54e0E8A33A975908C5BA1c14e5BbbDf"
+        },
+        "linea": {
+          "L1Bridge": "0x051f1d88f0af5763fb888ec4378b4d8b29ea3319"
+        }
+      },
+      "source": "lido-docs",
+      "sourceUrl": "https://docs.lido.fi/deployed-contracts/"
+    },
+    "arbitrum": {
+      "chainId": 42161,
+      "contracts": {
+        "wstETH": {
+          "address": "0x5979D7b546E38E414F7E9822514be443A4800529",
+          "description": "Bridged wstETH token",
+          "verified": true
+        },
+        "LDO": {
+          "address": "0x13Ad51ed4F1B7e9Dc168d8a00cB3f4dDD85EfA60",
+          "description": "Bridged LDO token",
+          "verified": true
+        },
+        "L2Gateway": {
+          "address": "0x07D4692291B9E30E326fd31706f686f83f331B82",
+          "description": "L2 wstETH gateway",
+          "verified": true
+        }
+      },
+      "source": "lido-docs",
+      "sourceUrl": "https://docs.lido.fi/deployed-contracts/"
+    },
+    "optimism": {
+      "chainId": 10,
+      "contracts": {
+        "wstETH": {
+          "address": "0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb",
+          "description": "Bridged wstETH token",
+          "verified": true
+        },
+        "stETH": {
+          "address": "0x76A50b8c7349cCDDb7578c6627e79b5d99D24138",
+          "description": "Bridged stETH token (non-rebasing on L2)",
+          "verified": true
+        },
+        "LDO": {
+          "address": "0xFdb794692724153d1488CcdBE0C56c252596735F",
+          "description": "Bridged LDO token",
+          "verified": true
+        },
+        "L2Bridge": {
+          "address": "0x8E01013243a96601a86eb3153F0d9Fa4fbFb6957",
+          "description": "L2 wstETH bridge",
+          "verified": true
+        },
+        "TokenRateOracle": {
+          "address": "0x294ED1f214F4e0ecAE31C3Eae4F04EBB3b36C9d0",
+          "description": "Token rate oracle for stETH/wstETH conversion",
+          "verified": true
+        }
+      },
+      "source": "lido-docs",
+      "sourceUrl": "https://docs.lido.fi/deployed-contracts/"
+    },
+    "base": {
+      "chainId": 8453,
+      "contracts": {
+        "wstETH": {
+          "address": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
+          "description": "Bridged wstETH token",
+          "verified": true
+        },
+        "L2Bridge": {
+          "address": "0xac9D11cD4D7eF6e54F14643a393F68Ca014287AB",
+          "description": "L2 wstETH bridge",
+          "verified": true
+        }
+      },
+      "source": "lido-docs",
+      "sourceUrl": "https://docs.lido.fi/deployed-contracts/"
+    },
+    "polygon": {
+      "chainId": 137,
+      "contracts": {
+        "wstETH": {
+          "address": "0x03b54A6e9a984069379fae1a4fC4dBAE93B3bCCD",
+          "description": "Bridged wstETH token",
+          "verified": true
+        }
+      },
+      "source": "lido-docs",
+      "sourceUrl": "https://docs.lido.fi/deployed-contracts/"
+    },
+    "scroll": {
+      "chainId": 534352,
+      "contracts": {
+        "wstETH": {
+          "address": "0xf610A9dfB7C89644979b4A0f27063E9e7d7Cda32",
+          "description": "Bridged wstETH token",
+          "verified": true
+        },
+        "L2Gateway": {
+          "address": "0x8aE8f22226B9d789A36AC81474e633f8bE2856c9",
+          "description": "L2 wstETH gateway",
+          "verified": true
+        }
+      },
+      "source": "lido-docs",
+      "sourceUrl": "https://docs.lido.fi/deployed-contracts/"
+    },
+    "zksync-era": {
+      "chainId": 324,
+      "contracts": {
+        "wstETH": {
+          "address": "0x703b52F2b28fEbcB60E1372858AF5b18849FE867",
+          "description": "Bridged wstETH token",
+          "verified": true
+        },
+        "L2Bridge": {
+          "address": "0xE1D6A50E7101c8f8db77352897Ee3f1AC53f782B",
+          "description": "L2 wstETH bridge",
+          "verified": true
+        }
+      },
+      "source": "lido-docs",
+      "sourceUrl": "https://docs.lido.fi/deployed-contracts/"
+    },
+    "mantle": {
+      "chainId": 5000,
+      "contracts": {
+        "wstETH": {
+          "address": "0x458ed78EB972a369799fb278c0243b25e5242A83",
+          "description": "Bridged wstETH token (proxy)",
+          "verified": true
+        },
+        "L2Bridge": {
+          "address": "0x9c46560D6209743968cC24150893631A39AfDe4d",
+          "description": "L2 wstETH bridge (proxy)",
+          "verified": true
+        }
+      },
+      "source": "lido-docs",
+      "sourceUrl": "https://docs.lido.fi/deployed-contracts/"
+    },
+    "linea": {
+      "chainId": 59144,
+      "contracts": {
+        "wstETH": {
+          "address": "0xB5beDd42000b71FddE22D3eE8a79Bd49A568fC8F",
+          "description": "Bridged wstETH token",
+          "verified": true
+        },
+        "L2Bridge": {
+          "address": "0x353012dc4a9a6cf55c941badc267f82004a8ceb9",
+          "description": "L2 wstETH bridge",
+          "verified": true
+        }
+      },
+      "source": "lido-docs",
+      "sourceUrl": "https://docs.lido.fi/deployed-contracts/"
+    },
+    "bsc": {
+      "chainId": 56,
+      "contracts": {
+        "wstETH": {
+          "address": "0x26c5e01524d2E6280A48F2c50fF6De7e52E9611C",
+          "description": "Bridged wstETH token",
+          "verified": true
+        }
+      },
+      "source": "lido-docs",
+      "sourceUrl": "https://docs.lido.fi/deployed-contracts/"
+    },
+    "mode": {
+      "chainId": 34443,
+      "contracts": {
+        "wstETH": {
+          "address": "0x98f96A4B34D03a2E6f225B28b8f8Cb1279562d81",
+          "description": "Bridged wstETH token (proxy)",
+          "verified": true
+        },
+        "L2Bridge": {
+          "address": "0xb8161F28a5a38cE58f155D9A96bDAc0104985FAc",
+          "description": "L2 wstETH bridge (proxy)",
+          "verified": true
+        }
+      },
+      "source": "lido-docs",
+      "sourceUrl": "https://docs.lido.fi/deployed-contracts/"
+    },
+    "zircuit": {
+      "chainId": 48900,
+      "contracts": {
+        "wstETH": {
+          "address": "0xf0e673Bc224A8Ca3ff67a61605814666b1234833",
+          "description": "Bridged wstETH token (proxy)",
+          "verified": true
+        },
+        "L2Bridge": {
+          "address": "0xF4DC271cA48446a5d2b97Ff41D39918DF8A4Eb0e",
+          "description": "L2 wstETH bridge (proxy)",
+          "verified": true
+        }
+      },
+      "source": "lido-docs",
+      "sourceUrl": "https://docs.lido.fi/deployed-contracts/"
+    },
+    "soneium": {
+      "chainId": 1868,
+      "contracts": {
+        "wstETH": {
+          "address": "0xaA9BD8c957D803466FA92504BDd728cC140f8941",
+          "description": "Bridged wstETH token (proxy)",
+          "verified": true
+        },
+        "stETH": {
+          "address": "0x0Ce031AEd457C870D74914eCAA7971dd3176cDAF",
+          "description": "Bridged stETH token (proxy)",
+          "verified": true
+        },
+        "L2Bridge": {
+          "address": "0xb4a0Cc7bE277DC9F9CBB6fbE8574B6f5221018D8",
+          "description": "L2 wstETH bridge (proxy)",
+          "verified": true
+        }
+      },
+      "source": "lido-docs",
+      "sourceUrl": "https://docs.lido.fi/deployed-contracts/"
+    },
+    "unichain": {
+      "chainId": 130,
+      "contracts": {
+        "wstETH": {
+          "address": "0xc02fE7317D4eb8753a02c35fe019786854A92001",
+          "description": "Bridged wstETH token (proxy)",
+          "verified": true
+        },
+        "stETH": {
+          "address": "0x81f2508AAC59757EF7425DDc9717AB5c2AA0A84F",
+          "description": "Bridged stETH token (proxy)",
+          "verified": true
+        },
+        "L2Bridge": {
+          "address": "0x1A513e9B6434a12C7bB5B9AF3B21963308DEE372",
+          "description": "L2 bridge (proxy)",
+          "verified": true
+        }
+      },
+      "source": "lido-docs",
+      "sourceUrl": "https://docs.lido.fi/deployed-contracts/"
+    },
+    "lisk": {
+      "chainId": 1135,
+      "contracts": {
+        "wstETH": {
+          "address": "0x76D8de471F54aAA87784119c60Df1bbFc852C415",
+          "description": "Bridged wstETH token (proxy)",
+          "verified": true
+        },
+        "L2Bridge": {
+          "address": "0xca498Ee83eD3546321d4DC25e2789B0624F15f68",
+          "description": "L2 bridge (proxy)",
+          "verified": true
+        }
+      },
+      "source": "lido-docs",
+      "sourceUrl": "https://docs.lido.fi/deployed-contracts/"
+    },
+    "swellchain": {
+      "chainId": 1923,
+      "contracts": {
+        "wstETH": {
+          "address": "0x7c98E0779EB5924b3ba8cE3B17648539ed5b0Ecc",
+          "description": "Bridged wstETH token (proxy)",
+          "verified": true
+        },
+        "L2Bridge": {
+          "address": "0x8311496799B8C2C7f13bC32c123ac4Eea068e6F0",
+          "description": "L2 bridge (proxy)",
+          "verified": true
+        }
+      },
+      "source": "lido-docs",
+      "sourceUrl": "https://docs.lido.fi/deployed-contracts/"
+    }
+  }
+}

@@ -98,9 +98,9 @@ npx squid-solana-typegen src/abi ./idl/*
 **Usage with SolanaQueryBuilder:**
 ```typescript
 import * as whirlpool from './abi/whirlpool'
-import { solanaPortalSource, SolanaQueryBuilder } from '@subsquid/pipes/solana'
+import { solanaPortalStream, solanaQuery } from '@subsquid/pipes/solana'
 
-const query = new SolanaQueryBuilder()
+const query = solanaQuery()
   .addFields({
     block: { number: true, timestamp: true },
     transaction: { signatures: true },
@@ -189,7 +189,7 @@ const INSTRUCTIONS: Record<string, string> = {
 
 **Step 3: Filter by d1 in SolanaQueryBuilder**
 ```typescript
-const query = new SolanaQueryBuilder()
+const query = solanaQuery()
   .addFields({
     block: { number: true, timestamp: true },
     transaction: { transactionIndex: true, signatures: true },
@@ -257,12 +257,12 @@ The Pipes SDK supports Hyperliquid fills natively via `@subsquid/pipes/hyperliqu
 
 **Import:**
 ```typescript
-import { hyperliquidFillsPortalSource, HyperliquidFillsQueryBuilder } from '@subsquid/pipes/hyperliquid'
+import { hyperliquidFillsPortalStream, hyperliquidFillsQuery } from '@subsquid/pipes/hyperliquid'
 ```
 
 **Query builder pattern:**
 ```typescript
-const query = new HyperliquidFillsQueryBuilder()
+const query = hyperliquidFillsQuery()
   .addRange({ from: 920000000 })
   .addFields({
     block: { number: true, timestamp: true },
@@ -279,9 +279,9 @@ const query = new HyperliquidFillsQueryBuilder()
 
 **Choosing a start block:** Blocks increment at ~1/second. Use `current_block - (days × 86400)` to estimate. For a 7-day window, subtract ~604,800 from the current head block. A 7-day BTC/ETH/SOL sync yields ~6M fills in ~2-3 minutes.
 
-**Source (SDK 1.0.0-alpha.1+):**
+**Source (SDK 1.0+):**
 ```typescript
-await hyperliquidFillsPortalSource({
+await hyperliquidFillsPortalStream({
   id: 'hl-perps-fills',  // required unique pipe ID
   portal: 'https://portal.sqd.dev/datasets/hyperliquid-fills',
   outputs: query,  // query builder passed as outputs (replaces old `query` field)
@@ -312,7 +312,7 @@ await hyperliquidFillsPortalSource({
 ```
 
 **Key differences from EVM indexers:**
-- No `evmDecoder` — use `HyperliquidFillsQueryBuilder` + `.pipe()` directly
+- No `evmDecoder` — use `hyperliquidFillsQuery()` + `.pipe()` directly
 - Dataset starts at block **750,000,000** (not block 0)
 - Timestamps are in **milliseconds**. Use `new Date(block.header.timestamp).toISOString()` for ClickHouse (with `date_time_input_format: 'best_effort'`). Unlike EVM indexers, you do NOT divide by 1000 — the ISO string approach handles it.
 - `side` is `'B'` (buy) or `'S'` (sell) — single character codes. The pipe transform maps these to `'Buy'`/`'Sell'` for ClickHouse, so SQL queries use the mapped values.
@@ -384,31 +384,231 @@ export PATH="/opt/homebrew/opt/node@22/bin:$PATH"
 
 If you cannot switch Node versions, the indexer may still work for smaller syncs. The zstd bug tends to crash on large syncs (millions of blocks). For quick tests with recent blocks, v25 often works.
 
+## SDK 1.0 Key Features
+
+### Time-Based Ranges
+
+Ranges now accept ISO date strings and `Date` objects instead of block numbers. Dates are auto-resolved to block numbers via the Portal API:
+
+```typescript
+evmDecoder({
+  range: { from: '2024-01-01' },  // ISO date string → resolved to block number
+  events: { transfers: erc20.events.Transfer },
+})
+
+// Date objects work too
+evmDecoder({
+  range: { from: new Date('2024-01-01'), to: new Date('2024-02-01') },
+  events: { ... },
+})
+
+// Formatted block numbers
+evmDecoder({ range: { from: '18_908_900' }, ... })  // underscores OK
+
+// Latest block
+evmDecoder({ range: { from: 'latest' }, ... })  // only for `from`
+```
+
+**Validation:** Inverted ranges (`from` > `to`) and unresolvable timestamps throw `BlockRangeConfigurationError` (E0002).
+
+### `defineAbi` — Use JSON ABIs Without Codegen
+
+`defineAbi()` converts a standard JSON ABI into decoder objects at runtime — no `squid-evm-typegen` step needed:
+
+```typescript
+import erc20Json from './erc20.json'
+import { defineAbi } from '@subsquid/pipes'
+
+const erc20 = defineAbi(erc20Json)
+
+evmDecoder({
+  events: {
+    transfers: erc20.events.Transfer,
+    approvals: erc20.events.Approval,
+  },
+})
+```
+
+Accepts: plain ABI array, `as const` literal (for full type inference), or Hardhat/Foundry artifact with `.abi` field. Uses `@subsquid/evm-codec` (10x faster than viem).
+
+### Query Builder Shorthands
+
+Factory functions replace `new *QueryBuilder()`:
+
+| Old | New |
+|-----|-----|
+| `new EvmQueryBuilder()` | `evmQuery()` |
+| `new SolanaQueryBuilder()` | `solanaQuery()` |
+| `new HyperliquidFillsQueryBuilder()` | `hyperliquidFillsQuery()` |
+
+### Typed Error System
+
+All framework errors carry unique codes linking to docs:
+
+| Error | Code | When |
+|-------|------|------|
+| `DefaultPipeIdError` | E0001 | `.pipeTo()` called without `id` on source |
+| `BlockRangeConfigurationError` | E0002 | Inverted range, invalid date with `'latest'`, unresolvable timestamp |
+
+### Testing with `@subsquid/pipes/testing/evm`
+
+Test pipe logic end-to-end without hitting a real portal. The testing library provides:
+
+- **`encodeEvent`** — encode events with full type inference from viem ABIs
+- **`mockBlock`** — build mock blocks with auto-generated metadata (number, hash, timestamp)
+- **`evmPortalMockStream`** — spin up a mock portal HTTP server
+- **`resetMockBlockCounter`** — reset block numbering between tests
+
+**Install:** Requires `vitest` and `viem` as dev dependencies.
+
+**Basic test pattern:**
+
+```typescript
+import { commonAbis, evmDecoder, evmPortalStream } from '@subsquid/pipes/evm'
+import {
+  type MockPortal,
+  encodeEvent,
+  evmPortalMockStream,
+  mockBlock,
+  resetMockBlockCounter,
+} from '@subsquid/pipes/testing/evm'
+
+// Helper to collect all stream output
+async function readAll<T>(stream: AsyncIterable<{ data: T[] }>): Promise<T[]> {
+  const res: T[] = []
+  for await (const chunk of stream) {
+    res.push(...chunk.data)
+  }
+  return res
+}
+
+const ERC20_ABI = [
+  {
+    type: 'event' as const,
+    name: 'Transfer',
+    inputs: [
+      { name: 'from', type: 'address', indexed: true },
+      { name: 'to', type: 'address', indexed: true },
+      { name: 'value', type: 'uint256', indexed: false },
+    ],
+  },
+] as const
+
+const USDC = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48' as const
+const ALICE = '0x7a250d5630b4cf539739df2c5dacb4c659f2488d' as const
+const BOB = '0xc82e11e709deb68f3631fc165ebd8b4e3fc3d18f' as const
+```
+
+**Test 1: Decode events from mock blocks**
+
+```typescript
+let portal: MockPortal
+
+beforeEach(() => resetMockBlockCounter())
+afterEach(async () => await portal?.close())
+
+it('should decode ERC20 transfers', async () => {
+  // 1. Encode events — args are fully typed from the ABI
+  const transfer1 = encodeEvent({
+    abi: ERC20_ABI,
+    eventName: 'Transfer',
+    address: USDC,
+    args: { from: ALICE, to: BOB, value: 1_000_000n },
+  })
+
+  // 2. Build mock blocks — metadata is auto-generated
+  portal = await evmPortalMockStream({
+    blocks: [
+      mockBlock({ transactions: [{ logs: [transfer1] }] }),
+    ],
+  })
+
+  // 3. Create pipe exactly as production, but with mock portal URL
+  const stream = evmPortalStream({
+    id: 'test',
+    portal: portal.url,
+    outputs: evmDecoder({
+      range: { from: 0, to: 1 },
+      events: { transfers: commonAbis.erc20.events.Transfer },
+    }),
+  }).pipe((batch) => batch.transfers)
+
+  // 4. Collect and assert
+  const transfers = await readAll(stream)
+  expect(transfers).toHaveLength(1)
+  expect(transfers[0].event.from).toBe(ALICE)
+  expect(transfers[0].event.value).toBe(1_000_000n)
+  expect(transfers[0].contract).toBe(USDC)
+})
+```
+
+**Test 2: Custom pipe transformations**
+
+```typescript
+it('should test custom transformations', async () => {
+  const transfer = encodeEvent({
+    abi: ERC20_ABI, eventName: 'Transfer', address: USDC,
+    args: { from: ALICE, to: BOB, value: 2_000_000n },
+  })
+
+  portal = await evmPortalMockStream({
+    blocks: [mockBlock({ transactions: [{ logs: [transfer] }] })],
+  })
+
+  // Chain .pipe() transforms — same as production code
+  const stream = evmPortalStream({
+    id: 'test',
+    portal: portal.url,
+    outputs: evmDecoder({
+      range: { from: 0, to: 1 },
+      events: { transfers: commonAbis.erc20.events.Transfer },
+    }),
+  })
+    .pipe((batch) => batch.transfers)
+    .pipe((transfers) =>
+      transfers.map((t) => ({
+        from: t.event.from,
+        to: t.event.to,
+        amount: Number(t.event.value) / 1e6,
+      })),
+    )
+
+  const results = await readAll(stream)
+  expect(results[0]).toEqual({ from: ALICE, to: BOB, amount: 2 })
+})
+```
+
+**Key patterns:**
+- `encodeEvent` accepts `abi`, `eventName`, `address`, and typed `args`
+- `mockBlock` auto-generates `number`, `hash`, `timestamp` — call `resetMockBlockCounter()` in `beforeEach`
+- `evmPortalMockStream` returns `{ url, close() }` — use `portal.url` with `evmPortalStream`
+- Chain `.pipe()` on the stream to test transformations
+- Multiple event types: pass multiple events in `events: { transfers: ..., approvals: ... }` and access `batch.transfers`, `batch.approvals`
+
 ## How to Use the CLI
 
 ### CLI Known Issue: `ora` ESM/CJS Crash
 
-The CLI `init` command may crash with `(0 , import_ora.default) is not a function`. This is because the CLI bundles ESM-only `ora` v6+ as CJS. The `--schema` and `--version` commands still work.
+The CLI `init` command crashes with `(0 , import_ora.default) is not a function` on **every** `init` call. This is because the CLI bundles ESM-only `ora` v6+ as CJS. The `--schema` and `--version` commands still work.
 
-**Workaround**: Patch the cached CLI bundle:
+**IMPORTANT: This happens on every `init` call, not just the first time.** Additionally, `npx` may re-download the CLI at any time, overwriting any previous patch. You must patch before every `init`.
+
+**Automatic pre-flight patch (MANDATORY before every `init`):**
+
+Run this before EVERY `npx @iankressin/pipes-cli@latest init` call:
 ```bash
+# Pre-flight: ensure CLI is cached, then patch ora
+npx @iankressin/pipes-cli@latest --version 2>/dev/null || true
 CLI_PATH=$(find ~/.npm/_npx -name "index.cjs" -path "*pipes-cli*" 2>/dev/null | head -1)
-sed -i.bak 's/var import_ora = __toESM(require("ora"), 1);/var import_ora = { default: function(opts) { var t = typeof opts === "string" ? opts : (opts \&\& opts.text) || ""; return { start: function(m) { console.log(m || t); return this; }, succeed: function(m) { console.log(m || t); return this; }, fail: function(m) { console.log(m || t); return this; }, stop: function() { return this; }, text: t }; } };/' "$CLI_PATH"
-```
-
-Then re-run the `init` command.
-
-**WARNING: `npx` may re-download the CLI and overwrite your patch.** Always verify the patch before running `init`:
-```bash
-CLI_PATH=$(find ~/.npm/_npx -name "index.cjs" -path "*pipes-cli*" 2>/dev/null | head -1)
-if [ -z "$CLI_PATH" ]; then
-  echo "CLI not cached yet — run any npx pipes-cli command first, then patch"
-elif grep -q 'import_ora = { default: function' "$CLI_PATH"; then
-  echo "Patch is in place"
+if [ -n "$CLI_PATH" ] && ! grep -q 'import_ora = { default: function' "$CLI_PATH"; then
+  sed -i.bak 's/var import_ora = __toESM(require("ora"), 1);/var import_ora = { default: function(opts) { var t = typeof opts === "string" ? opts : (opts \&\& opts.text) || ""; return { start: function(m) { console.log(m || t); return this; }, succeed: function(m) { console.log(m || t); return this; }, fail: function(m) { console.log(m || t); return this; }, stop: function() { return this; }, text: t }; } };/' "$CLI_PATH"
+  echo "ora patch applied"
 else
-  echo "Patch missing — re-apply the workaround above"
+  echo "ora patch already in place (or CLI not found)"
 fi
 ```
+
+**When using this skill programmatically, ALWAYS run the pre-flight patch as a single block immediately before the `init` command.** Do not assume a previous patch is still in place.
 
 ### Programmatic Mode (RECOMMENDED for Claude Code)
 
@@ -417,7 +617,7 @@ ALWAYS use programmatic mode with the published npm package:
 ```bash
 npx @iankressin/pipes-cli@latest init --config '{
   "projectFolder": "/path/to/my-indexer",
-  "packageManager": "bun",
+  "packageManager": "npm",
   "networkType": "evm",
   "network": "ethereum-mainnet",
   "templates": [{"templateId": "erc20Transfers", "params": {"contractAddresses": ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"]}}],
@@ -484,7 +684,35 @@ If the CLI fails:
    - Where should the data be stored? (ClickHouse, PostgreSQL, CSV)
    - What should the project be named?
 
-3. **Verify your understanding:**
+3. **Check for proxy contracts (MANDATORY for custom template):**
+
+   **This is the #1 failure mode for DeFi protocol indexers.** Most major DeFi protocols (Aave, Compound, Uniswap governance, etc.) use proxy contracts. If the target contract is a proxy, the CLI will fetch only the proxy ABI (typically just an `Upgraded` event), not the implementation ABI with the actual business logic events.
+
+   **Before running the CLI, check EVERY target contract:**
+   ```bash
+   # Check Etherscan for proxy status (replace chain/address as needed)
+   # Look for: "This contract is a proxy" banner on the contract page
+   # Or check the "Read as Proxy" tab — if it exists, the contract IS a proxy
+   ```
+
+   **If the contract IS a proxy:**
+   1. Find the implementation address (Etherscan "Read as Proxy" tab → implementation address)
+   2. You will need the **implementation's ABI** for event decoding
+   3. But you will use the **proxy's address** in the indexer config (events emit from the proxy)
+   4. Plan to run `evm-typegen` against the implementation address AFTER CLI generation:
+      ```bash
+      npx @subsquid/evm-typegen@latest <project>/src/contracts \
+        <IMPLEMENTATION_ADDRESS> --chain-id <CHAIN_ID>
+      ```
+   5. Then update the import in `src/index.ts` to use the implementation's generated file
+
+   **Real example — Aave V3 Pool:**
+   - Proxy: `0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2` (this is what users provide)
+   - CLI fetches proxy ABI → only gets `Upgraded` event (WRONG)
+   - Implementation has `Supply`, `Borrow`, `Repay`, `Withdraw`, `LiquidationCall` events
+   - Solution: Generate types from implementation, keep proxy address in config
+
+4. **Verify your understanding:**
    - Look at actual transactions on Etherscan to see which events are emitted
    - Check if there are multiple contracts involved
    - Understand the data flow between contracts
@@ -504,7 +732,7 @@ This ensures you use the correct templateId and understand the required configur
 ```bash
 npx @iankressin/pipes-cli@latest init --config '{
   "projectFolder": "/path/to/my-indexer",
-  "packageManager": "bun",
+  "packageManager": "npm",
   "networkType": "evm",
   "network": "ethereum-mainnet",
   "templates": [{"templateId": "erc20Transfers", "params": {"contractAddresses": ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"]}}],
@@ -516,55 +744,29 @@ IMPORTANT: Use camelCase for templateId values. Every template requires a `param
 
 ### Step 3: Post-generation Setup (AUTOMATED - Do this AFTER CLI succeeds)
 
-**Known template gaps — the CLI does NOT generate these correctly. You MUST fix them manually after every `init`:**
+**WARNING: The CLI defaults to `pipes` as the database name. This WILL cause sync table conflicts if you run more than one indexer.** Every indexer writes sync state to `{database}.sync` with `id = 'stream'`. Two indexers sharing a database = the second one resumes from the first's position, causing wrong data or missing events.
 
-1. **docker-compose.yml** — The generated file lacks persistent ClickHouse volumes and CORS config. Add:
-   ```yaml
-   volumes:
-     - clickhouse-data:/var/lib/clickhouse
-     - ./clickhouse-cors.xml:/etc/clickhouse-server/config.d/cors.xml:ro
-   ```
-   And at the bottom of docker-compose.yml:
-   ```yaml
-   volumes:
-     clickhouse-data:
-   ```
-
-2. **clickhouse-cors.xml** — Create this file for browser dashboard access:
-   ```xml
-   <clickhouse>
-       <http_options_response>
-           <header><name>Access-Control-Allow-Origin</name><value>*</value></header>
-           <header><name>Access-Control-Allow-Methods</name><value>GET, POST, OPTIONS</value></header>
-           <header><name>Access-Control-Allow-Headers</name><value>*</value></header>
-       </http_options_response>
-   </clickhouse>
-   ```
-
-3. **Database name** — The CLI defaults to `pipes`. Always change to a project-specific name.
-
-**CRITICAL: Use a separate database per indexer project.** All indexers write their sync state to `{database}.sync` with `id = 'stream'`. If two indexers share a database, the second one resumes from the first's position, causing wrong data or missing events.
+**MANDATORY: Always create a project-specific database.** Use the project name or a descriptive name (e.g., `aave_v3_eth`, `usdc_transfers`, `uniswap_base`):
 
 ```bash
-# Good: dedicated database per project
-docker exec <container> clickhouse-client --password <pw> \
-  --query "CREATE DATABASE IF NOT EXISTS usdc_transfers"
-# Then set CLICKHOUSE_DATABASE=usdc_transfers in .env
+# Step 3a: Derive a database name from the project
+DB_NAME=$(basename <project-folder> | tr '-' '_')
+# Examples: aave-v3-indexer → aave_v3_indexer, usdc-transfers → usdc_transfers
 
-# Bad: all indexers in 'pipes' database — sync table conflicts
+# Step 3b: Create the dedicated database
+docker exec <container> clickhouse-client --password <pw> \
+  --query "CREATE DATABASE IF NOT EXISTS $DB_NAME"
+
+# Step 3c: Update .env to use the dedicated database (NOT the default 'pipes')
+sed -i '' "s/CLICKHOUSE_DATABASE=.*/CLICKHOUSE_DATABASE=$DB_NAME/" <project-folder>/.env
 ```
 
 **If using ClickHouse (Local Docker)**:
 - Get the actual password from existing container OR use "default" if creating new
-- Create a **dedicated database** for this indexer:
-  ```bash
-  docker exec <container-name> clickhouse-client --password <pw> \
-    --query "CREATE DATABASE IF NOT EXISTS <indexer-specific-db-name>"
-  ```
 - Update the .env file with correct password AND database:
   ```bash
   sed -i '' 's/CLICKHOUSE_PASSWORD=.*/CLICKHOUSE_PASSWORD=<actual-password>/' <project-folder>/.env
-  sed -i '' 's/CLICKHOUSE_DATABASE=.*/CLICKHOUSE_DATABASE=<indexer-specific-db-name>/' <project-folder>/.env
+  sed -i '' "s/CLICKHOUSE_DATABASE=.*/CLICKHOUSE_DATABASE=$DB_NAME/" <project-folder>/.env
   ```
 - **If you MUST reuse a database**, clear the sync table first:
   ```bash
@@ -711,7 +913,7 @@ After the CLI generates the project, verify these BEFORE running:
 
 ```bash
 cd <project-folder>
-bun run dev
+npm run dev
 ```
 
 **VERIFY START BLOCK** - Check the first log message shows your intended start block, not a resumed block.
@@ -739,7 +941,7 @@ docker exec <container> clickhouse-client --password <pw> \
 **How to restart after a crash (resume is wanted):**
 ```bash
 cd <project-folder>
-bun run dev
+npm run dev
 # First log line should say "Resuming from X" where X is near where it stopped
 ```
 
@@ -763,14 +965,15 @@ else
   CLICKHOUSE_PASSWORD=$(docker inspect $CLICKHOUSE_CONTAINER | grep CLICKHOUSE_PASSWORD | cut -d'"' -f4)
 fi
 
-docker exec $CLICKHOUSE_CONTAINER clickhouse-client --query "CREATE DATABASE IF NOT EXISTS pipes"
+DB_NAME=$(basename /path/to/my-new-indexer | tr '-' '_')
+docker exec $CLICKHOUSE_CONTAINER clickhouse-client --query "CREATE DATABASE IF NOT EXISTS $DB_NAME"
 ```
 
 ### Step 2: Generate the indexer project
 ```bash
 npx @iankressin/pipes-cli@latest init --config '{
   "projectFolder": "/path/to/my-new-indexer",
-  "packageManager": "bun",
+  "packageManager": "npm",
   "networkType": "evm",
   "network": "ethereum-mainnet",
   "templates": [{"templateId": "erc20Transfers", "params": {"contractAddresses": ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"]}}],
@@ -782,11 +985,12 @@ npx @iankressin/pipes-cli@latest init --config '{
 ```bash
 cd /path/to/my-new-indexer
 sed -i '' "s/CLICKHOUSE_PASSWORD=.*/CLICKHOUSE_PASSWORD=$CLICKHOUSE_PASSWORD/" .env
+sed -i '' "s/CLICKHOUSE_DATABASE=.*/CLICKHOUSE_DATABASE=$DB_NAME/" .env
 ```
 
 ### Step 4: Run the indexer
 ```bash
-bun run dev
+npm run dev
 ```
 
 ## Performance Considerations
@@ -844,18 +1048,18 @@ events: {
 
 ### Factory Pattern
 
-Track dynamically created contracts (e.g., Uniswap pools, MetaMorpho vaults). Use `factory()` inside the `contracts` field of `evmDecoder`:
+Track dynamically created contracts (e.g., Uniswap pools, MetaMorpho vaults). Use `contractFactory()` inside the `contracts` field of `evmDecoder`:
 
 ```typescript
-import { evmDecoder, factory, factorySqliteDatabase } from '@subsquid/pipes/evm'
+import { evmDecoder, contractFactory, contractFactoryStore } from '@subsquid/pipes/evm'
 
 const swaps = evmDecoder({
   range: { from: '12,369,621' },
-  contracts: factory({
+  contracts: contractFactory({
     address: ['0x1f98431c8ad98523631ae4a59f267346ea31f984'],
     event: factoryEvents.PoolCreated,
-    parameter: 'pool',
-    database: await factorySqliteDatabase({ path: './factory-pools.sqlite' }),
+    childAddressField: 'pool',
+    database: await contractFactoryStore({ path: './factory-pools.sqlite' }),
   }),
   events: {
     swaps: poolEvents.Swap,
@@ -872,7 +1076,7 @@ const swaps = evmDecoder({
 **Accessing factory event metadata in `.pipe()`:**
 Each decoded event includes a `factory` property with the creation event's data:
 ```typescript
-.pipe(({ deposits }) => ({
+.pipe((deposits) => ({
   deposits: deposits.map((d) => ({
     vault: d.contract,                    // child contract address
     vaultName: d.factory?.event.name ?? '',  // from creation event
@@ -899,7 +1103,7 @@ rm <project-folder>/*.sqlite
 docker exec <container> clickhouse-client --password <pw> \
   --query "DROP TABLE IF EXISTS <db>.sync; DROP TABLE IF EXISTS <db>.<table1>; DROP TABLE IF EXISTS <db>.<table2>"
 # 4. Restart
-cd <project-folder> && bun run dev
+cd <project-folder> && npm run dev
 ```
 ```
 
@@ -922,11 +1126,11 @@ The `uniswapV3Swaps` template uses the factory pattern for Uniswap pools, but yo
    ```
 5. **Wire up the factory pattern** — replace the Uniswap-specific values with your protocol's:
    ```typescript
-   contracts: factory({
+   contracts: contractFactory({
      address: ['<FACTORY_ADDRESS>'],
      event: factoryEvents.YourCreationEvent,  // e.g., CreateMetaMorpho
-     parameter: 'childAddress',                // event param with child address
-     database: await factorySqliteDatabase({ path: './your-factory.sqlite' }),
+     childAddressField: 'childAddress',        // event param with child address
+     database: await contractFactoryStore({ path: './your-factory.sqlite' }),
    }),
    events: {
      yourEvents: childContractEvents.YourEvent,  // events on child contracts
@@ -982,7 +1186,7 @@ const reallocations = evmDecoder({
 Pass multiple named decoders as `outputs` to run them in a single pipeline (replaces old `pipeComposite`):
 
 ```typescript
-const stream = evmPortalSource({
+const stream = evmPortalStream({
   id: 'my-indexer',
   portal: '...',
   outputs: {
@@ -997,7 +1201,7 @@ const stream = evmPortalSource({
 evmDecoder({ contracts: ['0xABC...', '0xDEF...'], events: { ... } })  // ✅ correct
 evmDecoder({ contracts: [{ address: ['0xABC...'] }], events: { ... } })  // ❌ wrong — crashes with "contract.toLowerCase is not a function"
 ```
-The object format is ONLY for the `factory()` helper pattern.
+The object format is ONLY for the `contractFactory()` helper pattern.
 
 ### Decoded Event Field Access in `.pipe()`
 
@@ -1067,14 +1271,14 @@ If you write a custom `.pipe()` transform (e.g., to access factory metadata), yo
 
 ```typescript
 // WRONG — produces 1970 dates in ClickHouse
-.pipe(({ deposits }) => ({
+.pipe((deposits) => ({
   deposits: deposits.map((d) => ({
     timestamp: d.timestamp.getTime(),  // milliseconds! ClickHouse stores as year 1970
   })),
 }))
 
 // CORRECT — produces proper dates
-.pipe(({ deposits }) => ({
+.pipe((deposits) => ({
   deposits: deposits.map((d) => ({
     timestamp: Math.floor(d.timestamp.getTime() / 1000),  // seconds
   })),

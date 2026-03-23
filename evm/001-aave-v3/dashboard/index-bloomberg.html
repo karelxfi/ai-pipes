@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200">
+  <title>AAVE V3 LIQUIDATION CASCADES</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #000;
+      color: #ccc;
+      font-family: 'Consolas', 'SF Mono', 'Source Code Pro', 'JetBrains Mono', monospace;
+      font-size: 11px;
+      line-height: 1.3;
+      width: 1200px;
+      height: 675px;
+      overflow: hidden;
+    }
+    .header {
+      padding: 8px 12px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    .header-left { display: flex; align-items: baseline; gap: 12px; }
+    .header h1 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #4A7AB5;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .header .angle { font-size: 10px; color: #666; }
+    .stats { display: flex; gap: 24px; }
+    .stat { text-align: right; }
+    .stat-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      font-feature-settings: 'tnum';
+      line-height: 1.1;
+    }
+    .stat-label {
+      font-size: 8px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 0;
+      height: calc(100% - 42px - 18px);
+    }
+    .panel {
+      background: #0a0a0a;
+      border: 1px solid #1a1a1a;
+      border-radius: 0;
+      position: relative;
+    }
+    .chart { width: 100%; height: 100%; }
+    .footer {
+      padding: 2px 12px;
+      text-align: right;
+      font-size: 9px;
+      color: #333;
+      border-top: 1px solid #1a1a1a;
+    }
+    .footer a { color: #666; text-decoration: none; }
+    .footer a:hover { color: #4A7AB5; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-left">
+      <h1>Aave V3 Liquidation Cascades</h1>
+      <div class="angle">Ethereum Mainnet | Market stress cascade detection</div>
+    </div>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-value">2,847</div>
+        <div class="stat-label">Liquidations</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">1,203</div>
+        <div class="stat-label">Users Hit</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">9</div>
+        <div class="stat-label">Assets</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" style="font-size:11px;color:#4A7AB5">2023-03-10 &#8594; 2024-03-14</div>
+        <div class="stat-label">Period</div>
+      </div>
+    </div>
+  </div>
+  <div class="grid">
+    <div class="panel"><div class="chart" id="chart1"></div></div>
+    <div class="panel"><div class="chart" id="chart2"></div></div>
+    <div class="panel"><div class="chart" id="chart3"></div></div>
+    <div class="panel"><div class="chart" id="chart4"></div></div>
+  </div>
+  <div class="footer">
+    Built with ai-pipes + SQD Pipes SDK |
+    <a href="https://github.com/karelxfi">github.com/karelxfi</a> |
+    <a href="https://x.com/karelxfi">x.com/karelxfi</a>
+  </div>
+
+  <script>
+    // Royal blue dominant — institutional, restrained
+    var PALETTE = ['#1E3A5F','#2B4F7E','#1A3050','#3D6494','#4A7AB5','#2E5480','#5A8ABF','#1F4470','#3B6A9E','#274D73'];
+
+    function terminalOpts(title) {
+      return {
+        backgroundColor: 'transparent',
+        title: {
+          text: title.toUpperCase(),
+          textStyle: { color: '#666', fontSize: 10, fontWeight: 'normal', fontFamily: 'Consolas, SF Mono, monospace' },
+          left: 8, top: 4
+        },
+        textStyle: { color: '#666', fontFamily: 'Consolas, SF Mono, Source Code Pro, monospace' },
+        tooltip: {
+          backgroundColor: '#1a1a1a',
+          borderColor: '#333',
+          textStyle: { color: '#ccc', fontSize: 10, fontFamily: 'Consolas, monospace' },
+          padding: [4, 8]
+        },
+        grid: { left: 48, right: 8, top: 24, bottom: 24 },
+        animation: false
+      };
+    }
+
+    var xAxisDef = {
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' },
+      splitLine: { show: false }
+    };
+    var yAxisDef = {
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' },
+      splitLine: { lineStyle: { color: '#1a1a1a', type: 'dashed' } }
+    };
+
+    // --- Mock data (realistic Aave V3 liquidation patterns) ---
+    function genDailyData() {
+      var days = [], vals = [];
+      var d = new Date('2023-03-10');
+      var end = new Date('2024-03-14');
+      while (d <= end) {
+        days.push(d.toISOString().slice(0,10));
+        // Spiky pattern — most days quiet, occasional bursts
+        var base = Math.random() < 0.7 ? Math.floor(Math.random() * 4) : Math.floor(Math.random() * 15 + 5);
+        // Major stress events
+        if (d.toISOString().slice(0,7) === '2023-03' && d.getDate() >= 10 && d.getDate() <= 14) base += Math.floor(Math.random() * 40 + 20);
+        if (d.toISOString().slice(0,7) === '2023-06' && d.getDate() >= 5 && d.getDate() <= 8) base += Math.floor(Math.random() * 25 + 10);
+        if (d.toISOString().slice(0,7) === '2023-11' && d.getDate() >= 8 && d.getDate() <= 12) base += Math.floor(Math.random() * 30 + 15);
+        if (d.toISOString().slice(0,7) === '2024-01' && d.getDate() >= 20 && d.getDate() <= 24) base += Math.floor(Math.random() * 20 + 10);
+        vals.push(base);
+        d.setDate(d.getDate() + 1);
+      }
+      return { days: days, vals: vals };
+    }
+
+    function genCascadeData(dailyDays) {
+      var days = [], vals = [];
+      for (var i = 0; i < dailyDays.length; i++) {
+        if (Math.random() < 0.12) {
+          days.push(dailyDays[i]);
+          vals.push(Math.floor(Math.random() * 8 + 2));
+        }
+      }
+      return { days: days, vals: vals };
+    }
+
+    var daily = genDailyData();
+    var cascades = genCascadeData(daily.days);
+
+    // Chart 1: Daily Liquidations
+    var ch1 = echarts.init(document.getElementById('chart1'));
+    ch1.setOption(Object.assign(terminalOpts('Daily Liquidations'), {
+      xAxis: Object.assign({ type: 'category', data: daily.days }, xAxisDef),
+      yAxis: Object.assign({ type: 'value' }, yAxisDef),
+      series: [{ type: 'bar', data: daily.vals, itemStyle: { color: '#2B4F7E' }, barMaxWidth: 3 }],
+      tooltip: { trigger: 'axis', backgroundColor: '#1a1a1a', borderColor: '#333', textStyle: { color: '#ccc', fontSize: 10, fontFamily: 'Consolas, monospace' }, padding: [4, 8] },
+    }));
+
+    // Chart 2: Top Collateral Assets
+    var collateral = [
+      { name: 'WETH', value: 892 },
+      { name: 'wstETH', value: 634 },
+      { name: 'WBTC', value: 487 },
+      { name: 'LINK', value: 201 },
+      { name: 'rETH', value: 156 },
+      { name: 'cbETH', value: 134 },
+      { name: 'DAI', value: 112 },
+      { name: 'stETH', value: 98 },
+      { name: 'LUSD', value: 72 },
+      { name: 'FRAX', value: 61 },
+    ].reverse();
+    var ch2 = echarts.init(document.getElementById('chart2'));
+    ch2.setOption(Object.assign(terminalOpts('Collateral Assets Seized'), {
+      grid: { left: 52, right: 48, top: 24, bottom: 8 },
+      xAxis: Object.assign({ type: 'value' }, xAxisDef, { splitLine: { lineStyle: { color: '#1a1a1a', type: 'dashed' } } }),
+      yAxis: { type: 'category', data: collateral.map(function(d){return d.name;}), axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: '#ccc', fontSize: 10, fontFamily: 'Consolas, monospace' } },
+      series: [{ type: 'bar', data: collateral.map(function(d,i){return { value: d.value, itemStyle: { color: PALETTE[i % PALETTE.length] } };}), barMaxWidth: 14, label: { show: true, position: 'right', color: '#999', fontSize: 9, fontFamily: 'Consolas, monospace', formatter: '{c}' } }],
+      tooltip: { trigger: 'axis', backgroundColor: '#1a1a1a', borderColor: '#333', textStyle: { color: '#ccc', fontSize: 10, fontFamily: 'Consolas, monospace' }, padding: [4, 8] },
+    }));
+
+    // Chart 3: Cascade Events
+    var ch3 = echarts.init(document.getElementById('chart3'));
+    ch3.setOption(Object.assign(terminalOpts('Cascade Events (2+ per block)'), {
+      xAxis: Object.assign({ type: 'category', data: cascades.days }, xAxisDef),
+      yAxis: Object.assign({ type: 'value' }, yAxisDef),
+      series: [{ type: 'bar', data: cascades.vals, itemStyle: { color: '#8B3A3A' }, barMaxWidth: 4 }],
+      tooltip: { trigger: 'axis', backgroundColor: '#1a1a1a', borderColor: '#333', textStyle: { color: '#ccc', fontSize: 10, fontFamily: 'Consolas, monospace' }, padding: [4, 8] },
+    }));
+
+    // Chart 4: Debt Assets — treemap
+    var debt = [
+      { name: 'USDC', value: 1124 },
+      { name: 'USDT', value: 687 },
+      { name: 'DAI', value: 423 },
+      { name: 'WETH', value: 234 },
+      { name: 'GHO', value: 178 },
+      { name: 'LUSD', value: 112 },
+      { name: 'FRAX', value: 89 },
+    ];
+    var ch4 = echarts.init(document.getElementById('chart4'));
+    ch4.setOption({
+      backgroundColor: 'transparent',
+      title: {
+        text: 'DEBT ASSETS REPAID',
+        textStyle: { color: '#666', fontSize: 10, fontWeight: 'normal', fontFamily: 'Consolas, SF Mono, monospace' },
+        left: 8, top: 4
+      },
+      animation: false,
+      tooltip: { backgroundColor: '#1a1a1a', borderColor: '#333', textStyle: { color: '#ccc', fontSize: 10, fontFamily: 'Consolas, monospace' }, padding: [4, 8] },
+      series: [{
+        type: 'treemap',
+        top: 24, left: 4, right: 4, bottom: 4,
+        roam: false,
+        nodeClick: false,
+        breadcrumb: { show: false },
+        label: { show: true, color: '#ccc', fontSize: 11, fontWeight: 'bold', fontFamily: 'Consolas, monospace', formatter: function(p) { return p.name + '\n' + p.value; } },
+        itemStyle: { borderColor: '#000', borderWidth: 2, gapWidth: 1 },
+        levels: [{ itemStyle: { borderColor: '#000', borderWidth: 2, gapWidth: 1 } }],
+        data: debt.map(function(d, i) {
+          return { value: d.value, name: d.name, itemStyle: { color: PALETTE[i % PALETTE.length] } };
+        }),
+      }],
+    });
+
+    window.__DASHBOARD_READY__ = true;
+  </script>
+</body>
+</html>

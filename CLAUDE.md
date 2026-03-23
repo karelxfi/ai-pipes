@@ -237,33 +237,151 @@ const client = createClient({
 ### Node.js version
 Use Node.js LTS (v20 or v22). Node v25+ has zstd bugs that crash on large syncs. For small syncs it usually works.
 
-## Dashboard Design — IMPORTANT RULES
+## Dashboard Design — Bloomberg Terminal Style
+
+**Design philosophy:** Bloomberg Terminal, not GitHub Dark Mode. Every pixel earns its place. Pure black, amber accents, monospace type, zero decoration. Our dashboards should look like they belong on a trading desk.
 
 ### Use Apache ECharts, NOT TradingView Lightweight Charts
 - TradingView Lightweight Charts v5 broke the API, has watermarks, and is designed for candlestick data not BI dashboards
 - Use `https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js`
 
 ### Pick the right chart for the data
-- **Time-series counts** (liquidations per day, swaps per hour) → vertical bar chart with gradient fill
-- **Rankings** (top assets, top users) → horizontal bar chart with colored bars and value labels
+- **Time-series counts** (liquidations per day, swaps per hour) → vertical bar chart, flat color (no gradient)
+- **Rankings** (top assets, top users) → horizontal bar chart with monospace value labels
 - **Proportional composition** (debt breakdown, asset share) → treemap
-- **Continuous values over time** (TVL, price) → area chart or line chart
+- **Continuous values over time** (TVL, price) → line chart with very subtle area fill (`opacity: 0.08`)
 - **NEVER use pie or donut charts**
 
 ### Be smart about data
 - Use **counts** not raw token amounts — different tokens have different decimals, summing raw amounts across tokens is meaningless without price feeds
 - If you need volume, normalize to a single denomination (e.g., ETH or USD) — don't just divide by 1e18
-- Always include **legends** on categorical charts
+- Prefer NO legend — use colored inline labels or panel titles instead. If a legend is necessary: 9px, top-right, horizontal
 - Summary stats in the header: total row count, key metrics, **and the time period** (e.g., "2023-05-16 → 2024-03-14")
+- Right-align all numeric values. Use `font-feature-settings: 'tnum'` for tabular figures
 
-### Visual standards
-- Dark theme: background `#0d1117`, panels `#161b22`, borders `#30363d`
-- Gradient fills on bar charts (e.g., `#58a6ff` → `#1f6feb` for blue, `#f78166` → `#da3633` for red)
-- Color palette: `['#58a6ff','#f78166','#3fb950','#d2a8ff','#f0883e','#79c0ff','#7ee787','#d29922','#ff7b72','#a5d6ff']`
+### Color palette — Bloomberg-inspired
+```
+Background:     #000000  (pure black — NOT dark gray)
+Panels:         #0a0a0a  (barely lifted from black)
+Borders:        #1a1a1a  (subtle 1px dividers)
+Grid lines:     #1a1a1a  dashed (barely visible)
+
+Primary text:   #cccccc  (muted white — never pure #fff for body)
+Bright text:    #ffffff  (only for key highlighted values)
+Dim text:       #666666  (axis labels, metadata, timestamps)
+Blue accent:    #4A7AB5  (headers, active labels, key values)
+Royal blue:     #2B4F7E  (primary chart color, bars)
+
+Positive/up:    #4AF6C3  (bright teal-green)
+Negative/down:  #FF433D  (bright warm red)
+Info blue:      #0068FF  (selections, links)
+```
+
+**Chart series palette — dark royal blue, institutional (NOT saturated/rainbow):**
+```javascript
+// Royal blue dominant — shades of one hue, not a rainbow
+var PALETTE = ['#1E3A5F','#2B4F7E','#1A3050','#3D6494','#4A7AB5','#2E5480','#5A8ABF','#1F4470','#3B6A9E','#274D73'];
+```
+- Primary series: royal blue `#2B4F7E`
+- Header/accent text: steel blue `#4A7AB5`
+- Negative/danger series: muted burgundy `#8B3A3A` (not bright red)
+- Positive series: muted teal `#3D7A6B` (not bright green)
+- Use blue shades for multi-category charts (rankings, breakdowns) — NOT a rainbow of different hues
+- Reserve red/teal ONLY for semantic meaning (up/down, good/bad)
+
+### Typography — dense and monospace
+```css
+body {
+  font-family: 'Consolas', 'SF Mono', 'Source Code Pro', 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 1.3;
+}
+```
+- **Panel headers:** 10px, uppercase, `letter-spacing: 0.8px`, dim gray `#666`
+- **Chart titles:** 10-11px, dim gray `#666`, uppercase — NOT large bold text
+- **Axis labels:** 9px, dim `#666`
+- **KPI/stat values:** 16-18px max (the ONLY large text), monospace, white `#fff`
+- **KPI labels:** 9px, uppercase, dim `#666`
+- **Everything else:** 10-11px — if it looks "comfortable to read," it's too big
+
+### Layout — zero wasted space
+```css
+.panel {
+  border: 1px solid #1a1a1a;
+  border-radius: 0;           /* sharp corners — NOT rounded */
+  padding: 8px;
+  background: #0a0a0a;
+}
+```
+- **Panels separated by 1px borders, NOT whitespace gaps** — use `gap: 0` or `gap: 1px` on grid
+- **No shadows, no glows, no decorative borders**
+- **Panel headers:** tiny uppercase amber text, content starts immediately below
 - Footer: `Built with ai-pipes + SQD Pipes SDK | github.com/karelxfi | x.com/karelxfi`
 - 1200x675 viewport (X card ratio)
-- **Screenshots must be cropped tight** — resize browser to exactly 1200x675 before capturing. No extra whitespace below the dashboard.
+- **Screenshots must be cropped tight** — resize browser to exactly 1200x675 before capturing
 - Set `window.__DASHBOARD_READY__ = true` when data is loaded (for screenshot script)
+
+### ECharts defaults — maximum data-ink ratio
+```javascript
+function terminalOpts(title) {
+  return {
+    backgroundColor: 'transparent',
+    title: {
+      text: title.toUpperCase(),
+      textStyle: { color: '#666', fontSize: 10, fontWeight: 'normal', fontFamily: 'Consolas, SF Mono, monospace' },
+      left: 8, top: 4
+    },
+    textStyle: { color: '#666', fontFamily: 'Consolas, SF Mono, Source Code Pro, monospace' },
+    tooltip: {
+      backgroundColor: '#1a1a1a',
+      borderColor: '#333',
+      textStyle: { color: '#ccc', fontSize: 10, fontFamily: 'Consolas, monospace' },
+      padding: [4, 8]
+    },
+    grid: { left: 48, right: 8, top: 24, bottom: 24 },
+    animation: false  // Bloomberg is instant — no transitions
+  };
+}
+```
+
+**Axes — minimal chrome:**
+```javascript
+xAxis: {
+  axisLine: { show: false },
+  axisTick: { show: false },
+  axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' },
+  splitLine: { show: false }
+},
+yAxis: {
+  axisLine: { show: false },
+  axisTick: { show: false },
+  axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' },
+  splitLine: { lineStyle: { color: '#1a1a1a', type: 'dashed' } }
+}
+```
+
+**Series — flat, no gradients:**
+```javascript
+// Bar charts: flat color, no border-radius, tight bars
+{ type: 'bar', itemStyle: { color: '#2B4F7E' }, barMaxWidth: 10 }
+
+// Line charts: thin line, almost invisible area fill
+{ type: 'line', lineStyle: { width: 1.5 }, showSymbol: false,
+  areaStyle: { opacity: 0.08 } }
+```
+
+### What NOT to do (these make dashboards look childish)
+- **NO gradient fills** on bars/areas — flat colors only
+- **NO rounded corners** (`border-radius: 0` everywhere)
+- **NO large fonts** — keep body text at 10-11px
+- **NO generous padding/whitespace** — density is the point
+- **NO drop shadows** on panels
+- **NO animated chart transitions** (`animation: false`)
+- **NO rainbow color palettes** — amber shades only, color = semantic meaning
+- **NO saturated/bright accent colors** — mute everything, this is a terminal not a children's app
+- **NO dark text on dark backgrounds** — all labels/text must be light (`#ccc`+) on dark chart elements. Readability under all conditions is non-negotiable
+- **NO dark gray backgrounds** (`#0d1117`, `#161b22` look like GitHub/Discord clones)
+- **NO thick borders** — 1px `#1a1a1a` max
 
 ### Token address resolution
 Include a lookup map for common token addresses → symbols. For unknown addresses, show `0xABCD..EF12` format.
@@ -272,7 +390,6 @@ Include a lookup map for common token addresses → symbols. For unknown address
 Some protocols use bytes32 for identifiers (e.g., MakerDAO's `ilk` for collateral types like "ETH-A"). Decode in dashboard JS:
 ```javascript
 function decodeBytes32(hex) {
-  // hex is "0x4554482d41..." — decode to ASCII, trim null bytes
   var str = '';
   var h = hex.startsWith('0x') ? hex.slice(2) : hex;
   for (var i = 0; i < h.length; i += 2) {
