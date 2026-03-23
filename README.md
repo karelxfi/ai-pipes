@@ -127,7 +127,7 @@ Open `dashboard/index.html` in your browser to see the charts.
 | 14 | Venus Core Pool | Lending | evm | ✅ |
 | 15 | DoubleZero Staked SOL | Liquid Staking | solana | ⏭️ |
 | 16 | Sanctum Validator LSTs | Liquid Staking | solana | ✅ |
-| 17 | Jito Liquid Staking | Liquid Staking | solana | ⏳ |
+| 17 | Jito Liquid Staking | Liquid Staking | solana | ✅ |
 | 18 | Jupiter Lend | Lending | solana | ⏳ |
 | 19 | Fluid Lending | Lending | evm | ✅ |
 | 20 | Binance Staked SOL | Liquid Staking | solana | ⏳ |

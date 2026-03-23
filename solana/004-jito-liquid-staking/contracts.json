@@ -1,0 +1,16 @@
+{
+  "deployments": {
+    "solana": {
+      "contracts": {
+        "stakePool": { "address": "Jito4APyf642JPZPx3hGc6WWJ8zPKtRbRs4P815Awbb", "verified": true },
+        "jitosolMint": { "address": "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn", "verified": true },
+        "tipPaymentProgram": { "address": "T1pyyaTNZsKv2WcRAB8oVnk93mLJw2XzjtVYqCsaHqt", "verified": true },
+        "tipDistributionProgram": { "address": "4R3gSG8BpU4t19KYj8CfnbtRpnT8gtk4dvTHxVRwc2r7", "verified": true },
+        "stakeDepositInterceptor": { "address": "5TAiuAh3YGDbwjEruC1ZpXTJWdNDS7Ur7VeqNNiHMmGV", "verified": true },
+        "splStakePoolProgram": { "address": "SPoo1Ku8WFXoNDMHPsrGSTSG1Y47rzgn41SLUNakuHy", "verified": true }
+      },
+      "source": "jito-docs",
+      "sourceUrl": "https://www.jito.network/docs/jitosol/deployed-programs/"
+    }
+  }
+}

@@ -36,7 +36,7 @@
         "Fantom",
         "Harmony"
       ],
-      "angle": "Liquidation cascades — tracking when one liquidation triggers others during market stress",
+      "angle": "Liquidation cascades \u2014 tracking when one liquidation triggers others during market stress",
       "directory": "evm/001-aave-v3",
       "status": "done"
     },
@@ -53,7 +53,7 @@
         "Moonriver",
         "Terra"
       ],
-      "angle": "stETH rebase tracker — exchange rate evolution, TVL growth, fee revenue",
+      "angle": "stETH rebase tracker \u2014 exchange rate evolution, TVL growth, fee revenue",
       "directory": "evm/002-lido",
       "status": "done"
     },
@@ -67,7 +67,7 @@
         "Ethereum",
         "Binance"
       ],
-      "angle": "Oracle health monitor — wBETH exchange rate tracking and anomaly detection",
+      "angle": "Oracle health monitor \u2014 wBETH exchange rate tracking and anomaly detection",
       "directory": "evm/003-binance-staked-eth",
       "status": "done"
     },
@@ -80,7 +80,7 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": "Vault liquidation monitor — collateral types, debt at risk, liquidation frequency",
+      "angle": "Vault liquidation monitor \u2014 collateral types, debt at risk, liquidation frequency",
       "directory": "evm/004-sky-lending",
       "status": "done"
     },
@@ -125,7 +125,7 @@
         "Mode",
         "Zircuit"
       ],
-      "angle": "Market activity & lending dynamics — supply vs borrow flows, top markets, liquidations",
+      "angle": "Market activity & lending dynamics \u2014 supply vs borrow flows, top markets, liquidations",
       "directory": "evm/005-morpho-v1",
       "status": "done"
     },
@@ -138,7 +138,7 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": "Curator reallocation activity — how vault curators shift capital across Morpho Blue markets",
+      "angle": "Curator reallocation activity \u2014 how vault curators shift capital across Morpho Blue markets",
       "directory": "evm/039-morpho-vaults",
       "status": "done"
     },
@@ -152,7 +152,7 @@
         "Ethereum",
         "Solana"
       ],
-      "angle": "Institutional lending pool flows — deposits and withdrawals across Maple Syrup pools",
+      "angle": "Institutional lending pool flows \u2014 deposits and withdrawals across Maple Syrup pools",
       "directory": "evm/006-maple",
       "status": "done"
     },
@@ -175,7 +175,7 @@
         "Avalanche",
         "Optimism"
       ],
-      "angle": "Yield trading activity — PT and YT swap flows across Pendle markets",
+      "angle": "Yield trading activity \u2014 PT and YT swap flows across Pendle markets",
       "directory": "evm/007-pendle",
       "status": "done"
     },
@@ -189,7 +189,7 @@
         "Ethereum",
         "xDai"
       ],
-      "angle": "Lending dynamics — supply, borrow, repay, withdraw flows across SparkLend",
+      "angle": "Lending dynamics \u2014 supply, borrow, repay, withdraw flows across SparkLend",
       "directory": "evm/008-sparklend",
       "status": "done"
     },
@@ -202,7 +202,7 @@
       "chains": [
         "Solana"
       ],
-      "angle": "Lending activity pulse — deposit/withdraw patterns on Solana",
+      "angle": "Lending activity pulse \u2014 deposit/withdraw patterns on Solana",
       "directory": "solana/001-kamino-lend",
       "status": "done"
     },
@@ -220,7 +220,7 @@
         "Base",
         "Unichain"
       ],
-      "angle": "Savings vault flows — sDAI & sUSDS tracking the DAI→USDS savings migration",
+      "angle": "Savings vault flows \u2014 sDAI & sUSDS tracking the DAI\u2192USDS savings migration",
       "directory": "evm/009-spark-savings",
       "status": "done"
     },
@@ -241,7 +241,7 @@
         "Ronin",
         "Scroll"
       ],
-      "angle": "Multi-market lending flows — supply, withdraw & collateral across Compound V3 Comet markets",
+      "angle": "Multi-market lending flows \u2014 supply, withdraw & collateral across Compound V3 Comet markets",
       "directory": "evm/010-compound-v3",
       "status": "done"
     },
@@ -254,7 +254,7 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": "rETH mint/burn tracker — staking deposits & withdrawals with implied exchange rate",
+      "angle": "rETH mint/burn tracker \u2014 staking deposits & withdrawals with implied exchange rate",
       "directory": "evm/011-rocket-pool",
       "status": "done"
     },
@@ -274,7 +274,7 @@
         "Optimism",
         "Op_Bnb"
       ],
-      "angle": "BSC lending activity — Mint, Redeem, Borrow, RepayBorrow across Venus vToken markets",
+      "angle": "BSC lending activity \u2014 Mint, Redeem, Borrow, RepayBorrow across Venus vToken markets",
       "directory": "evm/012-venus-core-pool",
       "status": "done"
     },
@@ -290,7 +290,7 @@
       "angle": null,
       "directory": "solana/002-doublezero-staked-sol",
       "status": "skipped",
-      "skip_reason": "All dzSOL token flows route through single Sanctum Infinity pool account — no per-user data visible via token balances"
+      "skip_reason": "All dzSOL token flows route through single Sanctum Infinity pool account \u2014 no per-user data visible via token balances"
     },
     {
       "name": "Sanctum Validator LSTs",
@@ -301,7 +301,7 @@
       "chains": [
         "Solana"
       ],
-      "angle": "Validator LST swap flow — 1000+ LSTs across Router, Infinity, Unstake",
+      "angle": "Validator LST swap flow \u2014 1000+ LSTs across Router, Infinity, Unstake",
       "directory": "solana/003-sanctum-router",
       "status": "done"
     },
@@ -314,9 +314,9 @@
       "chains": [
         "Solana"
       ],
-      "angle": null,
+      "angle": "MEV tip distribution claims \u2014 validator reward lifecycle via merkle proofs",
       "directory": "solana/004-jito-liquid-staking",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Jupiter Lend",
@@ -344,7 +344,7 @@
         "Base",
         "Polygon"
       ],
-      "angle": "Liquidity Layer operations — unified supply/withdraw/borrow/repay via LogOperate",
+      "angle": "Liquidity Layer operations \u2014 unified supply/withdraw/borrow/repay via LogOperate",
       "directory": "evm/013-fluid-lending",
       "status": "done"
     },
@@ -441,7 +441,7 @@
         "Arbitrum",
         "Polygon"
       ],
-      "angle": "Curve LP staking flows — deposits & withdrawals across Convex Booster pools",
+      "angle": "Curve LP staking flows \u2014 deposits & withdrawals across Convex Booster pools",
       "directory": "evm/017-convex-finance",
       "status": "done"
     },
@@ -454,7 +454,7 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": "Staking flow & exchange rate — ETH inflows/outflows and implicit mETH/ETH rate",
+      "angle": "Staking flow & exchange rate \u2014 ETH inflows/outflows and implicit mETH/ETH rate",
       "directory": "evm/018-meth-protocol",
       "status": "done"
     },
@@ -467,7 +467,7 @@
       "chains": [
         "Binance"
       ],
-      "angle": "slisBNB staking lifecycle — BNB deposits, unstake requests, and claims",
+      "angle": "slisBNB staking lifecycle \u2014 BNB deposits, unstake requests, and claims",
       "directory": "evm/019-lista-liquid-staking",
       "status": "done"
     },
@@ -495,7 +495,7 @@
         "Ethereum",
         "Binance"
       ],
-      "angle": "Skipped — primarily Tron-based, not supported by Portal",
+      "angle": "Skipped \u2014 primarily Tron-based, not supported by Portal",
       "directory": "evm/021-usdd",
       "status": "skipped"
     },
@@ -523,7 +523,7 @@
         "Sonic",
         "Mantle"
       ],
-      "angle": "Modular vault ecosystem — EVC interactions, vault creation, usage patterns",
+      "angle": "Modular vault ecosystem \u2014 EVC interactions, vault creation, usage patterns",
       "directory": "evm/022-euler-v2",
       "status": "done"
     },
@@ -536,7 +536,7 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": "Skipped — extremely low event volume (~7 events/month), not enough for dashboard",
+      "angle": "Skipped \u2014 extremely low event volume (~7 events/month), not enough for dashboard",
       "directory": "evm/023-fira",
       "status": "skipped"
     },
@@ -549,7 +549,7 @@
       "chains": [
         "Hyperliquid L1"
       ],
-      "angle": "Skipped — primary chain(s) Hyperliquid L1 not supported",
+      "angle": "Skipped \u2014 primary chain(s) Hyperliquid L1 not supported",
       "directory": "evm/024-hyperliquid-hlp",
       "status": "skipped"
     },
@@ -562,7 +562,7 @@
       "chains": [
         "Ink"
       ],
-      "angle": "Skipped — primary chain(s) Ink not supported",
+      "angle": "Skipped \u2014 primary chain(s) Ink not supported",
       "directory": "evm/025-tydro",
       "status": "skipped"
     },
@@ -575,7 +575,7 @@
       "chains": [
         "Binance"
       ],
-      "angle": "lisUSD stablecoin lifecycle — deposits, borrows, repayments, liquidations across 11 collateral types",
+      "angle": "lisUSD stablecoin lifecycle \u2014 deposits, borrows, repayments, liquidations across 11 collateral types",
       "directory": "evm/026-lista-cdp",
       "status": "done"
     },
@@ -588,7 +588,7 @@
       "chains": [
         "Hyperliquid L1"
       ],
-      "angle": "Skipped — chain(s) Hyperliquid L1 not supported by Portal",
+      "angle": "Skipped \u2014 chain(s) Hyperliquid L1 not supported by Portal",
       "directory": "evm/027-hyperlend-pooled",
       "status": "skipped"
     },
@@ -606,7 +606,7 @@
         "Sonic",
         "Mantle"
       ],
-      "angle": "Skipped — CeDeFi model with near-zero on-chain activity (~3 events/week)",
+      "angle": "Skipped \u2014 CeDeFi model with near-zero on-chain activity (~3 events/week)",
       "directory": "evm/028-avalon-usda",
       "status": "skipped"
     },
@@ -625,7 +625,7 @@
         "Binance",
         "Scroll"
       ],
-      "angle": "Skipped — very low on-chain event volume (~4 events/week)",
+      "angle": "Skipped \u2014 very low on-chain event volume (~4 events/week)",
       "directory": "evm/029-cian-yield-layer",
       "status": "skipped"
     },
@@ -643,7 +643,7 @@
         "Terra2",
         "Near"
       ],
-      "angle": "ETHx staking flow — deposits, referrals, pool funding on permissionless staking",
+      "angle": "ETHx staking flow \u2014 deposits, referrals, pool funding on permissionless staking",
       "directory": "evm/030-stader",
       "status": "done"
     },
@@ -660,7 +660,7 @@
         "Binance",
         "Avalanche"
       ],
-      "angle": "Skipped — no public Ethereum/Base contract addresses, API-based TVL only",
+      "angle": "Skipped \u2014 no public Ethereum/Base contract addresses, API-based TVL only",
       "directory": "evm/031-multipli.fi",
       "status": "skipped"
     },
@@ -686,7 +686,7 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": "Skipped — cbETH is just an ERC-20 wrapper, only Transfer events (too generic)",
+      "angle": "Skipped \u2014 cbETH is just an ERC-20 wrapper, only Transfer events (too generic)",
       "directory": "evm/032-coinbase-wrapped-staked-eth",
       "status": "skipped"
     },
@@ -705,7 +705,7 @@
         "Mantle",
         "X Layer"
       ],
-      "angle": "Skipped — dYdX fork with library-emitted events (nested struct types), ABI not extractable via typegen",
+      "angle": "Skipped \u2014 dYdX fork with library-emitted events (nested struct types), ABI not extractable via typegen",
       "directory": "evm/033-dolomite",
       "status": "skipped"
     },
@@ -718,7 +718,7 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": "Skipped — very new protocol (Jul 2025), only ~180 total events",
+      "angle": "Skipped \u2014 very new protocol (Jul 2025), only ~180 total events",
       "directory": "evm/034-cap",
       "status": "skipped"
     },
@@ -731,7 +731,7 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": "Skipped — needs research, likely new protocol",
+      "angle": "Skipped \u2014 needs research, likely new protocol",
       "directory": "evm/035-strata-markets",
       "status": "skipped"
     },
@@ -746,7 +746,7 @@
         "Avalanche",
         "Botanix"
       ],
-      "angle": "Perpetual trading activity pulse — 37 event types via centralized EventEmitter",
+      "angle": "Perpetual trading activity pulse \u2014 37 event types via centralized EventEmitter",
       "directory": "evm/036-gmx-v2-perps",
       "status": "done"
     },
@@ -765,7 +765,7 @@
         "Arbitrum",
         "Fantom"
       ],
-      "angle": "Strategy harvest reports across all Yearn V2 vaults — yield generation heartbeat",
+      "angle": "Strategy harvest reports across all Yearn V2 vaults \u2014 yield generation heartbeat",
       "directory": "evm/037-yearn-finance",
       "status": "done"
     },
@@ -804,7 +804,7 @@
       "chains": [
         "Avalanche"
       ],
-      "angle": "sAVAX staking lifecycle & reward accrual — deposits, unlocks, redemptions, and yield tracking",
+      "angle": "sAVAX staking lifecycle & reward accrual \u2014 deposits, unlocks, redemptions, and yield tracking",
       "directory": "evm/038-benqi-staked-avax",
       "status": "done"
     },
@@ -968,7 +968,7 @@
       "chains": [
         "Hyperliquid L1"
       ],
-      "angle": "Skipped — chain(s) Hyperliquid L1 not supported by Portal",
+      "angle": "Skipped \u2014 chain(s) Hyperliquid L1 not supported by Portal",
       "directory": "evm/049-sthype",
       "status": "skipped"
     },
@@ -1083,7 +1083,7 @@
         "Polygon",
         "Avalanche"
       ],
-      "angle": "Legacy lending & liquidation — Aave V2 lifecycle from DeFi summer boom to V3 migration",
+      "angle": "Legacy lending & liquidation \u2014 Aave V2 lifecycle from DeFi summer boom to V3 migration",
       "directory": "evm/054-aave-v2",
       "status": "done"
     },
@@ -1123,7 +1123,7 @@
       "chains": [
         "Cronos"
       ],
-      "angle": "Skipped — chain(s) Cronos not supported by Portal",
+      "angle": "Skipped \u2014 chain(s) Cronos not supported by Portal",
       "directory": "evm/056-tectonic",
       "status": "skipped"
     },
@@ -1312,7 +1312,7 @@
       "chains": [
         "xDai"
       ],
-      "angle": "Skipped — chain(s) xDai not supported by Portal",
+      "angle": "Skipped \u2014 chain(s) xDai not supported by Portal",
       "directory": "evm/063-sdai",
       "status": "skipped"
     },
@@ -1338,7 +1338,7 @@
       "chains": [
         "Berachain"
       ],
-      "angle": "Skipped — chain(s) Berachain not supported by Portal",
+      "angle": "Skipped \u2014 chain(s) Berachain not supported by Portal",
       "directory": "evm/064-infrared-finance",
       "status": "skipped"
     },
@@ -1466,7 +1466,7 @@
       "chains": [
         "Hyperliquid"
       ],
-      "angle": "BTC/ETH/SOL perpetual futures fills — volume, long/short ratios, top traders",
+      "angle": "BTC/ETH/SOL perpetual futures fills \u2014 volume, long/short ratios, top traders",
       "directory": "hyperliquid/001-hyperliquid-perps-majors",
       "status": "done"
     },
@@ -1479,7 +1479,7 @@
       "chains": [
         "Hyperliquid"
       ],
-      "angle": "Whale tracker — $50K+ trades across all coins, top whales, favorite markets",
+      "angle": "Whale tracker \u2014 $50K+ trades across all coins, top whales, favorite markets",
       "directory": "hyperliquid/002-hyperliquid-whale-tracker",
       "status": "done"
     },
@@ -1492,7 +1492,7 @@
       "chains": [
         "Hyperliquid"
       ],
-      "angle": "Realized PnL tracker — top winners, losers, daily net PnL, fee burn on majors",
+      "angle": "Realized PnL tracker \u2014 top winners, losers, daily net PnL, fee burn on majors",
       "directory": "hyperliquid/003-hyperliquid-funding-pnl",
       "status": "done"
     },
@@ -1505,7 +1505,7 @@
       "chains": [
         "Hyperliquid"
       ],
-      "angle": "Meme coin frenzy — TRUMP, FARTCOIN, DOGE, WIF & more degen favorites",
+      "angle": "Meme coin frenzy \u2014 TRUMP, FARTCOIN, DOGE, WIF & more degen favorites",
       "directory": "hyperliquid/004-hyperliquid-meme-coins",
       "status": "done"
     },
@@ -1518,7 +1518,7 @@
       "chains": [
         "Hyperliquid"
       ],
-      "angle": "Liquidation tracker — forced closes, rekt leaderboard, cascade patterns",
+      "angle": "Liquidation tracker \u2014 forced closes, rekt leaderboard, cascade patterns",
       "directory": "hyperliquid/005-liquidations",
       "status": "done"
     }
