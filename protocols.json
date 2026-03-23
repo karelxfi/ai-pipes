@@ -384,9 +384,9 @@
       "chains": [
         "Solana"
       ],
-      "angle": null,
+      "angle": "Position lifecycle \u2014 opens, closes, liquidations, TP/SL and limit orders",
       "directory": "solana/007-jupiter-perpetual-exchange",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Kinetiq kHYPE",

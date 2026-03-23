@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200">
+  <title>JUPITER PERPS — Position Lifecycle</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; color: #ccc; font-family: 'Consolas','SF Mono','Source Code Pro',monospace; font-size: 11px; line-height: 1.3; width: 1200px; height: 675px; overflow: hidden; }
+    .header { padding: 8px 12px 4px; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #1a1a1a; }
+    .header-left h1 { font-size: 11px; font-weight: normal; color: #4A7AB5; text-transform: uppercase; letter-spacing: 0.8px; }
+    .header-left .angle { font-size: 10px; color: #666; margin-top: 1px; }
+    .stats { display: flex; gap: 16px; }
+    .stat { text-align: right; }
+    .stat-value { font-size: 16px; font-weight: normal; color: #fff; font-family: 'Consolas','SF Mono',monospace; font-feature-settings: 'tnum'; }
+    .stat-label { font-size: 9px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; height: calc(675px - 48px - 18px); }
+    .panel { border: 1px solid #1a1a1a; padding: 8px; background: #0a0a0a; }
+    .chart { width: 100%; height: 100%; }
+    .footer { padding: 3px 12px; font-size: 9px; color: #444; text-align: center; border-top: 1px solid #1a1a1a; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-left">
+      <h1>JUPITER PERPS — Position Lifecycle</h1>
+      <div class="angle">Opens, closes, liquidations, TP/SL and limit orders on Jupiter Perpetual Exchange</div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-value" id="totalOps">—</div><div class="stat-label">Total Ops</div></div>
+      <div class="stat"><div class="stat-value" id="liquidations">—</div><div class="stat-label">Liquidations</div></div>
+      <div class="stat"><div class="stat-value" id="longShort">—</div><div class="stat-label">Long/Short</div></div>
+      <div class="stat"><div class="stat-value" id="period">—</div><div class="stat-label">Period</div></div>
+    </div>
+  </div>
+  <div class="grid">
+    <div class="panel"><div id="chart1" class="chart"></div></div>
+    <div class="panel"><div id="chart2" class="chart"></div></div>
+    <div class="panel"><div id="chart3" class="chart"></div></div>
+    <div class="panel"><div id="chart4" class="chart"></div></div>
+  </div>
+  <div class="footer">Built with ai-pipes + SQD Pipes SDK | github.com/karelxfi | x.com/karelxfi</div>
+  <script>
+    var CH = 'http://localhost:8123/?user=default&password=password&database=jupiter_perps&default_format=JSON';
+    var PALETTE = ['#1E3A5F','#2B4F7E','#1A3050','#3D6494','#4A7AB5','#2E5480','#5A8ABF','#1F4470','#3B6A9E','#274D73'];
+    var ACTION_COLORS = {open_position:'#3D7A6B',close_position:'#8B3A3A',close_request:'#4A7AB5',create_tpsl:'#2B4F7E',increase_preswap:'#1E3A5F',liquidation:'#FF433D',create_limit_order:'#3D6494',keeper_increase:'#2E5480',keeper_decrease:'#274D73',decrease_with_tpsl:'#1A3050',decrease_market_request:'#5A8ABF'};
+    function fmt(n) { return n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'K' : String(n); }
+    function q(sql) { return fetch(CH, { method: 'POST', body: sql }).then(function(r){return r.json()}).then(function(j){return j.data}); }
+    function tOpts(t) { return { backgroundColor:'transparent', title:{text:t.toUpperCase(),textStyle:{color:'#666',fontSize:10,fontWeight:'normal',fontFamily:'Consolas,SF Mono,monospace'},left:8,top:4}, textStyle:{color:'#666',fontFamily:'Consolas,SF Mono,monospace'}, tooltip:{backgroundColor:'#1a1a1a',borderColor:'#333',textStyle:{color:'#ccc',fontSize:10,fontFamily:'Consolas,monospace'},padding:[4,8]}, grid:{left:56,right:12,top:28,bottom:28}, animation:false }; }
+
+    Promise.all([
+      q("SELECT action, count() as n FROM perp_positions GROUP BY action ORDER BY n DESC"),
+      q("SELECT toStartOfHour(timestamp) as hour, count() as n FROM perp_positions GROUP BY hour ORDER BY hour"),
+      q("SELECT side, count() as n FROM perp_positions WHERE side IN ('Long','Short') GROUP BY side"),
+      q("SELECT toStartOfHour(timestamp) as hour, action, count() as n FROM perp_positions WHERE action IN ('open_position','close_position','liquidation') GROUP BY hour, action ORDER BY hour"),
+      q("SELECT count() as cnt, countIf(action='liquidation') as liqs, countIf(side='Long') as longs, countIf(side='Short') as shorts, min(timestamp) as min_ts, max(timestamp) as max_ts FROM perp_positions"),
+    ]).then(function(R) {
+      var actionDist = R[0], hourly = R[1], longShortData = R[2], hourlyByAction = R[3], stats = R[4][0];
+
+      document.getElementById('totalOps').textContent = fmt(Number(stats.cnt));
+      document.getElementById('liquidations').textContent = fmt(Number(stats.liqs));
+      var l = Number(stats.longs), s = Number(stats.shorts);
+      document.getElementById('longShort').textContent = (l/(l+s)*100).toFixed(0) + '/' + (s/(l+s)*100).toFixed(0);
+      document.getElementById('period').textContent = stats.min_ts.slice(0,10) + ' \u2192 ' + stats.max_ts.slice(0,10);
+
+      // Chart 1: Action distribution treemap
+      var c1 = echarts.init(document.getElementById('chart1'));
+      c1.setOption(Object.assign(tOpts('Position Action Distribution'), {
+        grid: undefined,
+        series: [{ type:'treemap', data: actionDist.map(function(d,i){return{name:d.action.replace(/_/g,' '),value:Number(d.n),itemStyle:{color:ACTION_COLORS[d.action]||PALETTE[i%PALETTE.length]}}}), label:{color:'#ccc',fontSize:10,fontFamily:'Consolas,monospace',formatter:function(p){return p.name+'\n'+fmt(p.value)}}, breadcrumb:{show:false}, top:28,left:8,right:8,bottom:8 }]
+      }));
+
+      // Chart 2: Hourly total activity
+      var c2 = echarts.init(document.getElementById('chart2'));
+      c2.setOption(Object.assign(tOpts('Hourly Position Activity'), {
+        xAxis:{type:'category',data:hourly.map(function(d){return d.hour}),axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace',formatter:function(v){return v.slice(11,16)}},splitLine:{show:false}},
+        yAxis:{axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace',formatter:function(v){return fmt(v)}},splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}}},
+        series:[{type:'bar',data:hourly.map(function(d){return Number(d.n)}),itemStyle:{color:'#2B4F7E'},barMaxWidth:12}]
+      }));
+
+      // Chart 3: Hourly opens vs closes vs liquidations
+      var hours3 = [...new Set(hourlyByAction.map(function(d){return d.hour}))];
+      var types3 = ['open_position','close_position','liquidation'];
+      var s3 = {};
+      types3.forEach(function(t){s3[t]={}});
+      hourlyByAction.forEach(function(d){if(s3[d.action])s3[d.action][d.hour]=Number(d.n)});
+      var c3 = echarts.init(document.getElementById('chart3'));
+      c3.setOption(Object.assign(tOpts('Opens vs Closes vs Liquidations (Hourly)'), {
+        legend:{data:['open','close','liquidation'],textStyle:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'},right:8,top:4,itemWidth:10,itemHeight:8},
+        xAxis:{type:'category',data:hours3,axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace',formatter:function(v){return v.slice(11,16)}},splitLine:{show:false}},
+        yAxis:{axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace',formatter:function(v){return fmt(v)}},splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}}},
+        series:[
+          {name:'open',type:'bar',data:hours3.map(function(h){return s3['open_position'][h]||0}),itemStyle:{color:'#3D7A6B'},barMaxWidth:8},
+          {name:'close',type:'bar',data:hours3.map(function(h){return s3['close_position'][h]||0}),itemStyle:{color:'#8B3A3A'},barMaxWidth:8},
+          {name:'liquidation',type:'bar',data:hours3.map(function(h){return s3['liquidation'][h]||0}),itemStyle:{color:'#FF433D'},barMaxWidth:8}
+        ]
+      }));
+
+      // Chart 4: Long vs Short pie-style (horizontal bars)
+      var c4 = echarts.init(document.getElementById('chart4'));
+      c4.setOption(Object.assign(tOpts('Long vs Short Positions'), {
+        grid:{left:64,right:48,top:28,bottom:12},
+        xAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace',formatter:function(v){return fmt(v)}},splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}}},
+        yAxis:{type:'category',data:longShortData.map(function(d){return d.side}).reverse(),axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:12,fontFamily:'Consolas,monospace'}},
+        series:[{type:'bar',data:longShortData.map(function(d){return Number(d.n)}).reverse(),itemStyle:{color:function(p){return p.dataIndex===1?'#3D7A6B':'#8B3A3A'}},barMaxWidth:30,label:{show:true,position:'right',formatter:function(p){return fmt(p.value)},color:'#ccc',fontSize:11,fontFamily:'Consolas,monospace'}}]
+      }));
+
+      window.__DASHBOARD_READY__ = true;
+    });
+  </script>
+</body>
+</html>

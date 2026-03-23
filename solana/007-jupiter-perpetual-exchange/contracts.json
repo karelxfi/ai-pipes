@@ -1,0 +1,13 @@
+{
+  "deployments": {
+    "solana": {
+      "contracts": {
+        "perpetualsProgram": { "address": "PERPHjGBqRHArX4DySjwM6UJHiR3sWAatqfdBS2qQJu", "verified": true },
+        "jlpPool": { "address": "5BUwFW4nRbftYTDMbgxykoFWqWHPzahFSNAaaaJtVKsq", "verified": true },
+        "jlpMint": { "address": "27G8MtK7VtTcCHkpASjSDdkWWYfoqT6ggEuKidVJidD4", "verified": true }
+      },
+      "source": "jupiter-perps-docs",
+      "sourceUrl": "https://dev.jup.ag/docs/perps"
+    }
+  }
+}

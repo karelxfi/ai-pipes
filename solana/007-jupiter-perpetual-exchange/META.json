@@ -1,0 +1,10 @@
+{
+  "date": "2026-03-23",
+  "pipes_sdk_version": "1.0.0-alpha.1",
+  "agent_skills_version": "36314dd",
+  "claude_model": "claude-opus-4-6",
+  "prompt_file": "PROMPT.md",
+  "angle": "Jupiter Perps position lifecycle — opens, closes, liquidations, TP/SL and limit orders",
+  "runtime_status": "working",
+  "validation_status": "passed"
+}
