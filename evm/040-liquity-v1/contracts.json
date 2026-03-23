@@ -1,0 +1,16 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "troveManager": { "address": "0xA39739EF8b0231DbFA0DcdA07d7e29faAbCf4bb2", "deploymentBlock": 12178557, "verified": true },
+        "borrowerOperations": { "address": "0x24179CD81c9e782A4096035f7eC97fB8B783e007", "deploymentBlock": 12178557, "verified": true },
+        "stabilityPool": { "address": "0x66017D22b0f8556afDd19FC67041899Eb65a21bb", "deploymentBlock": 12178557, "verified": true },
+        "activePool": { "address": "0xDf9Eb223bAFBE5c5271415C75aeCD68C21fE3D7F", "deploymentBlock": 12178557, "verified": true },
+        "lusdToken": { "address": "0x5f98805A4E8be255a32880FDeC7F6728C6568bA0", "deploymentBlock": 12178557, "verified": true },
+        "lqtyToken": { "address": "0x6DEA81C8171D0bA574754EF6F8b412F2Ed88c54D", "deploymentBlock": 12178557, "verified": true }
+      },
+      "source": "liquity-docs",
+      "sourceUrl": "https://docs.liquity.org/liquity-v1/documentation/resources"
+    }
+  }
+}

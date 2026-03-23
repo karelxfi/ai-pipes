@@ -166,7 +166,7 @@ Open `dashboard/index.html` in your browser to see the charts.
 | 53 | Cooler Loans | Lending | evm | ⏳ |
 | 54 | EtherFi Borrowing Market | Lending | evm | ⏳ |
 | 55 | infiniFi | Yield | evm | ⏳ |
-| 56 | Liquity V1 | CDP | evm | ⏳ |
+| 56 | Liquity V1 | CDP | evm | ✅ |
 | 57 | Fluid Lite | Yield Aggregator | evm | ⏳ |
 | 58 | Yield Basis | Leveraged Farming | evm | ⏳ |
 | 59 | Venus Flux | Lending | evm | ⏳ |
