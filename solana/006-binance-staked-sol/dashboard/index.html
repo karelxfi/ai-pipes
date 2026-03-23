@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200">
+  <title>SPL STAKE POOLS — Instruction-Level Indexing</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; color: #ccc; font-family: 'Consolas','SF Mono','Source Code Pro',monospace; font-size: 11px; line-height: 1.3; width: 1200px; height: 675px; overflow: hidden; }
+    .header { padding: 8px 12px 4px; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #1a1a1a; }
+    .header-left h1 { font-size: 11px; font-weight: normal; color: #4A7AB5; text-transform: uppercase; letter-spacing: 0.8px; }
+    .header-left .angle { font-size: 10px; color: #666; margin-top: 1px; }
+    .stats { display: flex; gap: 16px; }
+    .stat { text-align: right; }
+    .stat-value { font-size: 16px; font-weight: normal; color: #fff; font-family: 'Consolas','SF Mono',monospace; font-feature-settings: 'tnum'; }
+    .stat-label { font-size: 9px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; height: calc(675px - 48px - 18px); }
+    .panel { border: 1px solid #1a1a1a; padding: 8px; background: #0a0a0a; }
+    .chart { width: 100%; height: 100%; }
+    .footer { padding: 3px 12px; font-size: 9px; color: #444; text-align: center; border-top: 1px solid #1a1a1a; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-left">
+      <h1>SPL STAKE POOLS — Instruction-Level Indexing</h1>
+      <div class="angle">DepositSol, WithdrawSol, DepositStake, WithdrawStake across all pools via d1 discriminators</div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-value" id="totalOps">—</div><div class="stat-label">Total Ops</div></div>
+      <div class="stat"><div class="stat-value" id="uniquePools">—</div><div class="stat-label">Pools</div></div>
+      <div class="stat"><div class="stat-value" id="period">—</div><div class="stat-label">Period</div></div>
+    </div>
+  </div>
+  <div class="grid">
+    <div class="panel"><div id="chart1" class="chart"></div></div>
+    <div class="panel"><div id="chart2" class="chart"></div></div>
+    <div class="panel"><div id="chart3" class="chart"></div></div>
+    <div class="panel"><div id="chart4" class="chart"></div></div>
+  </div>
+  <div class="footer">Built with ai-pipes + SQD Pipes SDK | github.com/karelxfi | x.com/karelxfi</div>
+  <script>
+    var CH = 'http://localhost:8123/?user=default&password=password&database=spl_stake_pools&default_format=JSON';
+    var PALETTE = ['#1E3A5F','#2B4F7E','#1A3050','#3D6494','#4A7AB5','#2E5480','#5A8ABF','#1F4470','#3B6A9E','#274D73'];
+    var OP_COLORS = { DepositSol:'#3D7A6B', WithdrawSol:'#8B3A3A', DepositStake:'#2B4F7E', WithdrawStake:'#4A7AB5', UpdateStakePoolBalance:'#1A3050', IncreaseValidatorStake:'#3D6494' };
+    var KNOWN_POOLS = { 'Jito4APy':'JitoSOL','Hr9pzexr':'BNSOL','stk9ApL5':'stSOL','pSPcvR8G':'pSOL','2qyEeSAW':'pool-2qy','DqhH94Pj':'pool-Dqh' };
+    function poolName(p) { return KNOWN_POOLS[p.slice(0,8)] || p.slice(0,6)+'...'; }
+    function fmt(n) { return n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'K' : String(n); }
+    function q(sql) { return fetch(CH, { method: 'POST', body: sql }).then(function(r){return r.json()}).then(function(j){return j.data}); }
+    function tOpts(t) { return { backgroundColor:'transparent', title:{text:t.toUpperCase(),textStyle:{color:'#666',fontSize:10,fontWeight:'normal',fontFamily:'Consolas,SF Mono,monospace'},left:8,top:4}, textStyle:{color:'#666',fontFamily:'Consolas,SF Mono,monospace'}, tooltip:{backgroundColor:'#1a1a1a',borderColor:'#333',textStyle:{color:'#ccc',fontSize:10,fontFamily:'Consolas,monospace'},padding:[4,8]}, grid:{left:56,right:12,top:28,bottom:28}, animation:false }; }
+
+    Promise.all([
+      q("SELECT instruction, count() as n FROM stake_pool_ops GROUP BY instruction ORDER BY n DESC"),
+      q("SELECT pool, count() as n FROM stake_pool_ops GROUP BY pool ORDER BY n DESC LIMIT 12"),
+      q("SELECT toStartOfHour(timestamp) as hour, instruction, count() as n FROM stake_pool_ops GROUP BY hour, instruction ORDER BY hour"),
+      q("SELECT toStartOfHour(timestamp) as hour, count() as n FROM stake_pool_ops GROUP BY hour ORDER BY hour"),
+      q("SELECT count() as cnt, uniq(pool) as pools, min(timestamp) as min_ts, max(timestamp) as max_ts FROM stake_pool_ops"),
+    ]).then(function(R) {
+      var instrDist = R[0], topPools = R[1], hourlyByInstr = R[2], hourly = R[3], stats = R[4][0];
+
+      document.getElementById('totalOps').textContent = fmt(Number(stats.cnt));
+      document.getElementById('uniquePools').textContent = stats.pools;
+      document.getElementById('period').textContent = stats.min_ts.slice(0,10) + ' \u2192 ' + stats.max_ts.slice(0,10);
+
+      // Chart 1: Instruction type treemap
+      var c1 = echarts.init(document.getElementById('chart1'));
+      c1.setOption(Object.assign(tOpts('Operation Type Distribution'), {
+        grid: undefined,
+        series: [{ type: 'treemap', data: instrDist.map(function(d,i){return {name:d.instruction,value:Number(d.n),itemStyle:{color:OP_COLORS[d.instruction]||PALETTE[i]}}}), label:{color:'#ccc',fontSize:11,fontFamily:'Consolas,monospace',formatter:function(p){return p.name+'\n'+fmt(p.value)}}, breadcrumb:{show:false}, top:28,left:8,right:8,bottom:8 }]
+      }));
+
+      // Chart 2: Top pools horizontal bar
+      var c2 = echarts.init(document.getElementById('chart2'));
+      var poolLabels = topPools.map(function(d){return poolName(d.pool)}).reverse();
+      var poolCounts = topPools.map(function(d){return Number(d.n)}).reverse();
+      c2.setOption(Object.assign(tOpts('Top Stake Pools by Operation Count'), {
+        grid:{left:72,right:48,top:28,bottom:12},
+        xAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace',formatter:function(v){return fmt(v)}},splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}}},
+        yAxis:{type:'category',data:poolLabels,axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'}},
+        series:[{type:'bar',data:poolCounts,itemStyle:{color:function(p){return PALETTE[p.dataIndex%PALETTE.length]}},barMaxWidth:14,label:{show:true,position:'right',formatter:function(p){return fmt(p.value)},color:'#666',fontSize:9,fontFamily:'Consolas,monospace'}}]
+      }));
+
+      // Chart 3: Hourly stacked by instruction type
+      var hours = [...new Set(hourlyByInstr.map(function(d){return d.hour}))];
+      var types = [...new Set(hourlyByInstr.map(function(d){return d.instruction}))];
+      var seriesData = {};
+      types.forEach(function(t){ seriesData[t] = {}; });
+      hourlyByInstr.forEach(function(d){ if(seriesData[d.instruction]) seriesData[d.instruction][d.hour] = Number(d.n); });
+      var c3 = echarts.init(document.getElementById('chart3'));
+      c3.setOption(Object.assign(tOpts('Hourly Operations by Type'), {
+        legend:{data:types.slice(0,4),textStyle:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'},right:8,top:4,itemWidth:10,itemHeight:8},
+        xAxis:{type:'category',data:hours,axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace',formatter:function(v){return v.slice(11,16)}},splitLine:{show:false}},
+        yAxis:{axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace',formatter:function(v){return fmt(v)}},splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}}},
+        series:types.map(function(t){return{name:t,type:'bar',stack:'ops',data:hours.map(function(h){return seriesData[t][h]||0}),itemStyle:{color:OP_COLORS[t]||'#2B4F7E'},barMaxWidth:10}})
+      }));
+
+      // Chart 4: Hourly total (line)
+      var c4 = echarts.init(document.getElementById('chart4'));
+      c4.setOption(Object.assign(tOpts('Hourly Total Activity'), {
+        xAxis:{type:'category',data:hourly.map(function(d){return d.hour}),axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace',formatter:function(v){return v.slice(11,16)}},splitLine:{show:false}},
+        yAxis:{axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace',formatter:function(v){return fmt(v)}},splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}}},
+        series:[{type:'line',data:hourly.map(function(d){return Number(d.n)}),lineStyle:{width:1.5,color:'#4A7AB5'},showSymbol:false,areaStyle:{opacity:0.08,color:'#4A7AB5'}}]
+      }));
+
+      window.__DASHBOARD_READY__ = true;
+    });
+  </script>
+</body>
+</html>

@@ -130,7 +130,7 @@ Open `dashboard/index.html` in your browser to see the charts.
 | 17 | Jito Liquid Staking | Liquid Staking | solana | ✅ |
 | 18 | Jupiter Lend | Lending | solana | ✅ |
 | 19 | Fluid Lending | Lending | evm | ✅ |
-| 20 | Binance Staked SOL | Liquid Staking | solana | ⏳ |
+| 20 | Binance Staked SOL | Liquid Staking | solana | ✅ |
 | 21 | StakeWise V2 | Liquid Staking | evm | ✅ |
 | 22 | Jupiter Perpetual Exchange | Derivatives | solana | ⏳ |
 | 23 | Kinetiq kHYPE | Liquid Staking | evm | ⏭️ |

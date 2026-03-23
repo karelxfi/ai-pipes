@@ -357,9 +357,9 @@
       "chains": [
         "Solana"
       ],
-      "angle": null,
+      "angle": "SPL Stake Pool instruction-level indexing POC \u2014 d1 discriminators across all pools",
       "directory": "solana/006-binance-staked-sol",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "StakeWise V2",
