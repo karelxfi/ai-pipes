@@ -1,0 +1,19 @@
+{
+  "date": "2026-03-23",
+  "pipes_sdk_version": "1.0.0-alpha.1",
+  "agent_skills_version": "latest",
+  "claude_model": "claude-opus-4-20250514",
+  "angle": "TradFi invasion — commodities, equities, and forex outpacing crypto on Hyperliquid's HIP-3 permissionless markets",
+  "runtime_status": "working",
+  "validation_status": "passed",
+  "row_count": 41019080,
+  "date_range": "2026-03-02 to 2026-03-23",
+  "asset_classes": ["CRYPTO", "COMMODITY", "EQUITY", "FOREX", "HIP3", "TRADFI_OTHER"],
+  "news_sources": [
+    "CoinDesk — Oil & silver outpacing SOL/XRP on Hyperliquid",
+    "CoinDesk — JPMorgan highlights Iran war driving oil trading boom",
+    "CoinDesk — Grayscale files for HYPE ETF",
+    "CoinDesk — S&P 500 licensed perpetual on Hyperliquid",
+    "DL News — How Hyperliquid became an Iran war winner"
+  ]
+}

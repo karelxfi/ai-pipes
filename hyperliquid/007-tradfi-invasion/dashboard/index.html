@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>HYPERLIQUID TRADFI INVASION</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:#000; color:#ccc;
+  font-family:'Consolas','SF Mono','Source Code Pro','JetBrains Mono',monospace;
+  font-size:11px; line-height:1.3;
+  width:1200px; min-height:675px; overflow-x:hidden;
+}
+.grid {
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  grid-template-rows:auto 1fr 1fr;
+  gap:0; width:1200px; min-height:675px;
+}
+.header {
+  grid-column:1/-1; display:flex; align-items:center; justify-content:space-between;
+  padding:6px 10px; border-bottom:1px solid #1a1a1a; background:#0a0a0a;
+}
+.header-left { display:flex; align-items:baseline; gap:16px; }
+.header-title { font-size:12px; color:#4A7AB5; letter-spacing:1.2px; font-weight:normal; }
+.header-subtitle { font-size:9px; color:#666; letter-spacing:0.5px; text-transform:uppercase; }
+.stats { display:flex; gap:20px; }
+.stat-val { font-size:16px; color:#fff; font-feature-settings:'tnum'; }
+.stat-lbl { font-size:9px; color:#666; text-transform:uppercase; letter-spacing:0.6px; }
+.stat-up { color:#4AF6C3; }
+.stat-down { color:#FF433D; }
+.panel {
+  border:1px solid #1a1a1a; border-top:0; border-left:0;
+  padding:0; background:#0a0a0a; position:relative; overflow:hidden;
+}
+.panel:nth-child(2) { border-left:0; }
+.panel-title {
+  font-size:10px; color:#666; text-transform:uppercase; letter-spacing:0.8px;
+  padding:6px 8px 0 8px;
+}
+.chart { width:100%; height:calc(100% - 22px); }
+.wide { grid-column: span 2; }
+.footer {
+  grid-column:1/-1; display:flex; align-items:center; justify-content:space-between;
+  padding:3px 10px; border-top:1px solid #1a1a1a; background:#0a0a0a;
+  font-size:9px; color:#444;
+}
+</style>
+</head>
+<body>
+<div class="grid">
+  <div class="header">
+    <div class="header-left">
+      <div class="header-title">HYPERLIQUID TRADFI INVASION</div>
+      <div class="header-subtitle" id="hdr-period">loading...</div>
+    </div>
+    <div class="stats">
+      <div><div class="stat-val" id="st-total">—</div><div class="stat-lbl">TOTAL FILLS</div></div>
+      <div><div class="stat-val" id="st-tradfi">—</div><div class="stat-lbl">TRADFI FILLS</div></div>
+      <div><div class="stat-val" id="st-ratio">—</div><div class="stat-lbl">TRADFI SHARE</div></div>
+      <div><div class="stat-val" id="st-vol">—</div><div class="stat-lbl">NOTIONAL VOL</div></div>
+    </div>
+  </div>
+
+  <!-- Row 1 -->
+  <div class="panel wide">
+    <div class="panel-title">DAILY VOLUME BY ASSET CLASS</div>
+    <div class="chart" id="c-daily"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">ASSET CLASS BREAKDOWN (FILLS)</div>
+    <div class="chart" id="c-treemap"></div>
+  </div>
+
+  <!-- Row 2 -->
+  <div class="panel">
+    <div class="panel-title">TOP NON-CRYPTO MARKETS (NOTIONAL)</div>
+    <div class="chart" id="c-top-markets"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">TRADFI SHARE % OVER TIME</div>
+    <div class="chart" id="c-ratio"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">TOP TRADFI TRADERS (PNL)</div>
+    <div class="chart" id="c-top-traders"></div>
+  </div>
+
+  <div class="footer">
+    <span>Built with ai-pipes + SQD Pipes SDK | github.com/karelxfi | x.com/karelxfi</span>
+    <span id="ft-update"></span>
+  </div>
+</div>
+
+<script>
+var CH = 'http://localhost:8123';
+var DB = 'hl_tradfi_invasion';
+var PALETTE = ['#1E3A5F','#2B4F7E','#3D6494','#4A7AB5','#5A8ABF','#2E5480','#1A3050','#274D73','#3B6A9E','#1F4470'];
+var CLASS_COLORS = { CRYPTO:'#2B4F7E', COMMODITY:'#8B6914', EQUITY:'#3D7A6B', FOREX:'#6B3D7A', HIP3:'#3D5A6B', TRADFI_OTHER:'#555' };
+
+function q(sql) {
+  return fetch(CH+'/?database='+DB+'&default_format=JSONEachRow&user=default&password=password', {method:'POST',body:sql})
+    .then(function(r){return r.text()})
+    .then(function(t){
+      if(!t.trim()) return [];
+      return t.trim().split('\n').map(function(l){return JSON.parse(l)});
+    });
+}
+function fmt(n) {
+  if(n>=1e9) return (n/1e9).toFixed(1)+'B';
+  if(n>=1e6) return (n/1e6).toFixed(1)+'M';
+  if(n>=1e3) return (n/1e3).toFixed(1)+'K';
+  return n.toFixed(0);
+}
+function termOpts(title) {
+  return {
+    backgroundColor:'transparent',
+    textStyle:{color:'#666',fontFamily:'Consolas,SF Mono,monospace'},
+    tooltip:{backgroundColor:'#1a1a1a',borderColor:'#333',textStyle:{color:'#ccc',fontSize:10,fontFamily:'Consolas,monospace'},padding:[4,8]},
+    grid:{left:48,right:8,top:8,bottom:24},
+    animation:false
+  };
+}
+
+async function init() {
+  // Header stats
+  var stats = await q("SELECT count() as total, countIf(asset_class != 'CRYPTO') as tradfi, sum(notional) as vol, min(timestamp) as t0, max(timestamp) as t1 FROM fills FINAL");
+  if(!stats.length || +stats[0].total === 0) { document.getElementById('hdr-period').textContent='NO DATA YET'; return; }
+  var s = stats[0];
+  document.getElementById('st-total').textContent = fmt(+s.total);
+  document.getElementById('st-tradfi').textContent = fmt(+s.tradfi);
+  document.getElementById('st-ratio').textContent = ((+s.tradfi/+s.total)*100).toFixed(1)+'%';
+  document.getElementById('st-vol').textContent = '$'+fmt(+s.vol);
+  var d0 = s.t0.slice(0,10), d1 = s.t1.slice(0,10);
+  document.getElementById('hdr-period').textContent = d0+' → '+d1;
+  document.getElementById('ft-update').textContent = 'Last: '+s.t1.slice(0,19)+' UTC';
+
+  // 1. Daily volume by asset class (stacked bar)
+  var daily = await q("SELECT toDate(timestamp) as d, asset_class, sum(notional) as vol FROM fills FINAL GROUP BY d, asset_class ORDER BY d");
+  var dates = [...new Set(daily.map(function(r){return r.d}))];
+  var classes = ['CRYPTO','COMMODITY','EQUITY','FOREX','HIP3','TRADFI_OTHER'];
+  var seriesMap = {};
+  classes.forEach(function(c){ seriesMap[c] = {}; });
+  daily.forEach(function(r){ if(seriesMap[r.asset_class]) seriesMap[r.asset_class][r.d] = +r.vol; });
+  var dailySeries = classes.filter(function(c){ return Object.keys(seriesMap[c]).length > 0; }).map(function(c){
+    return {
+      name:c, type:'bar', stack:'vol', barMaxWidth:8,
+      itemStyle:{color:CLASS_COLORS[c]},
+      data:dates.map(function(d){return seriesMap[c][d]||0;})
+    };
+  });
+  echarts.init(document.getElementById('c-daily')).setOption(Object.assign(termOpts(), {
+    legend:{show:true,top:0,right:8,textStyle:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'},itemWidth:10,itemHeight:8},
+    grid:{left:56,right:8,top:20,bottom:24},
+    xAxis:{type:'category',data:dates,axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace',rotate:0,formatter:function(v){return v.slice(5)}}},
+    yAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace',formatter:function(v){return '$'+fmt(v)}},splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}}},
+    tooltip:{trigger:'axis',formatter:function(ps){var h=ps[0].name+'<br>';ps.forEach(function(p){if(p.value>0)h+=p.marker+' '+p.seriesName+': $'+fmt(p.value)+'<br>';});return h;}},
+    series:dailySeries
+  }));
+
+  // 2. Asset class treemap (fill counts)
+  var breakdown = await q("SELECT asset_class, count() as cnt FROM fills FINAL GROUP BY asset_class ORDER BY cnt DESC");
+  var treeData = breakdown.map(function(r){
+    return {name:r.asset_class, value:+r.cnt, itemStyle:{color:CLASS_COLORS[r.asset_class]||'#333'}};
+  });
+  echarts.init(document.getElementById('c-treemap')).setOption({
+    backgroundColor:'transparent', animation:false,
+    tooltip:{backgroundColor:'#1a1a1a',borderColor:'#333',textStyle:{color:'#ccc',fontSize:10,fontFamily:'Consolas,monospace'},padding:[4,8],formatter:function(p){return p.name+': '+fmt(p.value)+' fills';}},
+    series:[{type:'treemap',data:treeData,roam:false,nodeClick:false,breadcrumb:{show:false},
+      label:{color:'#ccc',fontSize:11,fontFamily:'Consolas,monospace',formatter:function(p){return p.name+'\n'+fmt(p.value);}},
+      itemStyle:{borderColor:'#000',borderWidth:1,gapWidth:1}}]
+  });
+
+  // 3. Top non-crypto markets (horizontal bar)
+  var topMkts = await q("SELECT sub_class, sum(notional) as vol FROM fills FINAL WHERE asset_class != 'CRYPTO' AND asset_class != 'HIP3' GROUP BY sub_class ORDER BY vol DESC LIMIT 12");
+  var mkNames = topMkts.map(function(r){return r.sub_class}).reverse();
+  var mkVols = topMkts.map(function(r){return +r.vol}).reverse();
+  echarts.init(document.getElementById('c-top-markets')).setOption(Object.assign(termOpts(), {
+    grid:{left:60,right:50,top:4,bottom:16},
+    xAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace',formatter:function(v){return '$'+fmt(v)}},splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}}},
+    yAxis:{type:'category',data:mkNames,axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#ccc',fontSize:9,fontFamily:'Consolas,monospace'}},
+    series:[{type:'bar',data:mkVols,barMaxWidth:10,itemStyle:{color:'#8B6914'},
+      label:{show:true,position:'right',color:'#666',fontSize:9,fontFamily:'Consolas,monospace',formatter:function(p){return '$'+fmt(p.value)}}}]
+  }));
+
+  // 4. TradFi share % over time (weekly)
+  var ratio = await q("SELECT toMonday(toDate(timestamp)) as w, countIf(asset_class != 'CRYPTO' AND asset_class != 'HIP3') as tradfi, count() as total FROM fills FINAL GROUP BY w HAVING total > 100 ORDER BY w");
+  var weeks = ratio.map(function(r){return r.w});
+  var pcts = ratio.map(function(r){return ((+r.tradfi/+r.total)*100);});
+  echarts.init(document.getElementById('c-ratio')).setOption(Object.assign(termOpts(), {
+    grid:{left:40,right:8,top:8,bottom:24},
+    xAxis:{type:'category',data:weeks,axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace',formatter:function(v){return v.slice(5)}}},
+    yAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace',formatter:function(v){return v+'%'}},splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}},min:0},
+    tooltip:{trigger:'axis',formatter:function(ps){return ps[0].name+'<br>TradFi share: '+ps[0].value.toFixed(1)+'%';}},
+    series:[{type:'line',data:pcts,lineStyle:{width:1.5,color:'#8B6914'},showSymbol:false,areaStyle:{opacity:0.08,color:'#8B6914'},itemStyle:{color:'#8B6914'}}]
+  }));
+
+  // 5. Top TradFi traders by PnL
+  var topT = await q("SELECT user, sum(closed_pnl) as pnl, count() as cnt FROM fills FINAL WHERE asset_class != 'CRYPTO' AND asset_class != 'HIP3' GROUP BY user ORDER BY abs(pnl) DESC LIMIT 10");
+  var tNames = topT.map(function(r){return '0x'+r.user.slice(2,6)+'..'+r.user.slice(-4)}).reverse();
+  var tPnls = topT.map(function(r){return +r.pnl}).reverse();
+  echarts.init(document.getElementById('c-top-traders')).setOption(Object.assign(termOpts(), {
+    grid:{left:72,right:50,top:4,bottom:16},
+    xAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace',formatter:function(v){return '$'+fmt(Math.abs(v))}},splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}}},
+    yAxis:{type:'category',data:tNames,axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#ccc',fontSize:9,fontFamily:'Consolas,monospace'}},
+    series:[{type:'bar',data:tPnls.map(function(v){return {value:v,itemStyle:{color:v>=0?'#3D7A6B':'#8B3A3A'}}}),barMaxWidth:10,
+      label:{show:true,position:'right',color:'#666',fontSize:9,fontFamily:'Consolas,monospace',formatter:function(p){return (p.value>=0?'+':'-')+'$'+fmt(Math.abs(p.value))}}}]
+  }));
+
+  window.__DASHBOARD_READY__ = true;
+}
+
+init().catch(function(e){console.error(e);});
+</script>
+</body>
+</html>

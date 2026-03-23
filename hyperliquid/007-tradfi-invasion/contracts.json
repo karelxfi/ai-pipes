@@ -1,0 +1,4 @@
+{
+  "note": "Hyperliquid is a standalone L1 — no EVM contract addresses. Trading happens via the native Hyperliquid L1 protocol, not smart contracts.",
+  "deployments": {}
+}
