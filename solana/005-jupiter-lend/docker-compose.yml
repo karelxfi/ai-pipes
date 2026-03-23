@@ -1,0 +1,20 @@
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    ports:
+      - "8123:8123"
+    environment:
+      CLICKHOUSE_DB: jupiter_lend
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: password
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+      - ./clickhouse-cors.xml:/etc/clickhouse-server/config.d/cors.xml:ro
+    healthcheck:
+      test: ["CMD", "clickhouse-client", "--query", "SELECT 1"]
+      interval: 3s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  clickhouse-data:

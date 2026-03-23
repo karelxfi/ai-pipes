@@ -1,0 +1,27 @@
+{
+  "name": "005-jupiter-lend",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "start": "tsx src/index.ts",
+    "build": "tsup src/index.ts --format esm --dts",
+    "validate": "tsx validate.ts"
+  },
+  "dependencies": {
+    "@clickhouse/client": "^1.14.0",
+    "@subsquid/borsh": "^0.3.0",
+    "@subsquid/pipes": "1.0.0-alpha.1",
+    "better-sqlite3": "^12.4.5",
+    "dotenv": "^16.4.5",
+    "zod": "^4.3.4"
+  },
+  "devDependencies": {
+    "@subsquid/solana-typegen": "^0.9.1",
+    "@types/node": "^22.14.1",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.2"
+  }
+}

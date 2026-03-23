@@ -327,9 +327,9 @@
       "chains": [
         "Solana"
       ],
-      "angle": null,
+      "angle": "Liquidity operations \u2014 supply, borrow, withdraw, payback via unified operate instruction",
       "directory": "solana/005-jupiter-lend",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Fluid Lending",

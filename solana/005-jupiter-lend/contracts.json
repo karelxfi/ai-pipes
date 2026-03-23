@@ -1,0 +1,13 @@
+{
+  "deployments": {
+    "solana": {
+      "contracts": {
+        "liquidityProgram": { "address": "jupeiUmn818Jg1ekPURTpr4mFo29p46vygyykFJ3wZC", "verified": true },
+        "lendingProgram": { "address": "jup3YeL8QhtSx1e253b2FDvsMNC87fDrgQZivbrndc9", "verified": true },
+        "vaultsProgram": { "address": "jupr81YtYssSyPt8jbnGuiWon5f6x9TcDEFxYe3Bdzi", "verified": true }
+      },
+      "source": "jupiter-lend-github",
+      "sourceUrl": "https://github.com/jup-ag/jupiter-lend"
+    }
+  }
+}
