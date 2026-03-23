@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>HYPERLIQUID OIL CRISIS TRACKER</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Consolas', 'SF Mono', 'Source Code Pro', 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: #000000;
+    color: #cccccc;
+    width: 1200px;
+    height: 675px;
+    overflow: hidden;
+    line-height: 1.3;
+  }
+
+  .root {
+    display: flex;
+    flex-direction: column;
+    width: 1200px;
+    height: 675px;
+    gap: 0;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    border-bottom: 1px solid #1a1a1a;
+    background: #0a0a0a;
+    flex-shrink: 0;
+  }
+
+  .header-left .title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #4A7AB5;
+    font-weight: normal;
+  }
+
+  .header-left .subtitle {
+    font-size: 9px;
+    color: #666;
+    margin-top: 2px;
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 0;
+  }
+
+  .stat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding: 2px 12px;
+    border-left: 1px solid #1a1a1a;
+  }
+
+  .stat-card:last-child { padding-right: 0; }
+
+  .stat-value {
+    font-size: 16px;
+    font-weight: normal;
+    font-feature-settings: 'tnum';
+    white-space: nowrap;
+  }
+
+  .stat-value.blue  { color: #4A7AB5; }
+  .stat-value.teal  { color: #3D7A6B; }
+  .stat-value.white { color: #fff; }
+  .stat-value.dim   { color: #ccc; font-size: 11px; }
+
+  .stat-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    color: #666;
+    letter-spacing: 0.5px;
+    margin-top: 1px;
+  }
+
+  /* ── GRID ── */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    flex: 1;
+    gap: 0;
+  }
+
+  .panel {
+    border: 1px solid #1a1a1a;
+    border-radius: 0;
+    padding: 8px;
+    background: #0a0a0a;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    /* collapse double borders */
+    margin: 0;
+  }
+
+  /* remove double border between panels */
+  .panel:nth-child(2) { border-left: none; }
+  .panel:nth-child(3) { border-top: none; }
+  .panel:nth-child(4) { border-left: none; border-top: none; }
+
+  .panel-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #666;
+    flex-shrink: 0;
+    margin-bottom: 4px;
+  }
+
+  .chart-container {
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    border-top: 1px solid #1a1a1a;
+    background: #0a0a0a;
+    padding: 3px 10px;
+    font-size: 9px;
+    color: #666;
+    flex-shrink: 0;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="root">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="title">HYPERLIQUID OIL CRISIS TRACKER</div>
+      <div class="subtitle">Geopolitical trading on a DEX — WTI crude, gold &amp; silver perpetual futures</div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-value blue" id="stat-fills">—</div>
+        <div class="stat-label">Total Fills</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value teal" id="stat-volume">—</div>
+        <div class="stat-label">Notional Volume</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value white" id="stat-traders">—</div>
+        <div class="stat-label">Unique Traders</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value dim" id="stat-dates">—</div>
+        <div class="stat-label">Date Range</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2x2 GRID -->
+  <div class="grid">
+    <!-- Panel 1: Daily Volume by Asset -->
+    <div class="panel">
+      <div class="panel-title">Daily Volume by Asset</div>
+      <div class="chart-container" id="chart-volume"></div>
+    </div>
+
+    <!-- Panel 2: Oil Price Tracker -->
+    <div class="panel">
+      <div class="panel-title">WTI Crude Oil — Avg Fill Price</div>
+      <div class="chart-container" id="chart-price"></div>
+    </div>
+
+    <!-- Panel 3: Long/Short Imbalance -->
+    <div class="panel">
+      <div class="panel-title">Oil Long/Short Imbalance</div>
+      <div class="chart-container" id="chart-ls"></div>
+    </div>
+
+    <!-- Panel 4: Top Oil Traders -->
+    <div class="panel">
+      <div class="panel-title">Top Oil Traders by Volume</div>
+      <div class="chart-container" id="chart-traders"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    Built with ai-pipes + SQD Pipes SDK | github.com/karelxfi | x.com/karelxfi
+  </div>
+
+</div>
+
+<script>
+'use strict';
+
+var CH = 'http://localhost:8123/?user=default&password=password&database=hl_oil_crisis';
+
+function fmt(n) {
+  if (n == null || isNaN(n)) return '—';
+  if (Math.abs(n) >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B';
+  if (Math.abs(n) >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
+  if (Math.abs(n) >= 1e3) return '$' + (n / 1e3).toFixed(1) + 'K';
+  return '$' + n.toFixed(0);
+}
+
+function fmtY(n) {
+  if (Math.abs(n) >= 1e9) return (n / 1e9).toFixed(1) + 'B';
+  if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(0) + 'M';
+  if (Math.abs(n) >= 1e3) return (n / 1e3).toFixed(0) + 'K';
+  return n.toFixed(0);
+}
+
+function truncAddr(addr) {
+  if (!addr || addr.length < 10) return addr;
+  return addr.slice(0, 6) + '..' + addr.slice(-4);
+}
+
+function axisX() {
+  return {
+    axisLine: { show: false },
+    axisTick: { show: false },
+    axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, SF Mono, monospace' },
+    splitLine: { show: false }
+  };
+}
+
+function axisY() {
+  return {
+    axisLine: { show: false },
+    axisTick: { show: false },
+    axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, SF Mono, monospace' },
+    splitLine: { lineStyle: { color: '#1a1a1a', type: 'dashed' } }
+  };
+}
+
+function baseOpts() {
+  return {
+    backgroundColor: 'transparent',
+    textStyle: { color: '#666', fontFamily: 'Consolas, SF Mono, Source Code Pro, monospace' },
+    tooltip: {
+      backgroundColor: '#1a1a1a',
+      borderColor: '#333',
+      textStyle: { color: '#ccc', fontSize: 10, fontFamily: 'Consolas, monospace' },
+      padding: [4, 8]
+    },
+    animation: false
+  };
+}
+
+async function query(sql) {
+  var url = CH + '&query=' + encodeURIComponent(sql + ' FORMAT JSON');
+  var r = await fetch(url);
+  if (!r.ok) throw new Error('CH error ' + r.status);
+  var j = await r.json();
+  return j.data;
+}
+
+/* ── HEADER STATS ── */
+async function loadStats() {
+  var rows = await query(
+    'SELECT count() AS fills, sum(notional) AS vol, uniq(user) AS traders, ' +
+    'min(toDate(timestamp)) AS d_min, max(toDate(timestamp)) AS d_max FROM fills'
+  );
+  if (!rows.length) return;
+  var r = rows[0];
+  document.getElementById('stat-fills').textContent = Number(r.fills).toLocaleString();
+  document.getElementById('stat-volume').textContent = fmt(Number(r.vol));
+  document.getElementById('stat-traders').textContent = Number(r.traders).toLocaleString();
+  document.getElementById('stat-dates').textContent = (r.d_min || '?') + ' → ' + (r.d_max || '?');
+}
+
+/* ── PANEL 1: DAILY VOLUME BY ASSET ── */
+async function loadVolume() {
+  var rows = await query(
+    'SELECT toDate(timestamp) AS d, asset_class, sum(notional) AS vol ' +
+    'FROM fills GROUP BY d, asset_class ORDER BY d'
+  );
+
+  var datesSet = {};
+  var byClass = { OIL: {}, GOLD: {}, SILVER: {} };
+
+  rows.forEach(function(r) {
+    datesSet[r.d] = 1;
+    if (byClass[r.asset_class]) byClass[r.asset_class][r.d] = Number(r.vol);
+  });
+
+  var dates = Object.keys(datesSet).sort();
+
+  var mkSeries = function(cls, color) {
+    return {
+      name: cls,
+      type: 'bar',
+      stack: 'total',
+      data: dates.map(function(d) { return byClass[cls][d] || 0; }),
+      itemStyle: { color: color },
+      barMaxWidth: 12
+    };
+  };
+
+  var chart = echarts.init(document.getElementById('chart-volume'));
+  chart.setOption(Object.assign(baseOpts(), {
+    grid: { left: 44, right: 8, top: 8, bottom: 24 },
+    legend: {
+      data: ['OIL', 'GOLD', 'SILVER'],
+      right: 8, top: 0,
+      textStyle: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' },
+      icon: 'rect', itemWidth: 8, itemHeight: 8
+    },
+    xAxis: Object.assign(axisX(), { type: 'category', data: dates, axisLabel: { color: '#666', fontSize: 8, rotate: 30, fontFamily: 'Consolas, monospace' } }),
+    yAxis: Object.assign(axisY(), {
+      axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace',
+        formatter: function(v) { return fmtY(v); } }
+    }),
+    series: [
+      mkSeries('OIL', '#2B4F7E'),
+      mkSeries('GOLD', '#D4A017'),
+      mkSeries('SILVER', '#8B8B8B')
+    ],
+    tooltip: Object.assign(baseOpts().tooltip, {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      formatter: function(params) {
+        var s = '<span style="color:#ccc">' + params[0].axisValue + '</span><br/>';
+        params.forEach(function(p) {
+          s += p.marker + ' ' + p.seriesName + ': ' + fmt(p.value) + '<br/>';
+        });
+        return s;
+      }
+    })
+  }));
+}
+
+/* ── PANEL 2: OIL PRICE ── */
+async function loadPrice() {
+  var rows = await query(
+    'SELECT toDate(timestamp) AS d, avg(px) AS avg_px ' +
+    'FROM fills WHERE asset_class = \'OIL\' GROUP BY d ORDER BY d'
+  );
+
+  var dates = rows.map(function(r) { return r.d; });
+  var prices = rows.map(function(r) { return Number(r.avg_px).toFixed(2); });
+
+  var chart = echarts.init(document.getElementById('chart-price'));
+  chart.setOption(Object.assign(baseOpts(), {
+    grid: { left: 52, right: 8, top: 8, bottom: 24 },
+    xAxis: Object.assign(axisX(), { type: 'category', data: dates, axisLabel: { color: '#666', fontSize: 8, rotate: 30, fontFamily: 'Consolas, monospace' } }),
+    yAxis: Object.assign(axisY(), {
+      scale: true,
+      axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace',
+        formatter: function(v) { return '$' + Number(v).toFixed(0); } }
+    }),
+    series: [{
+      type: 'line',
+      data: prices,
+      lineStyle: { color: '#2B4F7E', width: 1.5 },
+      itemStyle: { color: '#2B4F7E' },
+      showSymbol: false,
+      areaStyle: { color: '#2B4F7E', opacity: 0.08 }
+    }],
+    tooltip: Object.assign(baseOpts().tooltip, {
+      trigger: 'axis',
+      formatter: function(params) {
+        return '<span style="color:#ccc">' + params[0].axisValue + '</span><br/>Avg Price: $' + Number(params[0].value).toFixed(2);
+      }
+    })
+  }));
+}
+
+/* ── PANEL 3: LONG/SHORT IMBALANCE ── */
+async function loadImbalance() {
+  var rows = await query(
+    'SELECT toDate(timestamp) AS d, ' +
+    'toInt64(countIf(dir = \'Open Long\')) - toInt64(countIf(dir = \'Open Short\')) AS net ' +
+    'FROM fills WHERE asset_class = \'OIL\' GROUP BY d ORDER BY d'
+  );
+
+  var dates = rows.map(function(r) { return r.d; });
+  var net   = rows.map(function(r) { return Number(r.net); });
+
+  var chart = echarts.init(document.getElementById('chart-ls'));
+  chart.setOption(Object.assign(baseOpts(), {
+    grid: { left: 44, right: 8, top: 8, bottom: 24 },
+    xAxis: Object.assign(axisX(), { type: 'category', data: dates, axisLabel: { color: '#666', fontSize: 8, rotate: 30, fontFamily: 'Consolas, monospace' } }),
+    yAxis: Object.assign(axisY(), {
+      axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' }
+    }),
+    visualMap: {
+      show: false,
+      type: 'piecewise',
+      pieces: [
+        { min: 0, color: '#3D7A6B' },
+        { max: 0, color: '#8B3A3A' }
+      ]
+    },
+    series: [{
+      type: 'bar',
+      data: net,
+      barMaxWidth: 12,
+      itemStyle: { color: '#3D7A6B' }
+    }],
+    tooltip: Object.assign(baseOpts().tooltip, {
+      trigger: 'axis',
+      formatter: function(params) {
+        var v = Number(params[0].value);
+        var label = v >= 0 ? 'Net Long' : 'Net Short';
+        var color = v >= 0 ? '#3D7A6B' : '#8B3A3A';
+        return '<span style="color:#ccc">' + params[0].axisValue + '</span><br/>' +
+               '<span style="color:' + color + '">' + label + ': ' + v + '</span>';
+      }
+    })
+  }));
+}
+
+/* ── PANEL 4: TOP TRADERS ── */
+async function loadTraders() {
+  var rows = await query(
+    'SELECT user, sum(notional) AS vol FROM fills WHERE coin = \'xyz:CL\' ' +
+    'GROUP BY user ORDER BY vol DESC LIMIT 10'
+  );
+
+  var labels = rows.map(function(r) { return truncAddr(r.user); });
+  var vols   = rows.map(function(r) { return Number(r.vol); });
+
+  // reverse for horizontal bar (ECharts renders bottom→top)
+  labels = labels.reverse();
+  vols   = vols.reverse();
+
+  var chart = echarts.init(document.getElementById('chart-traders'));
+  chart.setOption(Object.assign(baseOpts(), {
+    grid: { left: 60, right: 70, top: 4, bottom: 4 },
+    xAxis: Object.assign(axisX(), {
+      type: 'value',
+      axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace',
+        formatter: function(v) { return fmtY(v); } },
+      splitLine: { lineStyle: { color: '#1a1a1a', type: 'dashed' } }
+    }),
+    yAxis: Object.assign(axisY(), {
+      type: 'category',
+      data: labels,
+      axisLabel: { color: '#888', fontSize: 9, fontFamily: 'Consolas, monospace' },
+      splitLine: { show: false }
+    }),
+    series: [{
+      type: 'bar',
+      data: vols,
+      itemStyle: { color: '#2B4F7E' },
+      barMaxWidth: 14,
+      label: {
+        show: true,
+        position: 'right',
+        color: '#888',
+        fontSize: 9,
+        fontFamily: 'Consolas, monospace',
+        formatter: function(params) { return fmt(params.value); }
+      }
+    }],
+    tooltip: Object.assign(baseOpts().tooltip, {
+      trigger: 'axis',
+      formatter: function(params) {
+        return '<span style="color:#ccc">' + params[0].name + '</span><br/>Volume: ' + fmt(params[0].value);
+      }
+    })
+  }));
+}
+
+/* ── BOOT ── */
+var pending = 5;
+function done() {
+  pending--;
+  if (pending === 0) {
+    window.__DASHBOARD_READY__ = true;
+  }
+}
+
+Promise.all([
+  loadStats().then(done).catch(function(e) { console.error('stats', e); done(); }),
+  loadVolume().then(done).catch(function(e) { console.error('volume', e); done(); }),
+  loadPrice().then(done).catch(function(e) { console.error('price', e); done(); }),
+  loadImbalance().then(done).catch(function(e) { console.error('ls', e); done(); }),
+  loadTraders().then(done).catch(function(e) { console.error('traders', e); done(); })
+]);
+</script>
+</body>
+</html>
