@@ -1,0 +1,14 @@
+{
+  "deployments": {
+    "solana": {
+      "contracts": {
+        "dsolMint": { "address": "Dso1bDeDjCQxTrWHqUUi63oBvV7Mdm6WaobLbQ7gnPQ", "deploymentBlock": null, "verified": true },
+        "dsolStakePool": { "address": "9mhGNSPArRMHpLDMSmxAvuoizBqtBGqYdT8WGuqgxNdn", "deploymentBlock": null, "verified": true },
+        "splTokenProgram": { "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", "deploymentBlock": null, "verified": true },
+        "splStakePoolProgram": { "address": "SPoo1Ku8WFXoNDMHPsrGSTSG1Y47rzgn41SLUNakuHy", "deploymentBlock": null, "verified": true }
+      },
+      "source": "drift-protocol",
+      "sourceUrl": "https://docs.drift.trade/"
+    }
+  }
+}

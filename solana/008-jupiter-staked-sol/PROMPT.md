@@ -1,0 +1,1 @@
+Create a Solana indexer for Jupiter Staked SOL (jupSOL) tracking mint and burn operations via the SPL Token program. The jupSOL mint is `jupSoLaHXQiZZTSfEWMTRRgpnyFm8f6sZdosWBjx93v`. Track MintTo/MintToChecked (deposits) and Burn/BurnChecked (withdrawals) to show staking flow, top depositors, cumulative net flow, and daily operations. Bloomberg-terminal dashboard with dark theme.

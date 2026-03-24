@@ -411,9 +411,9 @@
       "chains": [
         "Solana"
       ],
-      "angle": null,
+      "angle": "jupSOL staking flow \u2014 deposits vs withdrawals via token mint/burn tracking",
       "directory": "solana/008-jupiter-staked-sol",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Lista Lending",
@@ -673,9 +673,9 @@
       "chains": [
         "Solana"
       ],
-      "angle": null,
+      "angle": "Perp order flow \u2014 fills, placements, cancels, liquidations on Drift v2",
       "directory": "solana/009-drift-trade",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Coinbase Wrapped Staked ETH",
@@ -778,9 +778,9 @@
       "chains": [
         "Solana"
       ],
-      "angle": null,
+      "angle": "Staking lifecycle \u2014 deposits, liquid unstakes, delayed unstakes, claims",
       "directory": "solana/010-marinade-liquid-staking",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Drift Staked SOL",
@@ -791,9 +791,9 @@
       "chains": [
         "Solana"
       ],
-      "angle": null,
+      "angle": "dSOL staking flow \u2014 deposits vs withdrawals via token mint/burn",
       "directory": "solana/011-drift-staked-sol",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Benqi Staked Avax",
@@ -817,9 +817,9 @@
       "chains": [
         "Solana"
       ],
-      "angle": null,
+      "angle": "CLMM vault activity \u2014 invests, deposits, withdrawals, rebalances, fee collection",
       "directory": "solana/012-kamino-liquidity",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Extended",

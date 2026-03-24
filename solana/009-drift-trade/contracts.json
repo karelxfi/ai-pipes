@@ -1,0 +1,14 @@
+{
+  "deployments": {
+    "solana": {
+      "contracts": {
+        "driftV2Program": { "address": "dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH", "deploymentBlock": null, "verified": true },
+        "vaultsProgram": { "address": "vAuLTsyrvSfZRuRB3XgvkPwNGgYSs9YRYymVebLKoxR", "deploymentBlock": null, "verified": true },
+        "driftToken": { "address": "DriFtupJYLTosbwoN8koMbEYSx54aFAVLddWsbksjwg7", "deploymentBlock": null, "verified": true },
+        "driftState": { "address": "5zpq7DvB6UdFFvpmBPspGPNfUGoBRRCE2HHg5u3gxcsN", "deploymentBlock": null, "verified": true }
+      },
+      "source": "drift-github",
+      "sourceUrl": "https://github.com/drift-labs/protocol-v2"
+    }
+  }
+}

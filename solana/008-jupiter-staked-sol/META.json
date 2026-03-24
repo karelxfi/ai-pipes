@@ -1,0 +1,10 @@
+{
+  "date": "2026-03-23",
+  "pipes_sdk_version": "1.0.0-alpha.1",
+  "agent_skills_version": "b5b7deb",
+  "claude_model": "claude-opus-4-6",
+  "prompt_file": "PROMPT.md",
+  "angle": "jupSOL staking flow \u2014 deposits vs withdrawals via token mint/burn tracking",
+  "runtime_status": "working",
+  "validation_status": "passed"
+}

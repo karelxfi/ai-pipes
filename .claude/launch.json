@@ -24,6 +24,36 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["http-server", "evm/039-morpho-vaults/dashboard", "-p", "8083", "-c-1"],
       "port": 8083
+    },
+    {
+      "name": "drift-trade",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["http-server", "solana/009-drift-trade/dashboard", "-p", "8084", "-c-1"],
+      "port": 8084
+    },
+    {
+      "name": "jupsol",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["http-server", "solana/008-jupiter-staked-sol/dashboard", "-p", "8085", "-c-1"],
+      "port": 8085
+    },
+    {
+      "name": "marinade",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["http-server", "solana/010-marinade-liquid-staking/dashboard", "-p", "8086", "-c-1"],
+      "port": 8086
+    },
+    {
+      "name": "dsol",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["http-server", "solana/011-drift-staked-sol/dashboard", "-p", "8087", "-c-1"],
+      "port": 8087
+    },
+    {
+      "name": "kamino",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["http-server", "solana/012-kamino-liquidity/dashboard", "-p", "8088", "-c-1"],
+      "port": 8088
     }
   ]
 }

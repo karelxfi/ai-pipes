@@ -1,0 +1,14 @@
+{
+  "deployments": {
+    "solana": {
+      "contracts": {
+        "marinadeFinance": { "address": "MarBmsSgKXdrN1egZf5sqe1TMai9K1rChYNDJgjq7aD", "deploymentBlock": null, "verified": true },
+        "msolMint": { "address": "mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So", "deploymentBlock": null, "verified": true },
+        "marinadeNativeStaking": { "address": "MarinadeNativeStakingProgram1111111111111112", "deploymentBlock": null, "verified": false },
+        "marinadeReferralProgram": { "address": "UefNb6z6EuGNoM73oDEckhPNfo8CDoRjdMAQjmS5wYg", "deploymentBlock": null, "verified": true }
+      },
+      "source": "marinade-docs",
+      "sourceUrl": "https://docs.marinade.finance/"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "009-drift-trade",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@clickhouse/client": "^1.14.0",
+    "@subsquid/pipes": "1.0.0-alpha.1",
+    "dotenv": "^16.4.5",
+    "zod": "^4.3.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.2"
+  }
+}

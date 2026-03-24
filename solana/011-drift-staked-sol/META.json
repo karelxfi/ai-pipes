@@ -1,0 +1,9 @@
+{
+  "date": "2026-03-23",
+  "pipes_sdk_version": "1.0.0-alpha.1",
+  "agent_skills_version": "latest",
+  "claude_model": "claude-opus-4-6",
+  "angle": "Track dSOL (Drift Staked SOL) mint/burn flow via SPL Token program \u2014 deposits and withdrawals into Drift liquid staking pool",
+  "runtime_status": "working",
+  "validation_status": "passed"
+}

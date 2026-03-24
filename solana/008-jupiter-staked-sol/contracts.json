@@ -1,0 +1,14 @@
+{
+  "deployments": {
+    "solana": {
+      "contracts": {
+        "stakePool": { "address": "8VpRhuxa7sUUepdY3kQiTmX9rS5vx4WgaXiAnXq4KCtr", "deploymentBlock": null, "verified": true },
+        "jupsolMint": { "address": "jupSoLaHXQiZZTSfEWMTRRgpnyFm8f6sZdosWBjx93v", "deploymentBlock": null, "verified": true },
+        "splStakePool": { "address": "SPoo1Ku8WFXoNDMHPsrGSTSG1Y47rzgn41SLUNakuHy", "deploymentBlock": null, "verified": true },
+        "splToken": { "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", "deploymentBlock": null, "verified": true }
+      },
+      "source": "solana-compass",
+      "sourceUrl": "https://solanacompass.com/stake-pools/8VpRhuxa7sUUepdY3kQiTmX9rS5vx4WgaXiAnXq4KCtr"
+    }
+  }
+}

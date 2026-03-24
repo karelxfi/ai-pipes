@@ -1,0 +1,25 @@
+{
+  "deployments": {
+    "solana": {
+      "contracts": {
+        "kliquidity": {
+          "address": "6LtLpnUFNByNXLyCoK9wA2MykKAmQNZKBdY8s47dehDc",
+          "deploymentBlock": null,
+          "verified": true
+        },
+        "klend": {
+          "address": "KLend2g3cP87ber41GFZrh2UnUjJOWnAGv5D89geMb5",
+          "deploymentBlock": null,
+          "verified": true
+        },
+        "kaminoVaults": {
+          "address": "kvauTFR8qm1dhniz6pYuBZkuene3Hfrs1VQhVRgCNrr",
+          "deploymentBlock": null,
+          "verified": true
+        }
+      },
+      "source": "kamino-docs",
+      "sourceUrl": "https://docs.kamino.finance/"
+    }
+  }
+}
