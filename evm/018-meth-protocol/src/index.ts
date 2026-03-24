@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import path from 'node:path'
 import { createClient } from '@clickhouse/client'
-import { evmPortalSource, evmDecoder } from '@subsquid/pipes/evm'
+import { evmPortalStream, evmDecoder } from '@subsquid/pipes/evm'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
 import { z } from 'zod'
 
@@ -57,7 +57,7 @@ interface MethEvent {
 }
 
 export async function main() {
-  await evmPortalSource({
+  await evmPortalStream({
     id: 'meth-protocol-staking',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
     outputs: {

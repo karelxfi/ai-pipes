@@ -4,7 +4,9 @@
   "agent_skills_version": "latest",
   "claude_model": "claude-opus-4-6",
   "prompt_file": "PROMPT.md",
-  "angle": "Strategy harvest reports across all Yearn V2 vaults — yield generation heartbeat",
+  "angle": "Strategy harvest reports across all Yearn V2 vaults \u2014 yield generation heartbeat",
   "runtime_status": "working",
-  "validation_status": "passed"
+  "validation_status": "passed",
+  "api_updated": "2026-03-24",
+  "api_notes": "Migrated to SDK 1.0 API names (evmPortalStream, solanaPortalStream, hyperliquidFillsPortalStream, solanaQuery, hyperliquidFillsQuery)"
 }

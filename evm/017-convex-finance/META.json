@@ -4,7 +4,9 @@
   "agent_skills_version": "latest",
   "claude_model": "claude-opus-4-6",
   "prompt_file": "PROMPT.md",
-  "angle": "Curve LP staking flows — deposits & withdrawals across Convex Booster pools",
+  "angle": "Curve LP staking flows \u2014 deposits & withdrawals across Convex Booster pools",
   "runtime_status": "working",
-  "validation_status": "passed"
+  "validation_status": "passed",
+  "api_updated": "2026-03-24",
+  "api_notes": "Migrated to SDK 1.0 API names (evmPortalStream, solanaPortalStream, hyperliquidFillsPortalStream, solanaQuery, hyperliquidFillsQuery)"
 }

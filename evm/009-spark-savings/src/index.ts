@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import path from 'node:path'
 import { createClient } from '@clickhouse/client'
-import { evmDecoder, evmPortalSource } from '@subsquid/pipes/evm'
+import { evmDecoder, evmPortalStream } from '@subsquid/pipes/evm'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
 import { z } from 'zod'
 // Import from sUSDS implementation ABI (has Deposit/Withdraw events)
@@ -67,7 +67,7 @@ const flows = evmDecoder({
 })
 
 export async function main() {
-  await evmPortalSource({
+  await evmPortalStream({
     id: 'spark-savings-flows',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
     outputs: { flows },

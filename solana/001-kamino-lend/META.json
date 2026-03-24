@@ -4,8 +4,10 @@
   "agent_skills_version": "latest",
   "claude_model": "claude-opus-4-6",
   "prompt_file": "PROMPT.md",
-  "angle": "Lending Activity Pulse — track deposits, borrows, and liquidations to show protocol usage patterns, growth trajectory, and risk events",
+  "angle": "Lending Activity Pulse \u2014 track deposits, borrows, and liquidations to show protocol usage patterns, growth trajectory, and risk events",
   "runtime_status": "working",
   "validation_status": "passed",
-  "notes": "First Solana indexer example. CLI init failed for SVM custom template — scaffolded manually. Uses custom transformer with d8 discriminator classification instead of full ABI decoding."
+  "notes": "First Solana indexer example. CLI init failed for SVM custom template \u2014 scaffolded manually. Uses custom transformer with d8 discriminator classification instead of full ABI decoding.",
+  "api_updated": "2026-03-24",
+  "api_notes": "Migrated to SDK 1.0 API names (evmPortalStream, solanaPortalStream, hyperliquidFillsPortalStream, solanaQuery, hyperliquidFillsQuery)"
 }

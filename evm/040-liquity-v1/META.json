@@ -4,7 +4,9 @@
   "agent_skills_version": "36314dd",
   "claude_model": "claude-opus-4-6",
   "prompt_file": "PROMPT.md",
-  "angle": "Liquity V1 trove lifecycle — opens, liquidations, redemptions on the immutable CDP protocol",
+  "angle": "Liquity V1 trove lifecycle \u2014 opens, liquidations, redemptions on the immutable CDP protocol",
   "runtime_status": "working",
-  "validation_status": "passed"
+  "validation_status": "passed",
+  "api_updated": "2026-03-24",
+  "api_notes": "Migrated to SDK 1.0 API names (evmPortalStream, solanaPortalStream, hyperliquidFillsPortalStream, solanaQuery, hyperliquidFillsQuery)"
 }

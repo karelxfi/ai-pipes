@@ -4,7 +4,9 @@
   "agent_skills_version": "latest",
   "claude_model": "claude-opus-4-6",
   "prompt_file": "PROMPT.md",
-  "angle": "slisBNB staking lifecycle — BNB deposits, unstake requests, and withdrawal claims",
+  "angle": "slisBNB staking lifecycle \u2014 BNB deposits, unstake requests, and withdrawal claims",
   "runtime_status": "working",
-  "validation_status": "passed"
+  "validation_status": "passed",
+  "api_updated": "2026-03-24",
+  "api_notes": "Migrated to SDK 1.0 API names (evmPortalStream, solanaPortalStream, hyperliquidFillsPortalStream, solanaQuery, hyperliquidFillsQuery)"
 }

@@ -4,7 +4,9 @@
   "agent_skills_version": "668a019",
   "claude_model": "claude-opus-4-6",
   "prompt_file": "PROMPT.md",
-  "angle": "Vault reward & MEV distribution — tracking per-vault harvest rewards, osETH supply dynamics, and MEV income",
+  "angle": "Vault reward & MEV distribution \u2014 tracking per-vault harvest rewards, osETH supply dynamics, and MEV income",
   "runtime_status": "working",
-  "validation_status": "passed"
+  "validation_status": "passed",
+  "api_updated": "2026-03-24",
+  "api_notes": "Migrated to SDK 1.0 API names (evmPortalStream, solanaPortalStream, hyperliquidFillsPortalStream, solanaQuery, hyperliquidFillsQuery)"
 }

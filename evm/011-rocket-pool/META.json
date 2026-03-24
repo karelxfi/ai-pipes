@@ -4,7 +4,9 @@
   "agent_skills_version": "latest",
   "claude_model": "claude-opus-4-6",
   "prompt_file": "PROMPT.md",
-  "angle": "rETH mint/burn tracker — staking deposits & withdrawals with implied exchange rate",
+  "angle": "rETH mint/burn tracker \u2014 staking deposits & withdrawals with implied exchange rate",
   "runtime_status": "working",
-  "validation_status": "passed"
+  "validation_status": "passed",
+  "api_updated": "2026-03-24",
+  "api_notes": "Migrated to SDK 1.0 API names (evmPortalStream, solanaPortalStream, hyperliquidFillsPortalStream, solanaQuery, hyperliquidFillsQuery)"
 }

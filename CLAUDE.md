@@ -163,29 +163,37 @@ When using `DateTime64(3, 'UTC')` columns, **always pass ISO strings** (not epoc
 ### evmDecoder contracts field
 `evmDecoder({ contracts: [...] })` expects **an array of address strings**: `['0xABC...']`. The object format `[{ address: ['0xABC...'] }]` is ONLY for factory patterns. Using the wrong format crashes with `contract.toLowerCase is not a function`.
 
-### Pipes SDK 1.0.0-alpha.1 API (CURRENT)
-**`pipeComposite` is REMOVED.** Decoders/query builders are now passed as `outputs` to the source function. A new `id` field is required.
+### Pipes SDK 1.0 API (CURRENT)
+**`pipeComposite` is REMOVED.** Decoders/query builders are now passed as `outputs` to the stream function. A new `id` field is required.
+
+**Function renames (old names are deprecated aliases):**
+- `evmPortalSource` → `evmPortalStream`
+- `hyperliquidFillsPortalSource` → `hyperliquidFillsPortalStream`
+- `solanaPortalSource` → `solanaPortalStream`
+- `new HyperliquidFillsQueryBuilder()` → `hyperliquidFillsQuery()`
+- `new SolanaQueryBuilder()` → `solanaQuery()`
+- `new EvmQueryBuilder()` → `evmQuery()`
 
 **EVM pattern:**
 ```ts
 const decoder = evmDecoder({ range: {...}, contracts: [...], events: {...} }).pipe(enrichEvents)
-evmPortalSource({ id: 'my-indexer', portal: '...', outputs: { decoder } })
+evmPortalStream({ id: 'my-indexer', portal: '...', outputs: { decoder } })
   .pipeTo(clickhouseTarget({...}))
 // data accessed as: data.decoder.EventName
 ```
 
 **Hyperliquid pattern:**
 ```ts
-const query = new HyperliquidFillsQueryBuilder().addRange(...).addFields(...).addFill(...)
-hyperliquidFillsPortalSource({ id: 'hl-fills', portal: '...', outputs: query })
+const query = hyperliquidFillsQuery().addRange(...).addFields(...).addFill(...)
+hyperliquidFillsPortalStream({ id: 'hl-fills', portal: '...', outputs: query })
   .pipe((blocks) => { /* blocks is Block[] directly, NOT { blocks } */ })
   .pipeTo(target)
 ```
 
 **Solana pattern:**
 ```ts
-const query = new SolanaQueryBuilder().addFields(...).addInstruction(...)
-solanaPortalSource({ id: 'sol-indexer', portal: '...', outputs: query })
+const query = solanaQuery().addFields(...).addInstruction(...)
+solanaPortalStream({ id: 'sol-indexer', portal: '...', outputs: query })
   .pipe((blocks) => { /* blocks is Block[] directly */ })
   .pipeTo(target)
 ```

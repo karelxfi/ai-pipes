@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import path from 'node:path'
 import { createClient } from '@clickhouse/client'
-import { hyperliquidFillsPortalSource, HyperliquidFillsQueryBuilder } from '@subsquid/pipes/hyperliquid'
+import { hyperliquidFillsPortalStream, hyperliquidFillsQuery } from '@subsquid/pipes/hyperliquid'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
 import { z } from 'zod'
 
@@ -26,7 +26,7 @@ function assetClass(coin: string): string {
   return 'UNKNOWN'
 }
 
-const query = new HyperliquidFillsQueryBuilder()
+const query = hyperliquidFillsQuery()
   .addRange({ from: START_BLOCK })
   .addFields({
     block: { number: true, timestamp: true },
@@ -47,7 +47,7 @@ const query = new HyperliquidFillsQueryBuilder()
   })
 
 export async function main() {
-  await hyperliquidFillsPortalSource({
+  await hyperliquidFillsPortalStream({
     id: 'hl-oil-crisis',
     portal: 'https://portal.sqd.dev/datasets/hyperliquid-fills',
     outputs: query,

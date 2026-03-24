@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import path from 'node:path'
 import { createClient } from '@clickhouse/client'
-import { evmDecoder, evmPortalSource } from '@subsquid/pipes/evm'
+import { evmDecoder, evmPortalStream } from '@subsquid/pipes/evm'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
 import { z } from 'zod'
 import { events as yearnV2Events } from './contracts/0xa258C4606Ca8206D8aA700cE2143D7db854D168c.js'
@@ -26,7 +26,7 @@ const harvests = evmDecoder({
 })
 
 export async function main() {
-  await evmPortalSource({
+  await evmPortalStream({
     id: 'yearn-v2-harvests',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
     outputs: { harvests },

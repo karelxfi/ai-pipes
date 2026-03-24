@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import path from 'node:path'
 import { createClient } from '@clickhouse/client'
-import { solanaPortalSource, SolanaQueryBuilder } from '@subsquid/pipes/solana'
+import { solanaPortalStream, solanaQuery } from '@subsquid/pipes/solana'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
 import { z } from 'zod'
 import * as perps from './abi/perpetuals/index.js'
@@ -67,7 +67,7 @@ function serializeJsonWithBigInt(obj: unknown): string {
   )
 }
 
-const query = new SolanaQueryBuilder()
+const query = solanaQuery()
   .addFields({
     block: { number: true, timestamp: true },
     transaction: { transactionIndex: true, signatures: true },
@@ -89,7 +89,7 @@ const query = new SolanaQueryBuilder()
   })
 
 export async function main() {
-  await solanaPortalSource({
+  await solanaPortalStream({
     id: 'jupiter-perps',
     portal: 'https://portal.sqd.dev/datasets/solana-mainnet',
     outputs: query,

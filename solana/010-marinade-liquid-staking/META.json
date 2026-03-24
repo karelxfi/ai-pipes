@@ -5,5 +5,7 @@
   "claude_model": "claude-opus-4-6",
   "angle": "Marinade liquid staking flow \u2014 deposit/unstake volumes, staker rankings, net flow tracking",
   "runtime_status": "working",
-  "validation_status": "passed"
+  "validation_status": "passed",
+  "api_updated": "2026-03-24",
+  "api_notes": "Migrated to SDK 1.0 API names (evmPortalStream, solanaPortalStream, hyperliquidFillsPortalStream, solanaQuery, hyperliquidFillsQuery)"
 }

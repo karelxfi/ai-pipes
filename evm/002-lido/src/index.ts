@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import path from 'node:path'
 import { createClient } from '@clickhouse/client'
-import { evmDecoder, evmPortalSource } from '@subsquid/pipes/evm'
+import { evmDecoder, evmPortalStream } from '@subsquid/pipes/evm'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
 import { z } from 'zod'
 import { events as lidoEvents } from './contracts/0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84.js'
@@ -31,7 +31,7 @@ const custom = evmDecoder({
 }).pipe(enrichEvents)
 
 export async function main() {
-  await evmPortalSource({
+  await evmPortalStream({
     id: 'lido-rebases',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
     outputs: { custom },

@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import path from 'node:path'
 import { createClient } from '@clickhouse/client'
-import { evmDecoder, evmPortalSource } from '@subsquid/pipes/evm'
+import { evmDecoder, evmPortalStream } from '@subsquid/pipes/evm'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
 import { z } from 'zod'
 // All Venus Core Pool vTokens share the same Compound V2 ABI
@@ -89,7 +89,7 @@ const actions = evmDecoder({
 })
 
 export async function main() {
-  await evmPortalSource({
+  await evmPortalStream({
     id: 'venus-core-pool-actions',
     portal: 'https://portal.sqd.dev/datasets/binance-mainnet',
     outputs: { actions },

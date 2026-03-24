@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import path from 'node:path'
 import { createClient } from '@clickhouse/client'
-import { evmDecoder, evmPortalSource } from '@subsquid/pipes/evm'
+import { evmDecoder, evmPortalStream } from '@subsquid/pipes/evm'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
 import { z } from 'zod'
 import { events as poolEvents } from './contracts/0xc6845a5c768bf8d7681249f8927877efda425baf.js'
@@ -87,7 +87,7 @@ const actions = evmDecoder({
 })
 
 export async function main() {
-  await evmPortalSource({
+  await evmPortalStream({
     id: 'aave-v2-actions',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
     outputs: { actions },

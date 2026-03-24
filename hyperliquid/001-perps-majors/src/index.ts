@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import path from 'node:path'
 import { createClient } from '@clickhouse/client'
-import { hyperliquidFillsPortalSource, HyperliquidFillsQueryBuilder } from '@subsquid/pipes/hyperliquid'
+import { hyperliquidFillsPortalStream, hyperliquidFillsQuery } from '@subsquid/pipes/hyperliquid'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
 import { z } from 'zod'
 
@@ -17,7 +17,7 @@ const env = z
 // 90 days back from current block (~928M, blocks increment ~1/sec)
 const START_BLOCK = 928763082 - 90 * 86400 // ~90 days
 
-const query = new HyperliquidFillsQueryBuilder()
+const query = hyperliquidFillsQuery()
   .addRange({ from: START_BLOCK })
   .addFields({
     block: { number: true, timestamp: true },
@@ -41,7 +41,7 @@ const query = new HyperliquidFillsQueryBuilder()
   })
 
 export async function main() {
-  await hyperliquidFillsPortalSource({
+  await hyperliquidFillsPortalStream({
     id: 'hl-perps-majors',
     portal: 'https://portal.sqd.dev/datasets/hyperliquid-fills',
     outputs: query,

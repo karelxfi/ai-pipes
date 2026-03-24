@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import path from 'node:path'
 import { createClient } from '@clickhouse/client'
-import { evmPortalSource, evmDecoder } from '@subsquid/pipes/evm'
+import { evmPortalStream, evmDecoder } from '@subsquid/pipes/evm'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
 import { z } from 'zod'
 
@@ -59,7 +59,7 @@ interface GmxEvent {
 }
 
 export async function main() {
-  await evmPortalSource({
+  await evmPortalStream({
     id: 'gmx-v2-perps',
     portal: 'https://portal.sqd.dev/datasets/arbitrum-one',
     outputs: {

@@ -4,7 +4,9 @@
   "agent_skills_version": "3b9cd3c",
   "claude_model": "claude-opus-4-6",
   "prompt_file": "PROMPT.md",
-  "angle": "Curator reallocation activity — how vault curators shift capital across Morpho Blue markets",
+  "angle": "Curator reallocation activity \u2014 how vault curators shift capital across Morpho Blue markets",
   "runtime_status": "working",
-  "validation_status": "passed"
+  "validation_status": "passed",
+  "api_updated": "2026-03-24",
+  "api_notes": "Migrated to SDK 1.0 API names (evmPortalStream, solanaPortalStream, hyperliquidFillsPortalStream, solanaQuery, hyperliquidFillsQuery)"
 }

@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import path from 'node:path'
 import { createClient } from '@clickhouse/client'
-import { evmDecoder, evmPortalSource } from '@subsquid/pipes/evm'
+import { evmDecoder, evmPortalStream } from '@subsquid/pipes/evm'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
 import { z } from 'zod'
 import { events as dogEvents } from './contracts/0x135954d155898D42C90D2a57824C690e0c7BEf1B.js'
@@ -31,7 +31,7 @@ const custom = evmDecoder({
 }).pipe(enrichEvents)
 
 export async function main() {
-  await evmPortalSource({
+  await evmPortalStream({
     id: 'sky-lending-barks',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
     outputs: { custom },

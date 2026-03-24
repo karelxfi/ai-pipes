@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import path from 'node:path'
 import { createClient } from '@clickhouse/client'
-import { evmDecoder, evmPortalSource } from '@subsquid/pipes/evm'
+import { evmDecoder, evmPortalStream } from '@subsquid/pipes/evm'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
 import { z } from 'zod'
 import { events as rethEvents } from './contracts/0xae78736Cd615f374D3085123A210448E74Fc6393.js'
@@ -54,7 +54,7 @@ const flows = evmDecoder({
 })
 
 export async function main() {
-  await evmPortalSource({
+  await evmPortalStream({
     id: 'rocket-pool-flows',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
     outputs: { flows },

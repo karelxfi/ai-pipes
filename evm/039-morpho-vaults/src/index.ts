@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import path from 'node:path'
 import { createClient } from '@clickhouse/client'
-import { evmDecoder, evmPortalSource } from '@subsquid/pipes/evm'
+import { evmDecoder, evmPortalStream } from '@subsquid/pipes/evm'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
 import { z } from 'zod'
 import { events as metaMorphoEvents } from './contracts/0x833adaef212c5cd3f78906b44bbfb18258f238f0.js'
@@ -50,7 +50,7 @@ interface ReallocationRow {
 }
 
 export async function main() {
-  await evmPortalSource({
+  await evmPortalStream({
     id: 'metamorpho-reallocations',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
     outputs: { reallocations },

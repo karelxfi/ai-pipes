@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import path from 'node:path'
 import { createClient } from '@clickhouse/client'
-import { evmPortalSource, evmDecoder } from '@subsquid/pipes/evm'
+import { evmPortalStream, evmDecoder } from '@subsquid/pipes/evm'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
 import { z } from 'zod'
 import { events as troveManagerEvents } from './contracts/0xA39739EF8b0231DbFA0DcdA07d7e29faAbCf4bb2.js'
@@ -117,7 +117,7 @@ const troveDecoder = evmDecoder({
 })
 
 export async function main() {
-  await evmPortalSource({
+  await evmPortalStream({
     id: 'liquity-v1-troves',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
     outputs: { troveDecoder },

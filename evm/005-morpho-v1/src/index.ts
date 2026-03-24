@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import path from 'node:path'
 import { createClient } from '@clickhouse/client'
-import { evmDecoder, evmPortalSource } from '@subsquid/pipes/evm'
+import { evmDecoder, evmPortalStream } from '@subsquid/pipes/evm'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
 import { z } from 'zod'
 import { events as morphoBlueEvents } from './contracts/0xBBBBBbbBBb9cc5e90e3b3Af64bDAF62C37EEFFCb.js'
@@ -33,7 +33,7 @@ const custom = evmDecoder({
 }).pipe(enrichEvents)
 
 export async function main() {
-  await evmPortalSource({
+  await evmPortalStream({
     id: 'morpho-blue-lending',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
     outputs: { custom },

@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import path from 'node:path'
 import { createClient } from '@clickhouse/client'
-import { evmDecoder, evmPortalSource } from '@subsquid/pipes/evm'
+import { evmDecoder, evmPortalStream } from '@subsquid/pipes/evm'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
 import { z } from 'zod'
 import { events as routerEvents } from './contracts/0x888888888889758F76e7103c6CbF23ABbF58F946.js'
@@ -69,7 +69,7 @@ const swaps = evmDecoder({
 })
 
 export async function main() {
-  await evmPortalSource({
+  await evmPortalStream({
     id: 'pendle-swaps',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
     outputs: { swaps },

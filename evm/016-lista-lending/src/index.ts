@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import path from 'node:path'
 import { createClient } from '@clickhouse/client'
-import { evmPortalSource, evmDecoder } from '@subsquid/pipes/evm'
+import { evmPortalStream, evmDecoder } from '@subsquid/pipes/evm'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
 import { z } from 'zod'
 
@@ -65,7 +65,7 @@ function toIso(d: any): string {
 }
 
 export async function main() {
-  await evmPortalSource({
+  await evmPortalStream({
     id: 'lista-lending-moolah',
     portal: 'https://portal.sqd.dev/datasets/binance-mainnet',
     outputs: {

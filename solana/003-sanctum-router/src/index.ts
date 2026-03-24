@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import path from 'node:path'
 import { createClient } from '@clickhouse/client'
-import { solanaPortalSource, SolanaQueryBuilder } from '@subsquid/pipes/solana'
+import { solanaPortalStream, solanaQuery } from '@subsquid/pipes/solana'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
 import { z } from 'zod'
 
@@ -92,7 +92,7 @@ function extractLstMint(programId: string, accounts: string[]): string | null {
 }
 
 // Build the query that fetches Sanctum instructions filtered by program IDs
-const query = new SolanaQueryBuilder()
+const query = solanaQuery()
   .addFields({
     block: { number: true, timestamp: true },
     transaction: { transactionIndex: true, signatures: true, accountKeys: true },
@@ -114,7 +114,7 @@ const query = new SolanaQueryBuilder()
   })
 
 export async function main() {
-  await solanaPortalSource({
+  await solanaPortalStream({
     id: 'sanctum-router',
     portal: 'https://portal.sqd.dev/datasets/solana-mainnet',
     outputs: query,

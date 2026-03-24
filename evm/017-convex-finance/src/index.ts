@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import path from 'node:path'
 import { createClient } from '@clickhouse/client'
-import { evmDecoder, evmPortalSource } from '@subsquid/pipes/evm'
+import { evmDecoder, evmPortalStream } from '@subsquid/pipes/evm'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
 import { z } from 'zod'
 import { events as boosterEvents } from './contracts/0xF403C135812408BFbE8713b5A23a04b3D48AAE31.js'
@@ -52,7 +52,7 @@ const staking = evmDecoder({
 })
 
 export async function main() {
-  await evmPortalSource({
+  await evmPortalStream({
     id: 'convex-finance-staking',
     portal: 'https://portal.sqd.dev/datasets/ethereum-mainnet',
     outputs: { staking },
