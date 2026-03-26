@@ -6,9 +6,10 @@ CREATE TABLE IF NOT EXISTS pendle_swaps (
   receiver FixedString(42),
   block_number UInt32,
   tx_hash String,
+  tx_index UInt16,
   log_index UInt16,
   timestamp DateTime CODEC (DoubleDelta, ZSTD),
   sign Int8 DEFAULT toInt8(1)
 )
 ENGINE = CollapsingMergeTree(sign) PARTITION BY toYYYYMM(timestamp)
-ORDER BY (swap_type, market, block_number, tx_hash, log_index);
+ORDER BY (market, timestamp, tx_index, log_index);

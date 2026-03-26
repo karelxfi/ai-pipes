@@ -29,7 +29,7 @@ async function main() {
 
   const columns = await query("SELECT name FROM system.columns WHERE database = currentDatabase() AND table = 'lista_staking_events'")
   const colNames = columns.map((c: any) => c.name)
-  const expected = ['block_number', 'timestamp', 'tx_hash', 'event_type', 'user_address', 'amount', 'withdraw_idx', 'sign']
+  const expected = ['block_number', 'timestamp', 'tx_hash', 'tx_index', 'log_index', 'event_type', 'user_address', 'amount', 'withdraw_idx', 'sign']
   const missing = expected.filter(e => !colNames.includes(e))
   if (missing.length === 0) pass(`Schema OK: ${expected.length} expected columns`)
   else fail(`Missing columns: ${missing.join(', ')}`)

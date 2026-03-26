@@ -2,6 +2,7 @@ CREATE TABLE IF NOT EXISTS trove_events (
     block_number UInt64,
     timestamp DateTime64(3, 'UTC'),
     tx_hash String,
+    tx_index UInt32,
     log_index UInt32,
     event_type LowCardinality(String),
     borrower String,
@@ -10,5 +11,5 @@ CREATE TABLE IF NOT EXISTS trove_events (
     operation LowCardinality(String),
     sign Int8 DEFAULT 1
 ) ENGINE = ReplacingMergeTree(sign)
-ORDER BY (event_type, block_number, tx_hash, log_index)
+ORDER BY (timestamp, tx_index, log_index)
 PARTITION BY toYYYYMM(timestamp)

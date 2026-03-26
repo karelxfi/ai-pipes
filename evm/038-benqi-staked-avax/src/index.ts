@@ -53,6 +53,8 @@ interface SavaxEvent {
   block_number: number
   timestamp: string
   tx_hash: string
+  tx_index: number
+  log_index: number
   event_type: string
   user: string
   avax_amount: string
@@ -79,6 +81,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'submitted',
           user: d.event.user,
           avax_amount: d.event.avaxAmount.toString(),
@@ -95,6 +99,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'unlock_requested',
           user: d.event.user,
           avax_amount: '0',
@@ -111,6 +117,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'unlock_cancelled',
           user: d.event.user,
           avax_amount: '0',
@@ -127,6 +135,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'redeem',
           user: d.event.user,
           avax_amount: d.event.avaxAmount.toString(),
@@ -143,6 +153,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'redeem_overdue',
           user: d.event.user,
           avax_amount: '0',
@@ -159,6 +171,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'accrue_rewards',
           user: '',
           avax_amount: '0',
@@ -175,6 +189,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'deposit',
           user: d.event.user,
           avax_amount: d.event.amount.toString(),
@@ -191,6 +207,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'withdraw',
           user: d.event.user,
           avax_amount: d.event.amount.toString(),

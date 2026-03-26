@@ -31,6 +31,7 @@ interface TroveEvent {
   block_number: number
   timestamp: string
   tx_hash: string
+  tx_index: number
   log_index: number
   event_type: string
   borrower: string
@@ -58,6 +59,7 @@ const troveDecoder = evmDecoder({
       block_number: d.block.number,
       timestamp: d.timestamp.toISOString(),
       tx_hash: d.rawEvent.transactionHash,
+      tx_index: d.rawEvent.transactionIndex,
       log_index: d.rawEvent.logIndex,
       event_type: 'TroveUpdated',
       borrower: d.event._borrower,
@@ -73,6 +75,7 @@ const troveDecoder = evmDecoder({
       block_number: d.block.number,
       timestamp: d.timestamp.toISOString(),
       tx_hash: d.rawEvent.transactionHash,
+      tx_index: d.rawEvent.transactionIndex,
       log_index: d.rawEvent.logIndex,
       event_type: 'TroveLiquidated',
       borrower: d.event._borrower,
@@ -88,6 +91,7 @@ const troveDecoder = evmDecoder({
       block_number: d.block.number,
       timestamp: d.timestamp.toISOString(),
       tx_hash: d.rawEvent.transactionHash,
+      tx_index: d.rawEvent.transactionIndex,
       log_index: d.rawEvent.logIndex,
       event_type: 'Redemption',
       borrower: '',
@@ -103,6 +107,7 @@ const troveDecoder = evmDecoder({
       block_number: d.block.number,
       timestamp: d.timestamp.toISOString(),
       tx_hash: d.rawEvent.transactionHash,
+      tx_index: d.rawEvent.transactionIndex,
       log_index: d.rawEvent.logIndex,
       event_type: 'Liquidation',
       borrower: '',

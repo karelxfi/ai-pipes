@@ -49,6 +49,8 @@ interface CdpEvent {
   block_number: number
   timestamp: string
   tx_hash: string
+  tx_index: number
+  log_index: number
   event_type: string
   user_address: string
   collateral: string
@@ -72,6 +74,7 @@ export async function main() {
       for (const d of cdp.deposit) {
         events.push({
           block_number: d.block.number, timestamp: toIso(d), tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex, log_index: d.rawEvent.logIndex,
           event_type: 'deposit', user_address: d.event.user, collateral: d.event.collateral,
           amount: d.event.amount.toString(), total_or_debt: d.event.totalAmount.toString(),
           liquidation_price: '0', sign: 1,
@@ -81,6 +84,7 @@ export async function main() {
       for (const d of cdp.borrow) {
         events.push({
           block_number: d.block.number, timestamp: toIso(d), tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex, log_index: d.rawEvent.logIndex,
           event_type: 'borrow', user_address: d.event.user, collateral: d.event.collateral,
           amount: d.event.amount.toString(), total_or_debt: d.event.collateralAmount.toString(),
           liquidation_price: d.event.liquidationPrice.toString(), sign: 1,
@@ -90,6 +94,7 @@ export async function main() {
       for (const d of cdp.payback) {
         events.push({
           block_number: d.block.number, timestamp: toIso(d), tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex, log_index: d.rawEvent.logIndex,
           event_type: 'payback', user_address: d.event.user, collateral: d.event.collateral,
           amount: d.event.amount.toString(), total_or_debt: d.event.debt.toString(),
           liquidation_price: d.event.liquidationPrice.toString(), sign: 1,
@@ -99,6 +104,7 @@ export async function main() {
       for (const d of cdp.withdraw) {
         events.push({
           block_number: d.block.number, timestamp: toIso(d), tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex, log_index: d.rawEvent.logIndex,
           event_type: 'withdraw', user_address: d.event.user, collateral: '',
           amount: d.event.amount.toString(), total_or_debt: '0',
           liquidation_price: '0', sign: 1,
@@ -108,6 +114,7 @@ export async function main() {
       for (const d of cdp.liquidation) {
         events.push({
           block_number: d.block.number, timestamp: toIso(d), tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex, log_index: d.rawEvent.logIndex,
           event_type: 'liquidation', user_address: d.event.user, collateral: d.event.collateral,
           amount: d.event.amount.toString(), total_or_debt: d.event.leftover.toString(),
           liquidation_price: '0', sign: 1,

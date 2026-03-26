@@ -39,6 +39,7 @@ interface ReallocationRow {
   block_number: number
   timestamp: string
   tx_hash: string
+  tx_index: number
   log_index: number
   vault: string
   event_type: string
@@ -63,6 +64,7 @@ export async function main() {
           block_number: d.block.number,
           timestamp: d.timestamp.toISOString(),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
           log_index: d.rawEvent.logIndex,
           vault: d.contract,
           event_type: 'supply',
@@ -79,6 +81,7 @@ export async function main() {
           block_number: d.block.number,
           timestamp: d.timestamp.toISOString(),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
           log_index: d.rawEvent.logIndex,
           vault: d.contract,
           event_type: 'withdraw',

@@ -76,7 +76,7 @@ async function main() {
   const expectedColumns = [
     'collateral_asset', 'debt_asset', 'user', 'debt_to_cover',
     'liquidated_collateral_amount', 'liquidator', 'receive_a_token',
-    'block_number', 'tx_hash', 'log_index', 'timestamp', 'sign',
+    'block_number', 'tx_hash', 'tx_index', 'log_index', 'timestamp', 'sign',
   ]
   for (const col of expectedColumns) {
     assert(columnNames.includes(col), `Column '${col}' exists`)

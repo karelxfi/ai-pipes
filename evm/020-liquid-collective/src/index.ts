@@ -48,6 +48,8 @@ interface LcEvent {
   block_number: number
   timestamp: string
   tx_hash: string
+  tx_index: number
+  log_index: number
   event_type: string
   depositor: string
   recipient: string
@@ -77,6 +79,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'deposit',
           depositor: d.event.depositor,
           recipient: d.event.recipient,
@@ -94,6 +98,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'oracle_report',
           depositor: '', recipient: '',
           amount: '0',
@@ -110,6 +116,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'rewards',
           depositor: '', recipient: d.event._collector,
           amount: '0',
@@ -128,6 +136,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'validator_funded',
           depositor: '', recipient: '',
           amount: '0',
