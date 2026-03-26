@@ -62,6 +62,7 @@ const operations = evmDecoder({
     action: classifyAction(d.event.supplyAmount_, d.event.borrowAmount_),
     block_number: d.block.number,
     tx_hash: d.rawEvent.transactionHash,
+    tx_index: d.rawEvent.transactionIndex,
     log_index: d.rawEvent.logIndex,
     timestamp: Math.floor(new Date(d.timestamp).getTime() / 1000),
     sign: 1,

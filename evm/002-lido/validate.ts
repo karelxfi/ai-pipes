@@ -75,7 +75,7 @@ async function main() {
   const expectedColumns = [
     'report_timestamp', 'time_elapsed', 'pre_total_shares', 'pre_total_ether',
     'post_total_shares', 'post_total_ether', 'shares_minted_as_fees',
-    'block_number', 'tx_hash', 'log_index', 'timestamp', 'sign',
+    'block_number', 'tx_hash', 'tx_index', 'log_index', 'timestamp', 'sign',
   ]
   for (const col of expectedColumns) {
     assert(columnNames.includes(col), `Column '${col}' exists`)

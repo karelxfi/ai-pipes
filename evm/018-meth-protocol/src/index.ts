@@ -48,6 +48,8 @@ interface MethEvent {
   block_number: number
   timestamp: string
   tx_hash: string
+  tx_index: number
+  log_index: number
   event_type: string
   staker: string
   eth_amount: string
@@ -72,6 +74,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'stake',
           staker: d.event.staker,
           eth_amount: d.event.ethAmount.toString(),
@@ -86,6 +90,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'unstake_request',
           staker: d.event.staker,
           eth_amount: d.event.ethAmount.toString(),
@@ -100,6 +106,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'unstake_claim',
           staker: d.event.staker,
           eth_amount: '0',
@@ -114,6 +122,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'returns',
           staker: '',
           eth_amount: d.event.amount.toString(),

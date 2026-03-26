@@ -26,6 +26,7 @@ export type ExtendEventResponse<ER extends EventResponse<Events, string[]>, Extr
 export interface EnrichedEventMeta {
   blockNumber: number
   txHash: string
+  txIndex: number
   logIndex: number
   timestamp: number // unix seconds
 }
@@ -41,6 +42,7 @@ export function enrichEvents<T extends EventResponse<Events, string[]>>(
       ...v.event,
       blockNumber: v.block.number,
       txHash: v.rawEvent.transactionHash,
+      txIndex: v.rawEvent.transactionIndex,
       logIndex: v.rawEvent.logIndex,
       timestamp: new Date(v.timestamp).getTime() / 1000,
     })) as ExtendEventResponse<T, EnrichedEventMeta>[typeof key]

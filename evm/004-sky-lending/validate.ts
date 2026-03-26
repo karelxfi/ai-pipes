@@ -74,7 +74,7 @@ async function main() {
   const columnNames = columns.map((c) => c.name)
   const expectedColumns = [
     'ilk', 'urn', 'ink', 'art', 'due', 'clip', 'id',
-    'block_number', 'tx_hash', 'log_index', 'timestamp', 'sign',
+    'block_number', 'tx_hash', 'tx_index', 'log_index', 'timestamp', 'sign',
   ]
   for (const col of expectedColumns) {
     assert(columnNames.includes(col), `Column '${col}' exists`)

@@ -27,7 +27,7 @@ async function main() {
   else { fail('Row count is 0'); process.exit(1) }
 
   const cols = await query<{ name: string }>(`SELECT name FROM system.columns WHERE database = '${process.env.CLICKHOUSE_DATABASE ?? 'rocket_pool'}' AND table = 'reth_flows'`)
-  const required = ['event_type', 'user', 'reth_amount', 'eth_amount', 'block_number', 'tx_hash', 'timestamp']
+  const required = ['event_type', 'user', 'reth_amount', 'eth_amount', 'block_number', 'tx_hash', 'tx_index', 'log_index', 'timestamp']
   const missing = required.filter(r => !cols.map(c => c.name).includes(r))
   if (missing.length === 0) pass(`Schema OK: all ${required.length} required columns present`)
   else fail(`Missing columns: ${missing.join(', ')}`)

@@ -52,6 +52,8 @@ interface GmxEvent {
   block_number: number
   timestamp: string
   tx_hash: string
+  tx_index: number
+  log_index: number
   event_name: string
   msg_sender: string
   event_variant: string
@@ -75,6 +77,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_name: d.event.eventName,
           msg_sender: d.event.msgSender,
           event_variant: 'EventLog1',
@@ -87,6 +91,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_name: d.event.eventName,
           msg_sender: d.event.msgSender,
           event_variant: 'EventLog2',

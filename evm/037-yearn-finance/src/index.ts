@@ -67,6 +67,7 @@ export async function main() {
             debt_ratio: d.event.debtRatio.toString(),
             block_number: d.block.number,
             tx_hash: d.rawEvent.transactionHash,
+            tx_index: d.rawEvent.transactionIndex,
             log_index: d.rawEvent.logIndex,
             timestamp: d.timestamp.toISOString(),
           }))

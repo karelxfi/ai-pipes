@@ -56,6 +56,8 @@ interface EulerEvent {
   block_number: number
   timestamp: string
   tx_hash: string
+  tx_index: number
+  log_index: number
   event_type: string
   caller: string
   account: string
@@ -83,6 +85,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'call',
           caller: d.event.caller,
           account: d.event.onBehalfOfAccount,
@@ -98,6 +102,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'vault_check',
           caller: '', account: '',
           vault: d.event.vault,
@@ -111,6 +117,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'account_check',
           caller: '',
           account: d.event.account,
@@ -125,6 +133,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'vault_created',
           caller: '', account: '',
           vault: '',
