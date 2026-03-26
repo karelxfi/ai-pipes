@@ -1,3 +1,6 @@
+/*
+  Indexes multiple contracts, multiple events, custom function for every event, one target table.
+*/
 import 'dotenv/config'
 import path from 'node:path'
 import { createClient } from '@clickhouse/client'
@@ -5,7 +8,6 @@ import { evmDecoder, evmPortalStream } from '@subsquid/pipes/evm'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
 import { z } from 'zod'
 import { events as poolEvents } from './contracts/0x80ac24aA929eaF5013f6436cdA2a7ba190f5Cc0b.js'
-import { serializeJsonWithBigInt } from './utils/index.js'
 
 const env = z
   .object({
@@ -15,6 +17,10 @@ const env = z
     CLICKHOUSE_DATABASE: z.string(),
   })
   .parse(process.env)
+
+  export function serializeJsonWithBigInt(obj: unknown): string {
+    return JSON.stringify(obj, (_key, value) => (typeof value === 'bigint' ? value.toString() : value))
+  }
 
 // All 3 active Maple Syrup pools share the same ABI (ERC-4626 vault)
 const POOLS: Record<string, string> = {
@@ -44,6 +50,7 @@ const flows = evmDecoder({
       shares: d.event.shares_,
       block_number: d.block.number,
       tx_hash: d.rawEvent.transactionHash,
+      tx_index: d.rawEvent.transactionIndex,
       log_index: d.rawEvent.logIndex,
       timestamp: Math.floor(new Date(d.timestamp).getTime() / 1000),
       sign: 1,
@@ -57,6 +64,7 @@ const flows = evmDecoder({
       shares: w.event.shares_,
       block_number: w.block.number,
       tx_hash: w.rawEvent.transactionHash,
+      tx_index: w.rawEvent.transactionIndex,
       log_index: w.rawEvent.logIndex,
       timestamp: Math.floor(new Date(w.timestamp).getTime() / 1000),
       sign: 1,
