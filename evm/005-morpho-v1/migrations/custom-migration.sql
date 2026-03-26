@@ -9,12 +9,13 @@ CREATE TABLE IF NOT EXISTS morpho_blue_supply (
   -- Event metadata
   block_number UInt32,
   tx_hash String,
+  tx_index UInt16,
   log_index UInt16,
   timestamp DateTime CODEC (DoubleDelta, ZSTD),
   sign Int8  DEFAULT toInt8(1)
 )
 ENGINE = CollapsingMergeTree(sign) PARTITION BY toYYYYMM(timestamp) -- Data will be split by month
-ORDER BY (block_number, tx_hash, log_index);
+ORDER BY (timestamp, tx_index, log_index);
 
 CREATE TABLE IF NOT EXISTS morpho_blue_borrow (
   -- Event params
@@ -27,12 +28,13 @@ CREATE TABLE IF NOT EXISTS morpho_blue_borrow (
   -- Event metadata
   block_number UInt32,
   tx_hash String,
+  tx_index UInt16,
   log_index UInt16,
   timestamp DateTime CODEC (DoubleDelta, ZSTD),
   sign Int8  DEFAULT toInt8(1)
 )
 ENGINE = CollapsingMergeTree(sign) PARTITION BY toYYYYMM(timestamp) -- Data will be split by month
-ORDER BY (block_number, tx_hash, log_index);
+ORDER BY (timestamp, tx_index, log_index);
 
 CREATE TABLE IF NOT EXISTS morpho_blue_liquidate (
   -- Event params
@@ -47,10 +49,11 @@ CREATE TABLE IF NOT EXISTS morpho_blue_liquidate (
   -- Event metadata
   block_number UInt32,
   tx_hash String,
+  tx_index UInt16,
   log_index UInt16,
   timestamp DateTime CODEC (DoubleDelta, ZSTD),
   sign Int8  DEFAULT toInt8(1)
 )
 ENGINE = CollapsingMergeTree(sign) PARTITION BY toYYYYMM(timestamp) -- Data will be split by month
-ORDER BY (block_number, tx_hash, log_index);
+ORDER BY (timestamp, tx_index, log_index);
 
