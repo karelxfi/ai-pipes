@@ -1,0 +1,34 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "coreHub": { "address": "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9", "deploymentBlock": 24720891, "verified": true },
+        "plusHub": { "address": "0x06002e9c4412CB7814a791eA3666D905871E536A", "deploymentBlock": 24720891, "verified": true },
+        "primeHub": { "address": "0x9438827DCA022D0F354a8a8c332dA1e5Eb9F9F931", "deploymentBlock": 24720891, "verified": true },
+        "hubImplementation": { "address": "0xfe89fd96f270ac3c0f11921af0390dbb1340f704", "deploymentBlock": null, "verified": true },
+        "mainSpoke": { "address": "0x94e7A5dCbE816e498b89aB752661904E2F56c485", "deploymentBlock": 24720899, "verified": true },
+        "bluechipSpoke": { "address": "0x973a023A77420ba610f06b3858aD991Df6d85A08", "deploymentBlock": null, "verified": true },
+        "ethenaCorrelatedSpoke": { "address": "0x58131E79531caB1d52301228d1f7b842F26B9649", "deploymentBlock": null, "verified": true },
+        "ethenaEcosystemSpoke": { "address": "0xba1B3D55D249692b669A164024A838309B7508AF", "deploymentBlock": null, "verified": true },
+        "etherFiSpoke": { "address": "0xbF10BDfE177dE0336aFD7fcCF80A904E15386219", "deploymentBlock": null, "verified": true },
+        "forexSpoke": { "address": "0xD8B93635b8C6d0fF98CbE90b5988E3F2d1Cd9da1", "deploymentBlock": null, "verified": true },
+        "goldSpoke": { "address": "0x65407b940966954b23dfA3caA5C0702bB42984DC", "deploymentBlock": null, "verified": true },
+        "kelpSpoke": { "address": "0x3131FE68C4722e726fe6B2819ED68e514395B9a4", "deploymentBlock": null, "verified": true },
+        "lidoSpoke": { "address": "0xe1900480ac69f0B296841Cd01cC37546d92F35Cd", "deploymentBlock": null, "verified": true },
+        "lombardBtcSpoke": { "address": "0x7EC68b5695e803e98a21a9A05d744F28b0a7753D", "deploymentBlock": null, "verified": true },
+        "treasurySpoke": { "address": "0xB9B0b8616f6Bf6841972a52058132BE08d723155", "deploymentBlock": null, "verified": true },
+        "spokeImplementation": { "address": "0xABd0E26Fe17bde4f1f1187ed8aa80c274e03D8b5", "deploymentBlock": null, "verified": true },
+        "accessManager": { "address": "0x08aE3BE30958cDd1847ec58fFfd4C451a87fDF01", "deploymentBlock": null, "verified": true },
+        "hubConfigurator": { "address": "0x1F0753480bB03EaA00863224602267B7E0525C3d", "deploymentBlock": null, "verified": true },
+        "spokeConfigurator": { "address": "0x9BFFf48BFb5A7AE70c348d4d4cb97E8DEFa5389a", "deploymentBlock": null, "verified": true },
+        "configPositionManager": { "address": "0x51305839CE822a7b4b12AA7D86eA7005052d575c", "deploymentBlock": null, "verified": true },
+        "giverPositionManager": { "address": "0x17A54b8d6D9C68e7fa1C7112AC998EA1BA51d11e", "deploymentBlock": null, "verified": true },
+        "takerPositionManager": { "address": "0x6c044c0D3801499bCAbfAd458B70880bc518e9F7", "deploymentBlock": null, "verified": true },
+        "nativeTokenGateway": { "address": "0xe68ab4F90Fe026B9873F5F276eD2d7efBbbE42Be", "deploymentBlock": null, "verified": true },
+        "signatureGateway": { "address": "0xfbC184337Dc6595D8bf62968Bda46e7De7AF9c3d", "deploymentBlock": null, "verified": true }
+      },
+      "source": "aave-docs",
+      "sourceUrl": "https://aave.com/docs/resources/addresses"
+    }
+  }
+}

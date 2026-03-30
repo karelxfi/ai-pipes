@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>AAVE V4 LAUNCH MONITOR</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Consolas', 'SF Mono', 'Source Code Pro', 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 1.3;
+  background: #000;
+  color: #ccc;
+  width: 1200px;
+  height: 675px;
+  overflow: hidden;
+}
+.header {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1px;
+  background: #1a1a1a;
+  border-bottom: 1px solid #1a1a1a;
+}
+.kpi {
+  background: #0a0a0a;
+  padding: 8px;
+  text-align: center;
+}
+.kpi-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #666;
+  margin-bottom: 4px;
+}
+.kpi-value {
+  font-size: 17px;
+  color: #fff;
+  font-feature-settings: 'tnum';
+}
+.kpi-value.accent { color: #4A7AB5; }
+.main {
+  display: grid;
+  grid-template-columns: 60% 40%;
+  grid-template-rows: 1fr 1fr;
+  gap: 1px;
+  background: #1a1a1a;
+  height: calc(675px - 52px - 20px);
+}
+.panel {
+  background: #0a0a0a;
+  padding: 8px;
+  position: relative;
+}
+.panel-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #666;
+  margin-bottom: 2px;
+}
+.chart {
+  width: 100%;
+  height: calc(100% - 14px);
+}
+.footer {
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  color: #444;
+  border-top: 1px solid #1a1a1a;
+  background: #000;
+}
+.title-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  height: 0;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="kpi">
+    <div class="kpi-label">TOTAL EVENTS</div>
+    <div class="kpi-value" id="kpi-total">--</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">UNIQUE USERS</div>
+    <div class="kpi-value" id="kpi-users">--</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">ACTIVE SPOKES</div>
+    <div class="kpi-value" id="kpi-spokes">--</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">ACTIVE HUBS</div>
+    <div class="kpi-value accent" id="kpi-hubs">--</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">LIQUIDATIONS</div>
+    <div class="kpi-value" id="kpi-liqs" style="color:#FF433D">--</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">TIME RANGE</div>
+    <div class="kpi-value" id="kpi-range" style="font-size:10px;color:#4A7AB5">--</div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="panel">
+    <div class="panel-title">HUB LIQUIDITY FLOWS</div>
+    <div class="chart" id="chart-flows"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">SPOKE ACTIVITY RANKING</div>
+    <div class="chart" id="chart-spokes"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">SUPPLY VS BORROW TIMELINE (CUMULATIVE)</div>
+    <div class="chart" id="chart-timeline"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">EVENT TYPE BREAKDOWN</div>
+    <div class="chart" id="chart-treemap"></div>
+  </div>
+</div>
+
+<div class="footer">
+  AAVE V4 LAUNCH MONITOR &middot; Built with ai-pipes + SQD Pipes SDK &middot; github.com/karelxfi &middot; x.com/karelxfi
+</div>
+
+<script>
+var CH_URL = 'http://localhost:8123';
+var CH_DB = 'aave_v4';
+var CH_USER = 'default';
+var CH_PASS = 'password';
+
+var PALETTE = ['#1E3A5F','#2B4F7E','#1A3050','#3D6494','#4A7AB5','#2E5480','#5A8ABF','#1F4470','#3B6A9E','#274D73'];
+
+var SPOKE_NAMES = {
+  '0x94e7a5dcbe816e498b89ab752661904e2f56c485': 'MAIN',
+  '0x973a023a77420ba610f06b3858ad991df6d85a08': 'BLUECHIP',
+  '0x58131e79531cab1d52301228d1f7b842f26b9649': 'ETHENA CORR',
+  '0xba1b3d55d249692b669a164024a838309b7508af': 'ETHENA ECO',
+  '0xbf10bdfe177de0336afd7fccf80a904e15386219': 'ETHERFI',
+  '0xd8b93635b8c6d0ff98cbe90b5988e3f2d1cd9da1': 'FOREX',
+  '0x65407b940966954b23dfa3caa5c0702bb42984dc': 'GOLD',
+  '0x3131fe68c4722e726fe6b2819ed68e514395b9a4': 'KELP',
+  '0xe1900480ac69f0b296841cd01cc37546d92f35cd': 'LIDO',
+  '0x7ec68b5695e803e98a21a9a05d744f28b0a7753d': 'LOMBARD BTC',
+  '0xb9b0b8616f6bf6841972a52058132be08d723155': 'TREASURY'
+};
+
+function spokeName(addr) {
+  var key = (addr || '').toLowerCase();
+  return SPOKE_NAMES[key] || (key.slice(0, 6) + '..' + key.slice(-4));
+}
+
+function chQuery(sql) {
+  return fetch(CH_URL + '/?database=' + CH_DB + '&user=' + CH_USER + '&password=' + CH_PASS + '&default_format=JSONEachRow', {
+    method: 'POST',
+    body: sql
+  }).then(function(r) { return r.text(); }).then(function(t) {
+    return t.trim().split('\n').filter(Boolean).map(function(l) { return JSON.parse(l); });
+  });
+}
+
+function fmtNum(n) {
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+  return String(n);
+}
+
+function fmtDate(s) {
+  if (!s) return '--';
+  var d = new Date(s);
+  return d.toISOString().slice(0, 10);
+}
+
+function terminalOpts(title) {
+  return {
+    backgroundColor: 'transparent',
+    textStyle: { color: '#666', fontFamily: 'Consolas, SF Mono, Source Code Pro, monospace' },
+    tooltip: {
+      backgroundColor: '#1a1a1a',
+      borderColor: '#333',
+      textStyle: { color: '#ccc', fontSize: 10, fontFamily: 'Consolas, monospace' },
+      padding: [4, 8]
+    },
+    grid: { left: 48, right: 8, top: 24, bottom: 24 },
+    animation: false
+  };
+}
+
+var pendingQueries = 6;
+function queryDone() {
+  pendingQueries--;
+  if (pendingQueries <= 0) {
+    window.__DASHBOARD_READY__ = true;
+  }
+}
+
+// KPI: Total events
+chQuery("SELECT count() as total FROM spoke_events").then(function(rows) {
+  document.getElementById('kpi-total').textContent = fmtNum(Number(rows[0].total));
+  queryDone();
+}).catch(function() { queryDone(); });
+
+// KPI: Unique users
+chQuery("SELECT count(DISTINCT user) as users FROM spoke_events").then(function(rows) {
+  document.getElementById('kpi-users').textContent = fmtNum(Number(rows[0].users));
+  queryDone();
+}).catch(function() { queryDone(); });
+
+// KPI: Active spokes
+chQuery("SELECT count(DISTINCT spoke) as spokes FROM spoke_events").then(function(rows) {
+  document.getElementById('kpi-spokes').textContent = rows[0].spokes;
+  queryDone();
+}).catch(function() { queryDone(); });
+
+// KPI: Active hubs (try hub_flows table, fallback to spoke count)
+chQuery("SELECT count(DISTINCT hub) as hubs FROM hub_flows").then(function(rows) {
+  document.getElementById('kpi-hubs').textContent = rows[0].hubs;
+  queryDone();
+}).catch(function() {
+  document.getElementById('kpi-hubs').textContent = '--';
+  queryDone();
+});
+
+// KPI: Liquidations
+chQuery("SELECT count() as liqs FROM liquidations").then(function(rows) {
+  document.getElementById('kpi-liqs').textContent = fmtNum(Number(rows[0].liqs));
+  queryDone();
+}).catch(function() {
+  document.getElementById('kpi-liqs').textContent = '0';
+  queryDone();
+});
+
+// KPI: Time range
+chQuery("SELECT min(timestamp) as first_ts, max(timestamp) as last_ts FROM spoke_events").then(function(rows) {
+  document.getElementById('kpi-range').textContent = fmtDate(rows[0].first_ts) + ' \u2192 ' + fmtDate(rows[0].last_ts);
+  queryDone();
+}).catch(function() { queryDone(); });
+
+// Panel 2: Hub Liquidity Flows (stacked bar by hour)
+chQuery("SELECT toStartOfFiveMinutes(timestamp) as hour, event_type, count() as cnt FROM hub_flows GROUP BY hour, event_type ORDER BY hour").then(function(rows) {
+  var hours = [];
+  var hourSet = {};
+  var types = {};
+  var data = {};
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    var h = r.hour;
+    if (!hourSet[h]) { hourSet[h] = true; hours.push(h); }
+    types[r.event_type] = true;
+    if (!data[r.event_type]) data[r.event_type] = {};
+    data[r.event_type][h] = Number(r.cnt);
+  }
+  var typeList = Object.keys(types);
+  var colorMap = { 'Add': '#2B4F7E', 'Remove': '#3D7A6B', 'Draw': '#4A7AB5', 'Restore': '#1E3A5F' };
+  var series = typeList.map(function(t, idx) {
+    return {
+      name: t,
+      type: 'bar',
+      stack: 'flows',
+      barMaxWidth: 10,
+      itemStyle: { color: colorMap[t] || PALETTE[idx % PALETTE.length] },
+      data: hours.map(function(h) { return data[t][h] || 0; })
+    };
+  });
+  var chart = echarts.init(document.getElementById('chart-flows'));
+  var opts = terminalOpts('');
+  opts.xAxis = {
+    type: 'category',
+    data: hours.map(function(h) { return h.slice(11, 16); }),
+    axisLine: { show: false },
+    axisTick: { show: false },
+    axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace', interval: 'auto' },
+    splitLine: { show: false }
+  };
+  opts.yAxis = {
+    type: 'value',
+    axisLine: { show: false },
+    axisTick: { show: false },
+    axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' },
+    splitLine: { lineStyle: { color: '#1a1a1a', type: 'dashed' } }
+  };
+  opts.series = series;
+  opts.legend = {
+    data: typeList,
+    top: 2,
+    right: 8,
+    textStyle: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' },
+    itemWidth: 10,
+    itemHeight: 8
+  };
+  opts.grid = { left: 48, right: 8, top: 24, bottom: 28 };
+  opts.tooltip.trigger = 'axis';
+  chart.setOption(opts);
+}).catch(function(e) { console.error('Hub flows query failed:', e); });
+
+// Panel 3: Spoke Activity Ranking (horizontal bar)
+chQuery("SELECT spoke, count() as cnt FROM spoke_events GROUP BY spoke ORDER BY cnt DESC LIMIT 11").then(function(rows) {
+  var names = [];
+  var values = [];
+  for (var i = rows.length - 1; i >= 0; i--) {
+    names.push(spokeName(rows[i].spoke));
+    values.push(Number(rows[i].cnt));
+  }
+  var chart = echarts.init(document.getElementById('chart-spokes'));
+  var opts = terminalOpts('');
+  opts.xAxis = {
+    type: 'value',
+    axisLine: { show: false },
+    axisTick: { show: false },
+    axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' },
+    splitLine: { lineStyle: { color: '#1a1a1a', type: 'dashed' } }
+  };
+  opts.yAxis = {
+    type: 'category',
+    data: names,
+    axisLine: { show: false },
+    axisTick: { show: false },
+    axisLabel: { color: '#ccc', fontSize: 9, fontFamily: 'Consolas, monospace', width: 90 }
+  };
+  opts.series = [{
+    type: 'bar',
+    data: values,
+    barMaxWidth: 10,
+    itemStyle: { color: '#2B4F7E' },
+    label: {
+      show: true,
+      position: 'right',
+      color: '#666',
+      fontSize: 9,
+      fontFamily: 'Consolas, monospace',
+      formatter: function(p) { return fmtNum(p.value); }
+    }
+  }];
+  opts.grid = { left: 90, right: 48, top: 8, bottom: 8 };
+  chart.setOption(opts);
+}).catch(function(e) { console.error('Spoke ranking query failed:', e); });
+
+// Panel 4: Supply vs Borrow Timeline (dual cumulative line)
+chQuery("SELECT toStartOfFiveMinutes(timestamp) as hour, event_type, count() as cnt FROM spoke_events WHERE event_type IN ('Supply', 'Borrow') GROUP BY hour, event_type ORDER BY hour").then(function(rows) {
+  var hours = [];
+  var hourSet = {};
+  var supplyData = {};
+  var borrowData = {};
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    if (!hourSet[r.hour]) { hourSet[r.hour] = true; hours.push(r.hour); }
+    if (r.event_type === 'Supply') supplyData[r.hour] = Number(r.cnt);
+    if (r.event_type === 'Borrow') borrowData[r.hour] = Number(r.cnt);
+  }
+  var cumSupply = [];
+  var cumBorrow = [];
+  var sTotal = 0;
+  var bTotal = 0;
+  for (var j = 0; j < hours.length; j++) {
+    sTotal += (supplyData[hours[j]] || 0);
+    bTotal += (borrowData[hours[j]] || 0);
+    cumSupply.push(sTotal);
+    cumBorrow.push(bTotal);
+  }
+  var chart = echarts.init(document.getElementById('chart-timeline'));
+  var opts = terminalOpts('');
+  opts.xAxis = {
+    type: 'category',
+    data: hours.map(function(h) { return h.slice(11, 16); }),
+    axisLine: { show: false },
+    axisTick: { show: false },
+    axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace', interval: 'auto' },
+    splitLine: { show: false }
+  };
+  opts.yAxis = {
+    type: 'value',
+    axisLine: { show: false },
+    axisTick: { show: false },
+    axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' },
+    splitLine: { lineStyle: { color: '#1a1a1a', type: 'dashed' } }
+  };
+  opts.series = [
+    {
+      name: 'Supply',
+      type: 'line',
+      data: cumSupply,
+      lineStyle: { width: 1.5, color: '#2B4F7E' },
+      itemStyle: { color: '#2B4F7E' },
+      showSymbol: false,
+      areaStyle: { opacity: 0.08, color: '#2B4F7E' }
+    },
+    {
+      name: 'Borrow',
+      type: 'line',
+      data: cumBorrow,
+      lineStyle: { width: 1.5, color: '#3D7A6B' },
+      itemStyle: { color: '#3D7A6B' },
+      showSymbol: false,
+      areaStyle: { opacity: 0.08, color: '#3D7A6B' }
+    }
+  ];
+  opts.legend = {
+    data: ['Supply', 'Borrow'],
+    top: 2,
+    right: 8,
+    textStyle: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' },
+    itemWidth: 10,
+    itemHeight: 8
+  };
+  opts.grid = { left: 48, right: 8, top: 24, bottom: 28 };
+  opts.tooltip.trigger = 'axis';
+  chart.setOption(opts);
+}).catch(function(e) { console.error('Timeline query failed:', e); });
+
+// Panel 5: Event Type Breakdown (treemap)
+chQuery("SELECT event_type, count() as cnt FROM spoke_events GROUP BY event_type").then(function(rows) {
+  var treeData = rows.map(function(r, idx) {
+    return {
+      name: r.event_type + ' (' + fmtNum(Number(r.cnt)) + ')',
+      value: Number(r.cnt),
+      itemStyle: { color: PALETTE[idx % PALETTE.length], borderColor: '#0a0a0a', borderWidth: 1 }
+    };
+  });
+  var chart = echarts.init(document.getElementById('chart-treemap'));
+  chart.setOption({
+    backgroundColor: 'transparent',
+    animation: false,
+    tooltip: {
+      backgroundColor: '#1a1a1a',
+      borderColor: '#333',
+      textStyle: { color: '#ccc', fontSize: 10, fontFamily: 'Consolas, monospace' },
+      padding: [4, 8],
+      formatter: function(p) { return p.name; }
+    },
+    series: [{
+      type: 'treemap',
+      data: treeData,
+      roam: false,
+      nodeClick: false,
+      breadcrumb: { show: false },
+      label: {
+        show: true,
+        color: '#ccc',
+        fontSize: 10,
+        fontFamily: 'Consolas, SF Mono, monospace',
+        formatter: '{b}'
+      },
+      itemStyle: { borderColor: '#0a0a0a', borderWidth: 1, gapWidth: 1 },
+      levels: [{
+        itemStyle: { borderColor: '#0a0a0a', borderWidth: 1, gapWidth: 1 }
+      }],
+      left: 0, right: 0, top: 0, bottom: 0
+    }]
+  });
+}).catch(function(e) { console.error('Treemap query failed:', e); });
+
+</script>
+</body>
+</html>

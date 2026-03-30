@@ -54,6 +54,12 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["http-server", "solana/012-kamino-liquidity/dashboard", "-p", "8088", "-c-1"],
       "port": 8088
+    },
+    {
+      "name": "aave-v4",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["http-server", "evm/055-aave-v4/dashboard", "-p", "8089", "-c-1"],
+      "port": 8089
     }
   ]
 }
