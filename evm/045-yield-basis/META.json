@@ -1,0 +1,15 @@
+{
+  "date": "2026-03-31",
+  "pipes_sdk_version": "1.0.0-alpha.1",
+  "agent_skills_version": "latest",
+  "claude_model": "claude-opus-4-6",
+  "angle": "Leveraged BTC Liquidity Pulse — tracking 2x leverage deposits, withdrawals, borrower fee distributions, and stablecoin allocations in the yb-WBTC vault",
+  "runtime_status": "working",
+  "validation_status": "passed",
+  "chain": "ethereum-mainnet",
+  "contract": "0x6095a220c5567360d459462a25b1ad5aead45204",
+  "protocol": "yield-basis",
+  "tables": ["vault_events", "leverage_ops"],
+  "events_indexed": ["Deposit", "Withdraw", "AllocateStablecoins", "DistributeBorrowerFees"],
+  "total_rows": 15586
+}

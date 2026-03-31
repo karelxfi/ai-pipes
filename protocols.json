@@ -910,9 +910,9 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": null,
+      "angle": "Leveraged BTC Liquidity Pulse — 2x leverage deposits, withdrawals, borrower fee distributions",
       "directory": "evm/045-yield-basis",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Venus Flux",

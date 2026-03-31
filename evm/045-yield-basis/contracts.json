@@ -1,0 +1,24 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "factory": { "address": "0x370a449FeBb9411c95bf897021377fe0B7D100c0", "deploymentBlock": 23371077, "verified": true },
+        "ybToken": { "address": "0x01791F726B4103694969820be083196cC7c045fF", "deploymentBlock": null, "verified": true },
+        "yb-WBTC-LT": { "address": "0x6095a220c5567360d459462a25b1ad5aead45204", "deploymentBlock": 23434006, "verified": true },
+        "cyb-cbBTC-AMM": { "address": "0x83f24023d15d835a213df24fd309c47dab5beb32", "deploymentBlock": null, "verified": true },
+        "ammImplementation": { "address": "0x258f7e1ee13ee4d3a62d79db715fa95c4620d9c3", "deploymentBlock": null, "verified": true },
+        "ltImplementation": { "address": "0x27845fbb7ba58b152681558e44c4ed4c64e370160", "deploymentBlock": null, "verified": true },
+        "virtualPoolImplementation": { "address": "0x62b792654eafffbbc483d69fa05f8ca4d0914af2", "deploymentBlock": null, "verified": true },
+        "priceOracleImplementation": { "address": "0xde61d94f71a44cb28ce94a34b1b560fc55128c80", "deploymentBlock": null, "verified": true },
+        "stakerImplementation": { "address": "0xda67786a87bed11081c1d85b26fe75a33e1c2710", "deploymentBlock": null, "verified": true },
+        "aggregator": { "address": "0x18672b1b0c623a30089a280ed9256379fb0e4e62", "deploymentBlock": null, "verified": true },
+        "flashImplementation": { "address": "0x26de7861e213a5351f6ed767d00e0839930e9ee1", "deploymentBlock": null, "verified": true },
+        "feeReceiver": { "address": "0x1be14811a3a06f6af4fa64310a636e1df04c1c21", "deploymentBlock": null, "verified": true },
+        "deployer": { "address": "0xa39e4d6bb25a8e55552d6d9ab1f5f8889dddc80d", "deploymentBlock": null, "verified": true },
+        "deployer2": { "address": "0x62a3e8cb5e4f705ab37aec834c81acd67706c6d3", "deploymentBlock": null, "verified": true }
+      },
+      "source": "etherscan-verified",
+      "sourceUrl": "https://etherscan.io/address/0x370a449FeBb9411c95bf897021377fe0B7D100c0"
+    }
+  }
+}

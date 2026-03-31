@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200">
+  <title>Yield Basis — Leveraged BTC Liquidity Pulse</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Consolas', 'SF Mono', 'Source Code Pro', 'JetBrains Mono', monospace;
+      font-size: 11px;
+      line-height: 1.3;
+      background: #000000;
+      color: #cccccc;
+      width: 1200px;
+      min-height: 675px;
+      overflow-x: hidden;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-bottom: 1px solid #1a1a1a;
+      background: #0a0a0a;
+    }
+    .header-left { display: flex; align-items: baseline; gap: 12px; }
+    .header-title { color: #4A7AB5; font-size: 12px; font-weight: bold; letter-spacing: 0.5px; }
+    .header-sub { color: #666; font-size: 9px; text-transform: uppercase; letter-spacing: 0.8px; }
+    .stats-row {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    .stat {
+      flex: 1;
+      padding: 8px 12px;
+      border-right: 1px solid #1a1a1a;
+      background: #0a0a0a;
+    }
+    .stat:last-child { border-right: none; }
+    .stat-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.8px; color: #666; }
+    .stat-value { font-size: 16px; color: #fff; font-feature-settings: 'tnum'; margin-top: 2px; }
+    .stat-value.positive { color: #4AF6C3; }
+    .stat-value.negative { color: #FF433D; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+    .panel {
+      border: 1px solid #1a1a1a;
+      border-radius: 0;
+      padding: 8px;
+      background: #0a0a0a;
+      min-height: 200px;
+    }
+    .panel-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    .chart { width: 100%; height: 190px; }
+    .footer {
+      padding: 6px 12px;
+      border-top: 1px solid #1a1a1a;
+      color: #666;
+      font-size: 9px;
+      text-align: center;
+    }
+    .footer a { color: #4A7AB5; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-left">
+      <span class="header-title">YIELD BASIS</span>
+      <span class="header-sub">Leveraged BTC Liquidity Pulse · yb-WBTC Vault · Ethereum</span>
+    </div>
+    <div class="header-sub" id="period"></div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-label">Total Deposits</div>
+      <div class="stat-value" id="totalDeposits">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Total Withdrawals</div>
+      <div class="stat-value" id="totalWithdrawals">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Fee Distributions</div>
+      <div class="stat-value" id="totalFees">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Net Flow Ratio</div>
+      <div class="stat-value" id="netFlowRatio">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Unique Depositors</div>
+      <div class="stat-value" id="uniqueDepositors">—</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="chart" id="dailyActivity"></div>
+    </div>
+    <div class="panel">
+      <div class="chart" id="dailyFees"></div>
+    </div>
+    <div class="panel">
+      <div class="chart" id="topDepositors"></div>
+    </div>
+    <div class="panel">
+      <div class="chart" id="cumulativeFlow"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Built with ai-pipes + SQD Pipes SDK | <a href="https://github.com/karelxfi">github.com/karelxfi</a> | <a href="https://x.com/karelxfi">x.com/karelxfi</a>
+  </div>
+
+<script>
+var CH = 'http://localhost:8123/?user=default&password=password&database=yield_basis';
+var PALETTE = ['#1E3A5F','#2B4F7E','#1A3050','#3D6494','#4A7AB5','#2E5480','#5A8ABF','#1F4470','#3B6A9E','#274D73'];
+
+function q(sql) {
+  return fetch(CH, { method: 'POST', body: sql + ' FORMAT JSON' })
+    .then(function(r) { return r.json(); })
+    .then(function(j) { return j.data; });
+}
+
+function fmt(n) {
+  if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+  return String(n);
+}
+
+function terminalOpts(title) {
+  return {
+    backgroundColor: 'transparent',
+    title: {
+      text: title.toUpperCase(),
+      textStyle: { color: '#666', fontSize: 10, fontWeight: 'normal', fontFamily: 'Consolas, SF Mono, monospace' },
+      left: 8, top: 4
+    },
+    textStyle: { color: '#666', fontFamily: 'Consolas, SF Mono, Source Code Pro, monospace' },
+    tooltip: {
+      backgroundColor: '#1a1a1a',
+      borderColor: '#333',
+      textStyle: { color: '#ccc', fontSize: 10, fontFamily: 'Consolas, monospace' },
+      padding: [4, 8]
+    },
+    grid: { left: 48, right: 8, top: 28, bottom: 24 },
+    animation: false
+  };
+}
+
+function axisDefaults() {
+  return {
+    xAxis: {
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' },
+      splitLine: { show: false }
+    },
+    yAxis: {
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' },
+      splitLine: { lineStyle: { color: '#1a1a1a', type: 'dashed' } }
+    }
+  };
+}
+
+Promise.all([
+  q("SELECT event_type, count() as c FROM vault_events GROUP BY event_type"),
+  q("SELECT count() as c FROM leverage_ops WHERE op_type='distribute_borrower_fees'"),
+  q("SELECT uniq(sender) as c FROM vault_events WHERE event_type='deposit'"),
+  q("SELECT min(timestamp) as mn, max(timestamp) as mx FROM vault_events"),
+  q("SELECT toDate(timestamp) as d, event_type, count() as c FROM vault_events GROUP BY d, event_type ORDER BY d"),
+  q("SELECT toDate(timestamp) as d, count() as c FROM leverage_ops WHERE op_type='distribute_borrower_fees' GROUP BY d ORDER BY d"),
+  q("SELECT sender, count() as c FROM vault_events WHERE event_type='deposit' GROUP BY sender ORDER BY c DESC LIMIT 10"),
+  q("SELECT toDate(timestamp) as d, event_type, count() as c FROM vault_events GROUP BY d, event_type ORDER BY d")
+]).then(function(results) {
+  var eventCounts = results[0];
+  var feesCount = results[1];
+  var uniqueDeps = results[2];
+  var timeRange = results[3];
+  var dailyData = results[4];
+  var dailyFeesData = results[5];
+  var topDeps = results[6];
+  var cumData = results[7];
+
+  // Stats
+  var deposits = 0, withdrawals = 0;
+  eventCounts.forEach(function(r) {
+    if (r.event_type === 'deposit') deposits = parseInt(r.c);
+    if (r.event_type === 'withdraw') withdrawals = parseInt(r.c);
+  });
+  document.getElementById('totalDeposits').textContent = fmt(deposits);
+  document.getElementById('totalWithdrawals').textContent = fmt(withdrawals);
+  document.getElementById('totalFees').textContent = fmt(parseInt(feesCount[0].c));
+  var ratio = deposits > 0 ? (deposits / (deposits + withdrawals) * 100).toFixed(1) + '%' : '—';
+  var ratioEl = document.getElementById('netFlowRatio');
+  ratioEl.textContent = ratio;
+  ratioEl.className = 'stat-value positive';
+  document.getElementById('uniqueDepositors').textContent = fmt(parseInt(uniqueDeps[0].c));
+
+  var mn = timeRange[0].mn.substring(0, 10);
+  var mx = timeRange[0].mx.substring(0, 10);
+  document.getElementById('period').textContent = mn + ' → ' + mx;
+
+  // Chart 1: Daily deposits vs withdrawals (stacked bar)
+  var dates = [];
+  var depByDate = {};
+  var wdByDate = {};
+  dailyData.forEach(function(r) {
+    if (dates.indexOf(r.d) === -1) dates.push(r.d);
+    if (r.event_type === 'deposit') depByDate[r.d] = parseInt(r.c);
+    if (r.event_type === 'withdraw') wdByDate[r.d] = parseInt(r.c);
+  });
+  dates.sort();
+
+  var ch1 = echarts.init(document.getElementById('dailyActivity'));
+  var opts1 = Object.assign({}, terminalOpts('Daily Vault Activity'), axisDefaults());
+  opts1.xAxis.type = 'category';
+  opts1.xAxis.data = dates.map(function(d) { return d.substring(5); });
+  opts1.yAxis.type = 'value';
+  opts1.tooltip.trigger = 'axis';
+  opts1.series = [
+    { name: 'Deposits', type: 'bar', stack: 'a', data: dates.map(function(d) { return depByDate[d] || 0; }), itemStyle: { color: '#2B4F7E' }, barMaxWidth: 12 },
+    { name: 'Withdrawals', type: 'bar', stack: 'b', data: dates.map(function(d) { return -(wdByDate[d] || 0); }), itemStyle: { color: '#8B3A3A' }, barMaxWidth: 12 }
+  ];
+  opts1.legend = { show: true, top: 4, right: 8, textStyle: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' } };
+  ch1.setOption(opts1);
+
+  // Chart 2: Daily fee distributions
+  var feeDates = dailyFeesData.map(function(r) { return r.d; });
+  var feeCounts = dailyFeesData.map(function(r) { return parseInt(r.c); });
+
+  var ch2 = echarts.init(document.getElementById('dailyFees'));
+  var opts2 = Object.assign({}, terminalOpts('Borrower Fee Distributions'), axisDefaults());
+  opts2.xAxis.type = 'category';
+  opts2.xAxis.data = feeDates.map(function(d) { return d.substring(5); });
+  opts2.yAxis.type = 'value';
+  opts2.tooltip.trigger = 'axis';
+  opts2.series = [
+    { type: 'bar', data: feeCounts, itemStyle: { color: '#3D7A6B' }, barMaxWidth: 10 }
+  ];
+  ch2.setOption(opts2);
+
+  // Chart 3: Top depositors (horizontal bar)
+  var topNames = topDeps.map(function(r) { return '0x' + r.sender.substring(2, 6) + '..' + r.sender.substring(38); });
+  var topCounts = topDeps.map(function(r) { return parseInt(r.c); });
+  topNames.reverse();
+  topCounts.reverse();
+
+  var ch3 = echarts.init(document.getElementById('topDepositors'));
+  var opts3 = Object.assign({}, terminalOpts('Top Depositors by Count'));
+  opts3.grid = { left: 90, right: 40, top: 28, bottom: 8 };
+  opts3.xAxis = { type: 'value', axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: '#666', fontSize: 9 }, splitLine: { lineStyle: { color: '#1a1a1a', type: 'dashed' } } };
+  opts3.yAxis = { type: 'category', data: topNames, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' } };
+  opts3.series = [
+    { type: 'bar', data: topCounts, itemStyle: { color: '#2B4F7E' }, barMaxWidth: 10,
+      label: { show: true, position: 'right', color: '#ccc', fontSize: 9, fontFamily: 'Consolas, monospace' } }
+  ];
+  ch3.setOption(opts3);
+
+  // Chart 4: Cumulative net flow
+  var cumDates = [];
+  var cumDep = {};
+  var cumWd = {};
+  cumData.forEach(function(r) {
+    if (cumDates.indexOf(r.d) === -1) cumDates.push(r.d);
+    if (r.event_type === 'deposit') cumDep[r.d] = parseInt(r.c);
+    if (r.event_type === 'withdraw') cumWd[r.d] = parseInt(r.c);
+  });
+  cumDates.sort();
+  var running = 0;
+  var cumValues = cumDates.map(function(d) {
+    running += (cumDep[d] || 0) - (cumWd[d] || 0);
+    return running;
+  });
+
+  var ch4 = echarts.init(document.getElementById('cumulativeFlow'));
+  var opts4 = Object.assign({}, terminalOpts('Cumulative Net Flow (Deposits - Withdrawals)'), axisDefaults());
+  opts4.xAxis.type = 'category';
+  opts4.xAxis.data = cumDates.map(function(d) { return d.substring(5); });
+  opts4.yAxis.type = 'value';
+  opts4.tooltip.trigger = 'axis';
+  opts4.series = [
+    { type: 'line', data: cumValues, lineStyle: { width: 1.5, color: '#4A7AB5' }, showSymbol: false,
+      areaStyle: { opacity: 0.08, color: '#4A7AB5' }, itemStyle: { color: '#4A7AB5' } }
+  ];
+  ch4.setOption(opts4);
+
+  window.__DASHBOARD_READY__ = true;
+});
+</script>
+</body>
+</html>
