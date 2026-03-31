@@ -1,0 +1,21 @@
+{
+  "deployments": {
+    "scroll": {
+      "contracts": {
+        "userSafeLens": { "address": "0x333321a783f765bFd4c22FBBC5B2D02b97efB44c", "deploymentBlock": null, "verified": true },
+        "userSafeFactory": { "address": "0x18Fa07dF94b4E9F09844e1128483801B24Fe8a27", "deploymentBlock": null, "verified": true },
+        "userSafeEventEmitter": { "address": "0x5423885B376eBb4e6104b8Ab1A908D350F6A162e", "deploymentBlock": 11000000, "verified": true },
+        "swapperOpenOcean": { "address": "0x44C00821F0e70F00b7af74235981eb30BEB3577F", "deploymentBlock": null, "verified": true },
+        "settlementDispatcher": { "address": "0x4Dca5093E0bB450D7f7961b5Df0A9d4c24B24786", "deploymentBlock": null, "verified": true },
+        "priceProvider": { "address": "0x8B4C8c403fc015C46061A8702799490FD616E3bf", "deploymentBlock": null, "verified": true },
+        "debtManager": { "address": "0x8f9d2Cd33551CE06dD0564Ba147513F715c2F4a0", "deploymentBlock": null, "verified": true },
+        "cashbackDispatcher": { "address": "0x7d372C3ca903CA2B6ecd8600D567eb6bAfC5e6c9", "deploymentBlock": null, "verified": true },
+        "cashDataProvider": { "address": "0xb1F5bBc3e4DE0c767ace41EAb8A28b837fBA966F", "deploymentBlock": null, "verified": true },
+        "cashPreOrder": { "address": "0x4E9fA586862183a944AA8A6E158af47CCaE544E2", "deploymentBlock": null, "verified": true },
+        "cashTopUpDest": { "address": "0xeb61c16A60ab1b4a9a1F8E92305808F949F4Ea9B", "deploymentBlock": null, "verified": true }
+      },
+      "source": "etherfi-gitbook",
+      "sourceUrl": "https://etherfi.gitbook.io/etherfi/contracts-and-integrations/deployed-contracts"
+    }
+  }
+}

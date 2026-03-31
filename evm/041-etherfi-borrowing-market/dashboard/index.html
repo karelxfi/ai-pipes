@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>ETHERFI CASH — Credit Card on Chain</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Consolas', 'SF Mono', 'Source Code Pro', 'JetBrains Mono', monospace;
+  font-size: 11px; line-height: 1.3; background: #000; color: #ccc;
+  width: 1200px; height: 675px; overflow: hidden;
+}
+.header {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 6px 8px 4px; border-bottom: 1px solid #1a1a1a;
+}
+.header-left { display: flex; align-items: baseline; gap: 12px; }
+.header h1 {
+  font-size: 13px; font-weight: 600; color: #4A7AB5;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.header .sub { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+.header .period { font-size: 9px; color: #555; }
+.kpi-row {
+  display: grid; grid-template-columns: repeat(6, 1fr);
+  border-bottom: 1px solid #1a1a1a;
+}
+.kpi {
+  padding: 6px 8px; border-right: 1px solid #1a1a1a;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.kpi:last-child { border-right: none; }
+.kpi-label { font-size: 9px; color: #666; text-transform: uppercase; letter-spacing: 0.8px; }
+.kpi-value { font-size: 16px; color: #fff; font-feature-settings: 'tnum'; }
+.kpi-value.accent { color: #4A7AB5; }
+.kpi-value.positive { color: #4AF6C3; }
+.charts-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr; height: calc(675px - 30px - 46px - 20px);
+}
+.panel {
+  border: 1px solid #1a1a1a; border-top: none; border-left: none;
+  background: #0a0a0a; padding: 0; position: relative;
+}
+.panel:nth-child(odd) { border-left: none; }
+.panel:nth-child(1), .panel:nth-child(2) { border-top: none; }
+.chart { width: 100%; height: 100%; }
+.footer {
+  display: flex; justify-content: space-between; padding: 4px 8px;
+  font-size: 9px; color: #444; border-top: 1px solid #1a1a1a;
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-left">
+    <h1>ETHERFI CASH</h1>
+    <span class="sub">Credit Card on Chain — Scroll</span>
+  </div>
+  <span class="period" id="period">Loading...</span>
+</div>
+<div class="kpi-row">
+  <div class="kpi"><span class="kpi-label">Total Spends</span><span class="kpi-value accent" id="kpi-spends">—</span></div>
+  <div class="kpi"><span class="kpi-label">Volume (USD)</span><span class="kpi-value" id="kpi-volume">—</span></div>
+  <div class="kpi"><span class="kpi-label">Unique Users</span><span class="kpi-value" id="kpi-users">—</span></div>
+  <div class="kpi"><span class="kpi-label">Cashback Paid</span><span class="kpi-value positive" id="kpi-cashback">—</span></div>
+  <div class="kpi"><span class="kpi-label">Debt Repaid</span><span class="kpi-value" id="kpi-repaid">—</span></div>
+  <div class="kpi"><span class="kpi-label">Swaps</span><span class="kpi-value" id="kpi-swaps">—</span></div>
+</div>
+<div class="charts-grid">
+  <div class="panel"><div class="chart" id="chart-daily-spends"></div></div>
+  <div class="panel"><div class="chart" id="chart-mode-split"></div></div>
+  <div class="panel"><div class="chart" id="chart-top-users"></div></div>
+  <div class="panel"><div class="chart" id="chart-weekly-volume"></div></div>
+</div>
+<div class="footer">
+  <span>Built with ai-pipes + SQD Pipes SDK | github.com/karelxfi | x.com/karelxfi</span>
+  <span>UserSafeEventEmitter 0x5423...162e</span>
+</div>
+<script>
+var CH = 'http://localhost:8123/?user=default&password=password&database=etherfi_cash';
+var PALETTE = ['#1E3A5F','#2B4F7E','#1A3050','#3D6494','#4A7AB5','#2E5480','#5A8ABF','#1F4470','#3B6A9E','#274D73'];
+
+function q(sql) {
+  return fetch(CH, { method: 'POST', body: sql + ' FORMAT JSONEachRow' })
+    .then(function(r) { return r.text(); })
+    .then(function(t) {
+      if (!t.trim()) return [];
+      return t.trim().split('\n').map(function(l) { return JSON.parse(l); });
+    });
+}
+
+function termOpts(title) {
+  return {
+    backgroundColor: 'transparent',
+    title: { text: title.toUpperCase(), textStyle: { color: '#666', fontSize: 10, fontWeight: 'normal', fontFamily: 'Consolas, SF Mono, monospace' }, left: 8, top: 4 },
+    textStyle: { color: '#666', fontFamily: 'Consolas, SF Mono, Source Code Pro, monospace' },
+    tooltip: { backgroundColor: '#1a1a1a', borderColor: '#333', textStyle: { color: '#ccc', fontSize: 10, fontFamily: 'Consolas, monospace' }, padding: [4, 8] },
+    grid: { left: 48, right: 8, top: 28, bottom: 24 },
+    animation: false
+  };
+}
+
+function fmtK(n) { return n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'K' : String(n); }
+function fmtUsd(n) { return '$' + (n >= 1e6 ? (n/1e6).toFixed(2)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'K' : n.toFixed(0)); }
+
+async function init() {
+  // KPIs
+  var [spends] = await q("SELECT count() as c FROM cash_events WHERE event_type='Spend'");
+  document.getElementById('kpi-spends').textContent = fmtK(Number(spends.c));
+
+  var [vol] = await q("SELECT sum(toFloat64(amount_usd))/1e6 as v FROM cash_events WHERE event_type='Spend'");
+  document.getElementById('kpi-volume').textContent = fmtUsd(Number(vol.v));
+
+  var [users] = await q("SELECT uniq(user_safe) as c FROM cash_events WHERE event_type='Spend'");
+  document.getElementById('kpi-users').textContent = String(users.c);
+
+  var [cb] = await q("SELECT sum(toFloat64(amount_usd))/1e6 as v FROM cash_events WHERE event_type='Cashback' AND cashback_paid=1");
+  document.getElementById('kpi-cashback').textContent = fmtUsd(Number(cb.v));
+
+  var [rep] = await q("SELECT count() as c FROM debt_events WHERE event_type='Repay'");
+  document.getElementById('kpi-repaid').textContent = String(rep.c);
+
+  var [sw] = await q("SELECT count() as c FROM swaps");
+  document.getElementById('kpi-swaps').textContent = String(sw.c);
+
+  var [range] = await q("SELECT formatDateTime(min(timestamp),'%Y-%m-%d') as mn, formatDateTime(max(timestamp),'%Y-%m-%d') as mx FROM cash_events");
+  document.getElementById('period').textContent = range.mn + ' \u2192 ' + range.mx;
+
+  // Chart 1: Daily spend count
+  var daily = await q("SELECT toDate(timestamp) as dt, count() as c FROM cash_events WHERE event_type='Spend' GROUP BY dt ORDER BY dt");
+  var c1 = echarts.init(document.getElementById('chart-daily-spends'));
+  c1.setOption(Object.assign(termOpts('Daily Card Spends'), {
+    xAxis: { type: 'category', data: daily.map(function(d){return d.dt;}), axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace',rotate:0,interval:Math.floor(daily.length/6)} },
+    yAxis: { type: 'value', axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'}, splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}} },
+    series: [{ type: 'bar', data: daily.map(function(d){return Number(d.c);}), itemStyle: { color: '#2B4F7E' }, barMaxWidth: 4 }]
+  }));
+
+  // Chart 2: Borrow vs Direct mode weekly
+  var modeData = await q("SELECT toStartOfWeek(timestamp) as wk, mode, count() as c FROM cash_events WHERE event_type='Spend' GROUP BY wk, mode ORDER BY wk");
+  var weeks = []; var borrowMap = {}; var directMap = {};
+  modeData.forEach(function(r) {
+    if (weeks.indexOf(r.wk) === -1) weeks.push(r.wk);
+    if (Number(r.mode) === 1) borrowMap[r.wk] = Number(r.c);
+    else directMap[r.wk] = Number(r.c);
+  });
+  var c2 = echarts.init(document.getElementById('chart-mode-split'));
+  c2.setOption(Object.assign(termOpts('Spend Mode: Borrow vs Direct (Weekly)'), {
+    legend: { data: ['Borrow','Direct'], textStyle: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' }, right: 8, top: 4 },
+    xAxis: { type: 'category', data: weeks.map(function(w){return w.slice(5);}), axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace',interval:Math.floor(weeks.length/6)} },
+    yAxis: { type: 'value', axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'}, splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}} },
+    series: [
+      { name: 'Borrow', type: 'bar', stack: 'mode', data: weeks.map(function(w){return borrowMap[w]||0;}), itemStyle:{color:'#2B4F7E'}, barMaxWidth: 12 },
+      { name: 'Direct', type: 'bar', stack: 'mode', data: weeks.map(function(w){return directMap[w]||0;}), itemStyle:{color:'#1A3050'}, barMaxWidth: 12 }
+    ]
+  }));
+
+  // Chart 3: Top 10 spenders by count
+  var topUsers = await q("SELECT user_safe, count() as c, sum(toFloat64(amount_usd))/1e6 as vol FROM cash_events WHERE event_type='Spend' GROUP BY user_safe ORDER BY c DESC LIMIT 10");
+  var c3 = echarts.init(document.getElementById('chart-top-users'));
+  c3.setOption(Object.assign(termOpts('Top Spenders by Tx Count'), {
+    grid: { left: 100, right: 50, top: 28, bottom: 8 },
+    xAxis: { type: 'value', axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'}, splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}} },
+    yAxis: { type: 'category', data: topUsers.map(function(u){return '0x'+u.user_safe.slice(2,6)+'..'+u.user_safe.slice(-4);}).reverse(), axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'} },
+    series: [{
+      type: 'bar', data: topUsers.map(function(u){return Number(u.c);}).reverse(),
+      itemStyle: { color: function(p) { return PALETTE[p.dataIndex % PALETTE.length]; } },
+      barMaxWidth: 14,
+      label: { show: true, position: 'right', color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace', formatter: function(p){return p.value;} }
+    }]
+  }));
+
+  // Chart 4: Weekly spend volume (USD)
+  var weeklyVol = await q("SELECT toStartOfWeek(timestamp) as wk, sum(toFloat64(amount_usd))/1e6 as vol FROM cash_events WHERE event_type='Spend' GROUP BY wk ORDER BY wk");
+  var c4 = echarts.init(document.getElementById('chart-weekly-volume'));
+  c4.setOption(Object.assign(termOpts('Weekly Spend Volume (USD)'), {
+    tooltip: { trigger: 'axis', backgroundColor: '#1a1a1a', borderColor: '#333', textStyle: { color: '#ccc', fontSize: 10, fontFamily: 'Consolas, monospace' }, padding: [4, 8], formatter: function(p) { return p[0].axisValue + '<br/>' + fmtUsd(p[0].value); } },
+    xAxis: { type: 'category', data: weeklyVol.map(function(d){return d.wk.slice(5);}), axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace',interval:Math.floor(weeklyVol.length/6)} },
+    yAxis: { type: 'value', axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace',formatter:function(v){return fmtUsd(v);}}, splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}} },
+    series: [{ type: 'line', data: weeklyVol.map(function(d){return Number(d.vol);}), lineStyle:{width:1.5,color:'#4A7AB5'}, showSymbol:false, areaStyle:{opacity:0.08,color:'#4A7AB5'} }]
+  }));
+
+  window.__DASHBOARD_READY__ = true;
+}
+init();
+</script>
+</body>
+</html>

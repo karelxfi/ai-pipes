@@ -63,3 +63,7 @@ Tracked improvements for the Pipes CLI (`@iankressin/pipes-cli`), gathered from 
 ### Solana Stake Pool programs not indexable via events
 - **Source:** protocols.json (DoubleZero, Sanctum, Jito, Jupiter Staked SOL, etc.)
 - **Issue:** Solana liquid staking protocols use the native Stake Pool program which doesn't emit traditional events. 8+ protocols from the top 100 DeFi list use this pattern and are currently not indexable. Need instruction-level indexing support.
+
+### Scroll dataset head streaming warning
+- **Source:** evm/041-etherfi-borrowing-market
+- **Issue:** Scroll dataset (`scroll-mainnet`) does not support real-time head streaming. The CLI logs a large warning block that could be mistaken for an error. Consider making this a single-line info message, or documenting which datasets support head streaming vs lagged-only.

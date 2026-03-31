@@ -105,3 +105,11 @@ Tracked improvements for `subsquid-labs/agent-skills`, gathered from real indexe
 - **Source:** evm/053-cooler-loans
 - **Issue:** Portal Stream API (`/datasets/{dataset}/stream`) POST body requires a `"type": "evm"` field. Without it, queries fail with `missing field 'type'`. The MCP tools handle this automatically, but the validate.ts cross-reference pattern using direct `fetch()` calls needs to include it.
 - **Fix:** Document in portal-query-evm-logs skill that direct Stream API calls need `{"type": "evm", "fromBlock": ..., "toBlock": ..., "logs": [...]}`.
+
+### pipes-new-indexer: EventEmitter proxy pattern
+- **Source:** evm/041-etherfi-borrowing-market
+- **Issue:** Some protocols (e.g., ether.fi Cash) use a centralized EventEmitter proxy that aggregates events from multiple user contracts. The scaffold skill should detect this pattern: when the ABI shows only `Upgraded`, check for the implementation address in recent Upgraded events. Additionally, after ABI generation, verify which events actually fire on-chain by querying Portal with topic0 hashes before writing indexer code — some ABI events never fire on the emitter contract.
+
+### portal-query-evm-logs: Portal count API path not documented
+- **Source:** evm/041-etherfi-borrowing-market
+- **Issue:** The validate.ts cross-reference pattern tries to use `/datasets/{dataset}/logs/count?address=...&topic0=...` but this endpoint returns 404. The correct way to count events via Portal is either through the MCP summary format or the Stream API. Document the available count/summary endpoints for direct fetch-based verification.

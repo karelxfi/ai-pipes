@@ -1,0 +1,15 @@
+{
+  "date": "2026-03-31",
+  "pipes_sdk_version": "1.0.0-alpha.1",
+  "agent_skills_version": "latest",
+  "claude_model": "claude-opus-4-6",
+  "angle": "Credit Card on Chain — ether.fi Cash spending, cashback rewards, and debt management on Scroll",
+  "chain": "scroll",
+  "contract": "0x5423885B376eBb4e6104b8Ab1A908D350F6A162e",
+  "contract_name": "UserSafeEventEmitter",
+  "events_tracked": ["Spend", "Cashback", "RepayDebtManager", "Swap"],
+  "runtime_status": "working",
+  "validation_status": "passed",
+  "total_events": 16082,
+  "date_range": "2024-11-27 to 2025-04-17"
+}

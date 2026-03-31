@@ -858,9 +858,9 @@
       "chains": [
         "Scroll"
       ],
-      "angle": null,
+      "angle": "Credit Card on Chain — spending, cashback, debt management on Scroll",
       "directory": "evm/041-etherfi-borrowing-market",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "infiniFi",
