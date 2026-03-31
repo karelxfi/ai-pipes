@@ -1,0 +1,19 @@
+{
+  "date": "2026-03-31",
+  "pipes_sdk_version": "1.0.0-alpha.1",
+  "agent_skills_version": "356334d66830572480347f02f08077d2def651db",
+  "claude_model": "claude-opus-4-6",
+  "angle": "Multi-PSM stablecoin flows — Mint, Redeem, Allocate, Withdraw across USDC/USDT/USD1 Peg Stability Modules",
+  "runtime_status": "working",
+  "validation_status": "passed",
+  "chain": "ethereum-mainnet",
+  "contracts": [
+    "0x4809010926aec940b550D34a46A52739f996D75D",
+    "0xeaE91B4C84e1EDfA5d78dcae40962C7655A549B9",
+    "0x813b0857e016b7ae5fb57f464dfad8ee7b74232e"
+  ],
+  "events": ["Mint", "Redeem", "Allocate", "Withdraw"],
+  "rows_indexed": 5089,
+  "validation_checks": "15/15 passed",
+  "portal_cross_ref": "0.0% diff (exact match)"
+}

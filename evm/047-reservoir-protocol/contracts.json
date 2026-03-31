@@ -1,0 +1,23 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "rUSD": { "address": "0x09D4214C03D01F49544C0448DBE3A27f768F2b34", "deploymentBlock": null, "verified": true },
+        "srUSD": { "address": "0x738d1115B90efa71AE468F1287fc864775e23a31", "deploymentBlock": null, "verified": true },
+        "wsrUSD": { "address": "0xd3fd63209fa2d55b07a0f6db36c2f43900be3094", "deploymentBlock": null, "verified": true },
+        "trUSD": { "address": "0x6c19e25bD34D063829DD05E2A5FAe165DDF2c8Dd", "deploymentBlock": null, "verified": true },
+        "DAM": { "address": "0x0FedbA9178b70e8b54e2Af08eBffcf28A1e5A43B", "deploymentBlock": null, "verified": true },
+        "DAM_Staking": { "address": "0x4be8be2B72638F87c76F738CC1341665ED2F5876", "deploymentBlock": null, "verified": true },
+        "PSM_USDC": { "address": "0x4809010926aec940b550D34a46A52739f996D75D", "deploymentBlock": null, "verified": true },
+        "PSM_USDT": { "address": "0xeaE91B4C84e1EDfA5d78dcae40962C7655A549B9", "deploymentBlock": null, "verified": true },
+        "PSM_USD1": { "address": "0x813b0857e016b7ae5fb57f464dfad8ee7b74232e", "deploymentBlock": null, "verified": true },
+        "SavingModule": { "address": "0x5475611Dffb8ef4d697Ae39df9395513b6E947d7", "deploymentBlock": null, "verified": true },
+        "TermIssuer": { "address": "0x128D86A9e854a709Df06b884f81EeE7240F6cCf7", "deploymentBlock": null, "verified": true },
+        "CreditEnforcer": { "address": "0x04716DB62C085D9e08050fcF6F7D775A03d07720", "deploymentBlock": null, "verified": true },
+        "rUSD_MintBridge": { "address": "0x6360f43803732Eaeb9F1967b9f74d117E03154b3", "deploymentBlock": null, "verified": true }
+      },
+      "source": "reservoir-docs",
+      "sourceUrl": "https://docs.reservoir.xyz/security-and-compliance/smart-contract-addresses"
+    }
+  }
+}

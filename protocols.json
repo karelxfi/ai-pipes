@@ -943,9 +943,9 @@
         "Mantle",
         "Arbitrum"
       ],
-      "angle": null,
+      "angle": "Multi-PSM stablecoin flows — Mint, Redeem, Allocate, Withdraw across USDC/USDT/USD1 Peg Stability Modules",
       "directory": "evm/047-reservoir-protocol",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Aster asBNB",
