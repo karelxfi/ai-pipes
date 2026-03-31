@@ -1,0 +1,15 @@
+{
+  "deployments": {
+    "binance": {
+      "contracts": {
+        "asBNB_token": { "address": "0x77734e70b6e88b4d82fe632a168edf6e700912b6", "deploymentBlock": null, "verified": true },
+        "asBNB_minter_proxy": { "address": "0x2f31ab8950c50080e77999fa456372f276952fd8", "deploymentBlock": null, "verified": false },
+        "asBNB_minter_impl": { "address": "0x7f52773065fd350b5a935ce2b293fdb16551a6fc", "deploymentBlock": null, "verified": true },
+        "treasury": { "address": "0x128463a60784c4d3f46c23af3f65ed859ba87974", "deploymentBlock": null, "verified": true },
+        "ASTER_token": { "address": "0x000ae314e2a2172a039b26378814c252734f566a", "deploymentBlock": null, "verified": false }
+      },
+      "source": "bscscan-etherscan",
+      "sourceUrl": "https://bscscan.com/token/0x77734e70b6e88b4d82fe632a168edf6e700912b6"
+    }
+  }
+}

@@ -956,9 +956,9 @@
       "chains": [
         "Binance"
       ],
-      "angle": null,
+      "angle": "asBNB liquid staking lifecycle — token transfers (mint/burn/transfer) plus minter events on BSC",
       "directory": "evm/048-aster-asbnb",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "stHYPE",
