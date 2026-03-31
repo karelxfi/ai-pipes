@@ -1,0 +1,36 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "fLiteUSD_vault": {
+          "address": "0x273DA948ACa9261043fbdb2a857BC255ECC29012",
+          "deploymentBlock": 24726000,
+          "verified": true
+        },
+        "fLiteUSD_implementation": {
+          "address": "0xE16Ccc91a8134d428e7b6240177f9e2b227b9743",
+          "deploymentBlock": null,
+          "verified": true
+        },
+        "iETHv2_vault": {
+          "address": "0xa0d3707c569ff8c87fa923d3823ec5d81c98be78",
+          "deploymentBlock": 17000000,
+          "verified": true
+        },
+        "iETHv2_implementation": {
+          "address": "0x6Feb5478f7345abe1d477ff6828819b4c8ba551a",
+          "deploymentBlock": null,
+          "verified": true
+        },
+        "fluid_token": {
+          "address": "0x6f40d4a6237c257fff2db00fa0510deeecd303eb",
+          "deploymentBlock": null,
+          "verified": true
+        }
+      },
+      "source": "etherscan-verified",
+      "sourceUrl": "https://etherscan.io/token/0x273DA948ACa9261043fbdb2a857BC255ECC29012",
+      "updated": "2026-03-31"
+    }
+  }
+}

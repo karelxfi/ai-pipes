@@ -67,3 +67,8 @@ Tracked improvements for the Pipes CLI (`@iankressin/pipes-cli`), gathered from 
 ### Scroll dataset head streaming warning
 - **Source:** evm/041-etherfi-borrowing-market
 - **Issue:** Scroll dataset (`scroll-mainnet`) does not support real-time head streaming. The CLI logs a large warning block that could be mistaken for an error. Consider making this a single-line info message, or documenting which datasets support head streaming vs lagged-only.
+
+### Multiple decoders with different start blocks
+- **Source:** evm/057-fluid-lite
+- **Issue:** When indexing multiple contracts deployed at very different times (e.g., iETHv2 at block 17M, fLiteUSD at block 24.7M), each decoder needs a different `range.from`. The SDK handles this correctly but the CLI init doesn't support multi-contract scaffolds with different ranges.
+- **Fix:** Allow specifying per-contract deployment blocks in `init` config, or at minimum document the multi-decoder pattern in generated comments.

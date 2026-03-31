@@ -897,9 +897,9 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": null,
-      "directory": "evm/044-fluid-lite",
-      "status": "pending"
+      "angle": "Dual-vault yield pulse — exchange rate growth, capital flows & strategy rebalancing across iETHv2 and fLiteUSD",
+      "directory": "evm/057-fluid-lite",
+      "status": "done"
     },
     {
       "name": "Yield Basis",
