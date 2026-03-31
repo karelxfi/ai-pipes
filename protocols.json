@@ -923,9 +923,9 @@
       "chains": [
         "Binance"
       ],
-      "angle": null,
+      "angle": "Unified liquidity hub operations — supply, borrow, withdraw, repay flows through Fluid Liquidity on BSC",
       "directory": "evm/046-venus-flux",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Reservoir Protocol",

@@ -1,0 +1,30 @@
+{
+  "deployments": {
+    "binance": {
+      "contracts": {
+        "liquidity": { "address": "0x52Aa899454998Be5b000Ad077a46Bbe360F4e497", "deploymentBlock": null, "verified": true },
+        "adminModule": { "address": "0xE1CCc6E5FB4684Abb23b71ce6F44f76ffe3a33B0", "deploymentBlock": null, "verified": true },
+        "userModule": { "address": "0x3c06514287e74ede035d293362a2369bDa60E642", "deploymentBlock": null, "verified": true },
+        "liquidityDummyImpl": { "address": "0x3560a1d1E9F30b61cd0E24349f7a23890f6261D9", "deploymentBlock": null, "verified": true },
+        "lendingFactory": { "address": "0x54B91A0D94cb471F37f949c60F7Fa7935b551D03", "deploymentBlock": null, "verified": true },
+        "vaultFactory": { "address": "0x324c5Dc1fC42c7a4D43d92df1eBA58a54d13Bf2d", "deploymentBlock": null, "verified": true },
+        "dexFactory": { "address": "0x91716C4EDA1Fb55e84Bf8b4c7085f84285c19085", "deploymentBlock": null, "verified": true },
+        "smartLendingFactory": { "address": "0xe57227C7d5900165344b190fc7aa580bceb53B9B", "deploymentBlock": null, "verified": true },
+        "reserveContractProxy": { "address": "0x264786EF916af64a1DB19F513F24a3681734ce92", "deploymentBlock": null, "verified": true },
+        "fToken_fUSDC": { "address": "0xfE60462E93cee34319F48Cfc6AcFbc13c2882Df9", "deploymentBlock": null, "verified": true },
+        "fToken_fUSDT": { "address": "0xA5b8FCa32E5252B0B58EAbf1A8c79d958F8EE6A2", "deploymentBlock": null, "verified": true },
+        "fToken_fWBNB": { "address": "0x527C2a0B8A3eDD9696B4A9443ef66Ec30fD7B84a", "deploymentBlock": null, "verified": true },
+        "fToken_fU": { "address": "0x007df53Cda786450Cf8145a73B2748B241a0069c", "deploymentBlock": null, "verified": true },
+        "liquidityResolver": { "address": "0xca13A15de31235A37134B4717021C35A3CF25C60", "deploymentBlock": null, "verified": true },
+        "lendingResolver": { "address": "0x48D32f49aFeAEC7AE66ad7B9264f446fc11a1569", "deploymentBlock": null, "verified": true },
+        "vaultResolver": { "address": "0xA5C3E16523eeeDDcC34706b0E6bE88b4c6EA95cC", "deploymentBlock": null, "verified": true },
+        "dexResolver": { "address": "0xAf572EfC84d905926F7b05C1B7bE04e4E89542B0", "deploymentBlock": null, "verified": true },
+        "vaultT1Admin": { "address": "0xd3F20FeB20a311f535B525B5a4EcbC03234a1B2B", "deploymentBlock": null, "verified": true },
+        "dexT1Admin": { "address": "0x907A321A617Dd6D187722068747d800e5196141f", "deploymentBlock": null, "verified": true },
+        "ratesAuth": { "address": "0x193e4B45F05DE6110765E32f1Aa05E8B3Edef7f7", "deploymentBlock": null, "verified": true }
+      },
+      "source": "fluid-github-deployments",
+      "sourceUrl": "https://github.com/Instadapp/fluid-contracts-public/blob/main/deployments/deployments.md"
+    }
+  }
+}

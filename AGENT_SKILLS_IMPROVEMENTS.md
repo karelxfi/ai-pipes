@@ -119,6 +119,11 @@ Tracked improvements for `subsquid-labs/agent-skills`, gathered from real indexe
 - **Source:** evm/041-etherfi-borrowing-market
 - **Issue:** The validate.ts cross-reference pattern tries to use `/datasets/{dataset}/logs/count?address=...&topic0=...` but this endpoint returns 404. The correct way to count events via Portal is either through the MCP summary format or the Stream API. Document the available count/summary endpoints for direct fetch-based verification.
 
+### pipes-new-indexer: Protocol identity mismatch (partnership/rebrand protocols)
+- **Source:** evm/046-venus-flux
+- **Issue:** Venus Flux is actually Instadapp Fluid deployed on BSC through a Venus partnership. The skill has no guidance for protocols whose DeFiLlama name differs from the underlying technology. This caused the previous run to need extra research time.
+- **Fix:** Add a step to check `https://api.llama.fi/protocol/<slug>` early in research to confirm the actual protocol identity, especially for partnership/rebrand protocols.
+
 ### portal-query-evm-logs: Newly deployed contracts return 0 with broad block ranges
 - **Source:** evm/057-fluid-lite
 - **Issue:** When querying Portal for a contract deployed very recently (<7 days), broad block-range queries (e.g., `from_block: 20000000, to_block: 24777000`) return 0 logs even though events exist. The `get_contract_activity` tool with `7d` timeframe finds them correctly. This appears to be a Portal indexing lag or sparse-data optimization issue.

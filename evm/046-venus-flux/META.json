@@ -1,0 +1,15 @@
+{
+  "date": "2026-03-31",
+  "pipes_sdk_version": "1.0.0-alpha.1",
+  "agent_skills_version": "356334d66830572480347f02f08077d2def651db",
+  "claude_model": "claude-opus-4-6",
+  "angle": "Unified liquidity hub operations — supply, borrow, withdraw, repay flows through Fluid Liquidity on BSC (Venus Flux partnership)",
+  "runtime_status": "working",
+  "validation_status": "passed",
+  "chain": "binance-mainnet",
+  "contract": "0x52Aa899454998Be5b000Ad077a46Bbe360F4e497",
+  "event": "LogOperate",
+  "rows_indexed": 71010,
+  "validation_checks": "17/17 passed",
+  "portal_cross_ref": "0.0% diff (exact match)"
+}
