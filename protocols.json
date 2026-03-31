@@ -1043,9 +1043,9 @@
         "Polygon zkEVM",
         "MegaETH"
       ],
-      "angle": null,
+      "angle": "Protocol-wide aggregate activity — 89 vault deposit/withdraw flows + BIFI governance token on Ethereum",
       "directory": "evm/051-beefy",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Benqi Lending",

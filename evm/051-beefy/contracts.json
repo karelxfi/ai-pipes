@@ -1,0 +1,13 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "BIFI_token": { "address": "0xb1f1ee126e9c96231cc3d3fad7c08b4cf873b1f1", "deploymentBlock": null, "verified": true },
+        "treasury": { "address": "0xc9C61194682a3A5f56BF9Cd5B59EE63028aB6041", "deploymentBlock": null, "verified": true }
+      },
+      "source": "beefy-docs",
+      "sourceUrl": "https://docs.beefy.finance/additional-resources/contract-addresses",
+      "note": "89 active vault addresses listed in src/vaults.json, fetched from api.beefy.finance"
+    }
+  }
+}

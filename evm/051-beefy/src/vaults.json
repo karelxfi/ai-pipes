@@ -1,0 +1,447 @@
+[
+  {
+    "id": "curve-usdc-usdf",
+    "address": "0x0014e0be19de3118b5b29842dd1696a2a98eb9db",
+    "name": "USDf/USDC"
+  },
+  {
+    "id": "convex-t",
+    "address": "0x03d0f88adc096259b49079073aed693ba5f425ee",
+    "name": "T/WETH"
+  },
+  {
+    "id": "curve-crvusd-yb",
+    "address": "0x0b1b34677b80f499d2f03bf335ed6a2db9f2a376",
+    "name": "YB/crvUSD"
+  },
+  {
+    "id": "balancerv3-ethereum-waethusdc-waethusdt-waethlidogho",
+    "address": "0x0c57f1e8f2a02485de8b69c59c7be61b473ca25a",
+    "name": "USDT/GHO/USDC LP"
+  },
+  {
+    "id": "curve-lend-tbtc-crvusd",
+    "address": "0x0d10346cb5efc58a9ccf5c3cecf9273596faf0d6",
+    "name": "crvUSD (tBTC Market)"
+  },
+  {
+    "id": "stakedao-susd-susde",
+    "address": "0x0f59726bc1101a18cb332e176f4b0674d65ff453",
+    "name": "sUSD/sUSDe"
+  },
+  {
+    "id": "sky-staking",
+    "address": "0x15bbd315b61e7c0717b2bce6dd1172590860fc28",
+    "name": "SKY"
+  },
+  {
+    "id": "curve-reusd-sdola",
+    "address": "0x17ceb96f71ed655fed4b06ec5492d89865c14fd4",
+    "name": "reUSD/sDOLA"
+  },
+  {
+    "id": "curve-eusd-usdc",
+    "address": "0x1817cffc44c78d5aed61420bf48cc273e504b7be",
+    "name": "eUSD/USDC"
+  },
+  {
+    "id": "curve-reusd-sfrxusd",
+    "address": "0x1a3eab69e4149848768fd843d86859c033ae842e",
+    "name": "reUSD/sfrxUSD"
+  },
+  {
+    "id": "convex-tricrv",
+    "address": "0x1d46d2b6a3d83bb33feb7b8e7edfb73e9937befd",
+    "name": "TriCRV"
+  },
+  {
+    "id": "stakedao-ousd-musd",
+    "address": "0x2096f8db3dbfd6076f38c61a0aae82d8c4a47dfb",
+    "name": "OUSD/MUSD"
+  },
+  {
+    "id": "convex-aleth-frxeth",
+    "address": "0x26f44884d9744c0edab6283930df325c200020a3",
+    "name": "alETH/frxETH"
+  },
+  {
+    "id": "stakedao-pmusd-frxusd",
+    "address": "0x2a2b182e5a05626489eb4874b19158c728705746",
+    "name": "pmUSD/frxUSD"
+  },
+  {
+    "id": "convex-oeth",
+    "address": "0x31c0dac4c896cb84adfef2f8e41cb9295eec93c2",
+    "name": "OETH/ETH"
+  },
+  {
+    "id": "curve-mseth-weth",
+    "address": "0x380e00a15c212457437454af94b86583bc0c99f5",
+    "name": "msETH/WETH"
+  },
+  {
+    "id": "curve-eth+-weth",
+    "address": "0x3a40143c325d294806017f8d5606610b2d86c54e",
+    "name": "ETH+/WETH"
+  },
+  {
+    "id": "stakedao-pmusd-crvusd",
+    "address": "0x3b09a704669a5d8463fbff06730895aeee7a9671",
+    "name": "pmUSD/crvUSD"
+  },
+  {
+    "id": "convex-staked-cvxCRV",
+    "address": "0x4115150523599d1f6c6fa27f5a4c27d578fd8ce5",
+    "name": "cvxCRV"
+  },
+  {
+    "id": "sky-usds-spk",
+    "address": "0x456e524364b20c7e5f47281ed49bfe8980d93fee",
+    "name": "USDS"
+  },
+  {
+    "id": "curve-frxusd-msusd",
+    "address": "0x4a2136a8e27c4c55872dc983af25eb8f19c9fd4b",
+    "name": "frxUSD/msUSD"
+  },
+  {
+    "id": "convex-fraxusdc",
+    "address": "0x4fc424a840b5fb1baf195963ec3737904440df1d",
+    "name": "FRAX/USDC"
+  },
+  {
+    "id": "curve-scrvusd-usdaf",
+    "address": "0x5159b51cd1b72d3c6ad900b9c394e6b285017c42",
+    "name": "scrvUSD/USDaf"
+  },
+  {
+    "id": "stakedao-mim",
+    "address": "0x526193e6e5ad5c5bc6410318323fe2fecbcf6ef9",
+    "name": "MIM/DAI/USDC/USDT"
+  },
+  {
+    "id": "stakedao-frxusd-ousd",
+    "address": "0x5309330d5579f77781b69f8a6a95ac5e41581f2b",
+    "name": "frxUSD/OUSD"
+  },
+  {
+    "id": "morpho-smokehouse-usdc",
+    "address": "0x562ea6fffd1293b9433e7b81a2682c31892ea013",
+    "name": "USDC (Steakhouse, Smokehouse)"
+  },
+  {
+    "id": "convex-cvxcrv",
+    "address": "0x5bcd31a28d77a1a5ef5e0146ab91e6f43d7100b7",
+    "name": "cvxCRV/CRV"
+  },
+  {
+    "id": "stakedao-crvusd-usdc",
+    "address": "0x60817ae2c60b72c13fc636f306e182137709e085",
+    "name": "crvUSD/USDC"
+  },
+  {
+    "id": "stakedao-ousd-pmusd",
+    "address": "0x61dfa236e0c30aae123ce152a89927dabe5ebb93",
+    "name": "OUSD/pmUSD"
+  },
+  {
+    "id": "morpho-smokehouse-wsteth",
+    "address": "0x63a936cc9740126f21ec8144acff22c2ff89149c",
+    "name": "wstETH (Steakhouse, Smokehouse)"
+  },
+  {
+    "id": "curve-weth-rsup",
+    "address": "0x65c004260add26d87ee692992af7781a7317bded",
+    "name": "RSUP-WETH"
+  },
+  {
+    "id": "morpho-steakhouse-weth",
+    "address": "0x68ad3f6da23ad1cd24cb5089492ccf186bfbbe7b",
+    "name": "WETH (Steakhouse, Steakhouse)"
+  },
+  {
+    "id": "fx-fxn-eth",
+    "address": "0x6d6947aed08c3407bdff56cfa509eda98df2e996",
+    "name": "FXN/WETH"
+  },
+  {
+    "id": "balancerv3-ethereum-fwsteth-fweth",
+    "address": "0x6fc8a2c376f30df9bc55f3f868e4284596931030",
+    "name": "fwstETH/fWETH V3"
+  },
+  {
+    "id": "convex-staked-cvxFXN",
+    "address": "0x7a7978523da75b469f4d745714fe55ece6a4d5a9",
+    "name": "cvxFXN"
+  },
+  {
+    "id": "curve-usdc-rlusd",
+    "address": "0x7af50a047ac5c37eecf38025fad92a81aa02ac9b",
+    "name": "RLUSD/USDC"
+  },
+  {
+    "id": "stakedao-wbtc-cbbtc-hemibtc",
+    "address": "0x7d387275c83b40d72f593e184653dedfb06091e7",
+    "name": "WBTC/cbBTC/hemiBTC"
+  },
+  {
+    "id": "convex-clev",
+    "address": "0x7eaea98668f1c062266b4c186f57eafb6df6fbe4",
+    "name": "CLEV/WETH"
+  },
+  {
+    "id": "pendle-susdf-18jun26",
+    "address": "0x81289970e7d567098af3386e8cba5dcca356a223",
+    "name": "sUSDf 18Jun26"
+  },
+  {
+    "id": "fx-gho-fxusd",
+    "address": "0x81f040e82aae01f3921a1c1225c86ce5c57c218b",
+    "name": "GHO/fxUSD"
+  },
+  {
+    "id": "pendle-apxusd-18jun26",
+    "address": "0x821bb901badbd2a6afe4dd7d0480f7758284690e",
+    "name": "apxUSD 18Jun26"
+  },
+  {
+    "id": "curve-bold-lusd",
+    "address": "0x834d00dc6073e1ba68a11b1b58d568ee1e030513",
+    "name": "BOLD/LUSD"
+  },
+  {
+    "id": "convex-geareth",
+    "address": "0x8448758c3cad93675eace770847aa9507f8bde0b",
+    "name": "GEAR-WETH"
+  },
+  {
+    "id": "curve-susd-susde",
+    "address": "0x856c718ac2fa2e23e99e878ea1e034194cd2bae2",
+    "name": "sUSD/sUSDe"
+  },
+  {
+    "id": "curve-pyusd-crvusd",
+    "address": "0x869cf8a46c70c59aafe7258fa824a0179168e8b8",
+    "name": "PYUSD/crvUSD"
+  },
+  {
+    "id": "stakedao-crvusd-frxusd",
+    "address": "0x892342e95e4bbe90e7e62c23843244bcaf898ec7",
+    "name": "crvUSD/frxUSD"
+  },
+  {
+    "id": "morpho-eth-api3-core-usdc",
+    "address": "0x90155419435f80e78a23c4eccaeeafd65240184c",
+    "name": "USDC (Api3, Core V2)"
+  },
+  {
+    "id": "convex-gho-crvusd",
+    "address": "0x94acd52edde27357dab8fabdf9db4bbd54f1e85e",
+    "name": "GHO/crvUSD"
+  },
+  {
+    "id": "stakedao-ousd-usde",
+    "address": "0x951e0b2380fcb69403e8dc3e054e85f4446b352d",
+    "name": "OUSD/USDe"
+  },
+  {
+    "id": "stakedao-usdc-savusd",
+    "address": "0x967c94af547070a0fed6d17d82b7dc31392609e8",
+    "name": "savUSD/USDC"
+  },
+  {
+    "id": "balancerv3-ethereum-teth-wsteth",
+    "address": "0x99b91bbc278a3d6f20a83de8c15215aa0829fedd",
+    "name": "tETH/wstETH V3"
+  },
+  {
+    "id": "morpho-eth-gauntlet-prime-usdc",
+    "address": "0x9a1f11f93939dbf1103a4321206b334181359a96",
+    "name": "USDC (Gauntlet, Prime V2)"
+  },
+  {
+    "id": "pendle-reusde-25jun26",
+    "address": "0x9d678b6215f783f8306bd256934b4ae696c8493c",
+    "name": "reUSDe 25Jun26"
+  },
+  {
+    "id": "aura-alcx-eth",
+    "address": "0x9e90ad4810c9eae0adfc15801838dc53cc6ed48a",
+    "name": "ALCX-ETH"
+  },
+  {
+    "id": "curve-usds-stusds",
+    "address": "0x9f90f5d9a1f46b62fbdddefbc72f48a35c183510",
+    "name": "USDS/stUSDS"
+  },
+  {
+    "id": "fx-reusd-fxusd",
+    "address": "0xab6d619ea03b2413547289e905a2f18b59a6b951",
+    "name": "reUSD/fxUSD"
+  },
+  {
+    "id": "pendle-cusd-23jul26",
+    "address": "0xac2a49c8c39198bc340c7604ee9d6e53015e939a",
+    "name": "cUSD 23Jul26"
+  },
+  {
+    "id": "convex-alusd-fraxbp",
+    "address": "0xadbe02f718327628ed9a9515ec27d3d3b4950ed2",
+    "name": "alUSD/FRAX/USDC"
+  },
+  {
+    "id": "convex-cvxeth",
+    "address": "0xb9548238d875fb4e12727b2750d8a0bdbc7171c7",
+    "name": "CVX-WETH"
+  },
+  {
+    "id": "stakedao-ousd-msusd",
+    "address": "0xb9f6f809bc2d635bd1578c26b61e1b9c56a8be70",
+    "name": "OUSD/msUSD"
+  },
+  {
+    "id": "morpho-steakhouse-usdc",
+    "address": "0xbba4d1cecc111bdc74bd2f95050fb11acb3b8a5e",
+    "name": "USDC (Steakhouse, Steakhouse)"
+  },
+  {
+    "id": "curve-ebtc-tbtc",
+    "address": "0xbbaeb1aa33ca67c4875631a282e7925df6b474c2",
+    "name": "EBTC/tBTC"
+  },
+  {
+    "id": "convex-tricrypto-llama",
+    "address": "0xbcaec95a49d50f7336fc08017343ddd8ed239a52",
+    "name": "crvUSD/tBTC/wstETH"
+  },
+  {
+    "id": "bifi-vault",
+    "address": "0xbeef8e0982874e0292e6c5751c5a4092b3e1beef",
+    "name": "BIFI"
+  },
+  {
+    "id": "curve-crvusd-susde",
+    "address": "0xbf7fc2a3d96d80f47b3b89be84afe10376ce96a5",
+    "name": "crvUSD/sUSDe"
+  },
+  {
+    "id": "curve-bold-usdc-new",
+    "address": "0xc3cb31fafe8f1f2a991a833d0f0e34187bc6d5ad",
+    "name": "BOLD/USDC"
+  },
+  {
+    "id": "convex-tricrypto-usdt",
+    "address": "0xc4c68922058f45952c05296abef16d8b5bd2190f",
+    "name": "USDT/WBTC/WETH"
+  },
+  {
+    "id": "morpho-eth-steakhouse-prime-weth",
+    "address": "0xc7ea3c3e2ad0553b960f10ae25da3ce34e15256a",
+    "name": "WETH (Steakhouse, Prime V2)"
+  },
+  {
+    "id": "curve-link-stlink-ng",
+    "address": "0xca28b1c9f058ce34332126cbbc71212ad101348f",
+    "name": "stLINK/LINK"
+  },
+  {
+    "id": "pendle-stcusd-23jul26",
+    "address": "0xcd17851fd91fef5ae744f7511213270b63c36c15",
+    "name": "stcUSD 23Jul26"
+  },
+  {
+    "id": "convex-tricrypto-usdc",
+    "address": "0xd1bead7cadccc6b6a715a6272c39f1ec54f6ec99",
+    "name": "TriCryptoUSDC"
+  },
+  {
+    "id": "curve-msusd-fraxbp",
+    "address": "0xd3368e8e2a44a219cea95868c337429e7328dea1",
+    "name": "msUSD/FRAX/USDC"
+  },
+  {
+    "id": "convex-mim",
+    "address": "0xd5bad7c89028b3f7094e40dcce83d4e6b3fd9aa4",
+    "name": "MIM/DAI/USDC/USDT"
+  },
+  {
+    "id": "curve-frxusd-usdf",
+    "address": "0xd781450b90230c5844d3147ca9836019e3ee9792",
+    "name": "frxUSD/USDf"
+  },
+  {
+    "id": "fx-usdc-fxusd",
+    "address": "0xd81eaae8e6195e67695be9ac447c9d6214cb717a",
+    "name": "fxUSD/USDC"
+  },
+  {
+    "id": "curve-paypool",
+    "address": "0xda19c56dcdf4fb333acbe9aa18024dd2e4a864bc",
+    "name": "PYUSD/USDC"
+  },
+  {
+    "id": "stakedao-crv-sdcrv",
+    "address": "0xdf8ba5860deed6308463501e63fbb8659dc82f4c",
+    "name": "sdCRV/CRV"
+  },
+  {
+    "id": "pendle-apyusd-18jun26",
+    "address": "0xe104c229b7b2e3a68305f5a66039abf6e308fac8",
+    "name": "apyUSD 18Jun26"
+  },
+  {
+    "id": "curve-reusd-scrvusd",
+    "address": "0xe6a0a44fb3096d758018e6dfb10b7a93bfcca279",
+    "name": "reUSD/scrvUSD"
+  },
+  {
+    "id": "pendle-reusd-25jun26",
+    "address": "0xe82dd383d450054bf685331739eaddec11eb69da",
+    "name": "reUSD 25Jun26"
+  },
+  {
+    "id": "stakedao-ynrwax-ousd",
+    "address": "0xed43b7564965a09a1439d4f5d3424ab6dc3ae8b1",
+    "name": "ynRWAx/OUSD"
+  },
+  {
+    "id": "balancerv3-ethereum-oseth-waethweth",
+    "address": "0xee4537328d7b9d591dcb76f57eec7b5f11e007d2",
+    "name": "osETH/WETH V3"
+  },
+  {
+    "id": "stakedao-mseth-weth",
+    "address": "0xef1bb941c31e832d76c3a59d18753ffd5d880c55",
+    "name": "msETH/WETH"
+  },
+  {
+    "id": "convex-staked-cvx",
+    "address": "0xf12dd69a5ab0cfbf41758052d871b881dc0fc8e0",
+    "name": "CVX"
+  },
+  {
+    "id": "balancerv3-ethereum-waethweth-reth",
+    "address": "0xf18b52793185a885975b6d9e307e7aaacc614766",
+    "name": "rETH/WETH V3"
+  },
+  {
+    "id": "fx-eusd-fxusd",
+    "address": "0xf308d61839716610baf43cb72c294c61bb67e38e",
+    "name": "eUSD/fxUSD"
+  },
+  {
+    "id": "stakedao-crvusd-usdt",
+    "address": "0xf401fe6a3371a04b97751205cb85516db5664a49",
+    "name": "crvUSD/USDT"
+  },
+  {
+    "id": "stakedao-frax-pyusd",
+    "address": "0xf71b39e56cd0c8ffc61f68f6bed6fe8ecef7e461",
+    "name": "FRAX/PYUSD"
+  },
+  {
+    "id": "ape-ape",
+    "address": "0xfc6a9d39b44a174b5ba708dbaa437632d78b8585",
+    "name": "APE"
+  }
+]
