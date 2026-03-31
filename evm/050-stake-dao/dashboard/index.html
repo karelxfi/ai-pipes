@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>Stake DAO — Governance Pulse</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #000; color: #ccc;
+  font-family: 'Consolas', 'SF Mono', 'Source Code Pro', 'JetBrains Mono', monospace;
+  font-size: 11px; line-height: 1.3; width: 1200px; min-height: 675px;
+}
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 10px; border-bottom: 1px solid #1a1a1a; background: #0a0a0a;
+}
+.header-left { display: flex; align-items: baseline; gap: 12px; }
+.header-title { font-size: 12px; color: #4A7AB5; letter-spacing: 0.8px; text-transform: uppercase; font-weight: normal; }
+.header-sub { font-size: 9px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+.stats {
+  display: flex; gap: 20px; padding: 6px 10px;
+  border-bottom: 1px solid #1a1a1a; background: #0a0a0a;
+}
+.stat { display: flex; flex-direction: column; }
+.stat-value { font-size: 16px; color: #fff; font-feature-settings: 'tnum'; }
+.stat-label { font-size: 9px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+.grid {
+  display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+  gap: 0; height: calc(675px - 74px);
+}
+.panel { border: 1px solid #1a1a1a; padding: 0; background: #0a0a0a; position: relative; }
+.chart { width: 100%; height: 100%; }
+.footer {
+  padding: 4px 10px; font-size: 9px; color: #444; text-align: center;
+  border-top: 1px solid #1a1a1a;
+}
+.footer a { color: #4A7AB5; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <span class="header-title">Stake DAO — Governance Pulse</span>
+    <span class="header-sub">Ethereum · Liquid Lockers + veSDT</span>
+  </div>
+  <div class="header-sub" id="period"></div>
+</div>
+
+<div class="stats">
+  <div class="stat"><span class="stat-value" id="total-events">—</span><span class="stat-label">Total Events</span></div>
+  <div class="stat"><span class="stat-value" id="sdcrv-transfers">—</span><span class="stat-label">sdCRV Transfers</span></div>
+  <div class="stat"><span class="stat-value" id="sdt-transfers">—</span><span class="stat-label">SDT Transfers</span></div>
+  <div class="stat"><span class="stat-value" id="vesdt-locks">—</span><span class="stat-label">veSDT Locks</span></div>
+  <div class="stat"><span class="stat-value" id="unique-addrs">—</span><span class="stat-label">Unique Addresses</span></div>
+</div>
+
+<div class="grid">
+  <div class="panel"><div class="chart" id="chart-daily"></div></div>
+  <div class="panel"><div class="chart" id="chart-token"></div></div>
+  <div class="panel"><div class="chart" id="chart-vesdt"></div></div>
+  <div class="panel"><div class="chart" id="chart-top"></div></div>
+</div>
+
+<div class="footer">
+  Built with ai-pipes + SQD Pipes SDK | <a href="https://github.com/karelxfi">github.com/karelxfi</a> | <a href="https://x.com/karelxfi">x.com/karelxfi</a>
+</div>
+
+<script>
+var CH = 'http://localhost:8123/?user=default&password=password&database=stake_dao';
+var PALETTE = ['#1E3A5F','#2B4F7E','#1A3050','#3D6494','#4A7AB5','#2E5480','#5A8ABF','#1F4470','#3B6A9E','#274D73'];
+
+function query(sql) {
+  return fetch(CH, { method: 'POST', body: sql + ' FORMAT JSON' })
+    .then(function(r) { return r.json(); })
+    .then(function(d) { return d.data; });
+}
+
+function termOpts(title) {
+  return {
+    backgroundColor: 'transparent',
+    title: { text: title.toUpperCase(), textStyle: { color: '#666', fontSize: 10, fontWeight: 'normal', fontFamily: 'Consolas, SF Mono, monospace' }, left: 8, top: 4 },
+    textStyle: { color: '#666', fontFamily: 'Consolas, SF Mono, Source Code Pro, monospace' },
+    tooltip: { backgroundColor: '#1a1a1a', borderColor: '#333', textStyle: { color: '#ccc', fontSize: 10, fontFamily: 'Consolas, monospace' }, padding: [4, 8] },
+    grid: { left: 48, right: 8, top: 28, bottom: 24 },
+    animation: false
+  };
+}
+
+function fmtNum(n) { return Number(n).toLocaleString('en-US'); }
+
+// Stats
+Promise.all([
+  query("SELECT count() c FROM stake_dao_events"),
+  query("SELECT count() c FROM stake_dao_events WHERE token = 'sdCRV'"),
+  query("SELECT count() c FROM stake_dao_events WHERE token = 'SDT'"),
+  query("SELECT count() c FROM stake_dao_events WHERE token = 'veSDT' AND event_type = 'lock'"),
+  query("SELECT count(distinct addr) c FROM (SELECT from_addr addr FROM stake_dao_events WHERE from_addr != '' AND from_addr != '0x0000000000000000000000000000000000000000' UNION ALL SELECT to_addr FROM stake_dao_events WHERE to_addr != '' AND to_addr != '0x0000000000000000000000000000000000000000' UNION ALL SELECT provider FROM stake_dao_events WHERE provider != '')"),
+  query("SELECT min(timestamp) mn, max(timestamp) mx FROM stake_dao_events"),
+]).then(function(r) {
+  document.getElementById('total-events').textContent = fmtNum(r[0][0].c);
+  document.getElementById('sdcrv-transfers').textContent = fmtNum(r[1][0].c);
+  document.getElementById('sdt-transfers').textContent = fmtNum(r[2][0].c);
+  document.getElementById('vesdt-locks').textContent = fmtNum(r[3][0].c);
+  document.getElementById('unique-addrs').textContent = fmtNum(r[4][0].c);
+  document.getElementById('period').textContent = r[5][0].mn.substring(0,10) + ' \u2192 ' + r[5][0].mx.substring(0,10);
+});
+
+// Daily by token
+query("SELECT toDate(timestamp) d, countIf(token='sdCRV') s, countIf(token='SDT') t, countIf(token='veSDT') v FROM stake_dao_events GROUP BY d ORDER BY d").then(function(data) {
+  var ch = echarts.init(document.getElementById('chart-daily'));
+  var opts = termOpts('daily events by token');
+  opts.xAxis = { type: 'category', data: data.map(function(r){return r.d;}), axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace',rotate:45}, splitLine:{show:false} };
+  opts.yAxis = { type: 'value', axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'}, splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}} };
+  opts.legend = { show: true, top: 4, right: 8, textStyle: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' }, itemWidth: 10, itemHeight: 8 };
+  opts.series = [
+    { name: 'sdCRV', type: 'bar', stack: 'e', data: data.map(function(r){return Number(r.s);}), itemStyle: { color: '#2B4F7E' }, barMaxWidth: 6 },
+    { name: 'SDT', type: 'bar', stack: 'e', data: data.map(function(r){return Number(r.t);}), itemStyle: { color: '#4A7AB5' }, barMaxWidth: 6 },
+    { name: 'veSDT', type: 'bar', stack: 'e', data: data.map(function(r){return Number(r.v);}), itemStyle: { color: '#3D6494' }, barMaxWidth: 6 },
+  ];
+  opts.tooltip.trigger = 'axis';
+  ch.setOption(opts);
+});
+
+// Token breakdown treemap
+query("SELECT token, event_type, count() c FROM stake_dao_events GROUP BY token, event_type ORDER BY c DESC").then(function(data) {
+  var ch = echarts.init(document.getElementById('chart-token'));
+  var opts = termOpts('event breakdown');
+  opts.grid = undefined;
+  var total = data.reduce(function(a,r){return a+Number(r.c);},0);
+  opts.series = [{
+    type: 'treemap',
+    data: data.map(function(r,i){ return { name: r.token + ':' + r.event_type + ' (' + (100*Number(r.c)/total).toFixed(1) + '%)', value: Number(r.c), itemStyle: { color: PALETTE[i % PALETTE.length] } }; }),
+    label: { color: '#ccc', fontSize: 9, fontFamily: 'Consolas, monospace', fontWeight: 'normal' },
+    breadcrumb: { show: false },
+    itemStyle: { borderColor: '#000', borderWidth: 1, gapWidth: 1 },
+    left: 8, right: 8, top: 28, bottom: 8, roam: false
+  }];
+  ch.setOption(opts);
+});
+
+// veSDT lock/unlock timeline
+query("SELECT toStartOfWeek(toDate(timestamp)) w, countIf(event_type='lock') l, countIf(event_type='unlock') u, sumIf(amount_dec, event_type='lock') lv, sumIf(amount_dec, event_type='unlock') uv FROM stake_dao_events WHERE token = 'veSDT' AND event_type IN ('lock','unlock') GROUP BY w ORDER BY w").then(function(data) {
+  var ch = echarts.init(document.getElementById('chart-vesdt'));
+  var opts = termOpts('vesdt weekly lock/unlock (count)');
+  opts.grid = { left: 48, right: 8, top: 28, bottom: 24 };
+  opts.xAxis = { type: 'category', data: data.map(function(r){return r.w;}), axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace',rotate:45}, splitLine:{show:false} };
+  opts.yAxis = { type: 'value', axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'}, splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}} };
+  opts.legend = { show: true, top: 4, right: 8, textStyle: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' }, itemWidth: 10, itemHeight: 8 };
+  opts.series = [
+    { name: 'Locks', type: 'bar', data: data.map(function(r){return Number(r.l);}), itemStyle: { color: '#3D7A6B' }, barMaxWidth: 16 },
+    { name: 'Unlocks', type: 'bar', data: data.map(function(r){return Number(r.u);}), itemStyle: { color: '#8B3A3A' }, barMaxWidth: 16 },
+  ];
+  opts.tooltip.trigger = 'axis';
+  ch.setOption(opts);
+});
+
+// Top addresses
+query("SELECT addr, count() c FROM (SELECT from_addr addr FROM stake_dao_events WHERE from_addr != '' AND from_addr != '0x0000000000000000000000000000000000000000' UNION ALL SELECT to_addr FROM stake_dao_events WHERE to_addr != '' AND to_addr != '0x0000000000000000000000000000000000000000' UNION ALL SELECT provider FROM stake_dao_events WHERE provider != '') GROUP BY addr ORDER BY c DESC LIMIT 8").then(function(data) {
+  var ch = echarts.init(document.getElementById('chart-top'));
+  var opts = termOpts('top addresses by activity');
+  opts.grid = { left: 100, right: 48, top: 28, bottom: 8 };
+  opts.yAxis = { type: 'category', data: data.map(function(r){return '0x'+r.addr.substring(2,6)+'..'+r.addr.substring(38);}).reverse(), axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'}, splitLine:{show:false} };
+  opts.xAxis = { type: 'value', axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'}, splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}} };
+  opts.series = [{ type: 'bar', data: data.map(function(r){return Number(r.c);}).reverse(), itemStyle: { color: function(p){ return PALETTE[p.dataIndex % PALETTE.length]; } }, barMaxWidth: 14, label: { show: true, position: 'right', color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace', formatter: function(p){ return fmtNum(p.value); } } }];
+  ch.setOption(opts);
+});
+
+setTimeout(function() { window.__DASHBOARD_READY__ = true; }, 3000);
+</script>
+</body>
+</html>

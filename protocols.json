@@ -991,9 +991,9 @@
         "Linea",
         "xDai"
       ],
-      "angle": null,
+      "angle": "Governance token lifecycle — sdCRV + SDT transfers + veSDT lock/unlock/supply on Ethereum",
       "directory": "evm/050-stake-dao",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Beefy",
