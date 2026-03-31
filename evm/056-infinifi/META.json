@@ -1,0 +1,17 @@
+{
+  "date": "2026-03-31",
+  "pipes_sdk_version": "1.0.0-alpha.1",
+  "agent_skills_version": "latest",
+  "claude_model": "claude-opus-4-6",
+  "angle": "Reserve Pulse — iUSD mints/burns/transfers + siUSD ERC-4626 vault deposits/withdrawals visualizing on-chain fractional reserve banking",
+  "runtime_status": "working",
+  "validation_status": "passed",
+  "contracts": {
+    "iUSD": "0x48f9e38f3070ad8945dfeae3fa70987722e3d89c",
+    "siUSD": "0xDBDC1Ef57537E34680B898E1FEBD3D68c7389bCB"
+  },
+  "chain": "ethereum",
+  "start_block": 23000000,
+  "total_events": 77901,
+  "data_range": "2025-07-26 to 2026-03-26"
+}

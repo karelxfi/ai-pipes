@@ -1,0 +1,28 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "iUSD": {
+          "address": "0x48f9e38f3070ad8945dfeae3fa70987722e3d89c",
+          "deploymentBlock": null,
+          "verified": true,
+          "description": "infiniFi USD receipt token (ReceiptToken)"
+        },
+        "siUSD": {
+          "address": "0xDBDC1Ef57537E34680B898E1FEBD3D68c7389bCB",
+          "deploymentBlock": null,
+          "verified": true,
+          "description": "Staked infiniFi USD (ERC-4626 vault)"
+        },
+        "liUSD-1w": {
+          "address": "0x12b004719fb632f1e7c010c6f5d6009fb4258442",
+          "deploymentBlock": null,
+          "verified": true,
+          "description": "Locked iUSD (1 week lock period)"
+        }
+      },
+      "source": "etherscan",
+      "sourceUrl": "https://etherscan.io/token/0x48f9e38f3070ad8945dfeae3fa70987722e3d89c"
+    }
+  }
+}

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>infiniFi Reserve Pulse</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#ccc;font-family:'Consolas','SF Mono','Source Code Pro','JetBrains Mono',monospace;font-size:11px;line-height:1.3;overflow:hidden}
+.grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr 1fr;width:1200px;height:675px;gap:0}
+.header{grid-column:1/-1;padding:8px 12px;border-bottom:1px solid #1a1a1a;display:flex;align-items:center;justify-content:space-between;background:#0a0a0a}
+.header-left{display:flex;align-items:baseline;gap:16px}
+.title{color:#4A7AB5;font-size:13px;font-weight:bold;letter-spacing:1px}
+.subtitle{color:#666;font-size:10px;letter-spacing:0.5px}
+.stats{display:flex;gap:24px}
+.stat{text-align:right}
+.stat-val{color:#fff;font-size:16px;font-weight:bold;font-feature-settings:'tnum'}
+.stat-lbl{color:#666;font-size:9px;text-transform:uppercase;letter-spacing:0.8px}
+.panel{background:#0a0a0a;border:1px solid #1a1a1a;padding:0;position:relative;overflow:hidden}
+.panel-title{color:#666;font-size:10px;text-transform:uppercase;letter-spacing:0.8px;padding:6px 8px 0 8px}
+.chart{width:100%;height:100%}
+.footer{grid-column:1/-1;padding:4px 12px;border-top:1px solid #1a1a1a;color:#444;font-size:9px;display:flex;justify-content:space-between;background:#0a0a0a}
+</style>
+</head>
+<body>
+<div class="grid">
+  <div class="header">
+    <div class="header-left">
+      <span class="title">INFINIFI RESERVE PULSE</span>
+      <span class="subtitle">ON-CHAIN FRACTIONAL RESERVE BANKING</span>
+      <span id="period" style="color:#666;font-size:9px"></span>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-val" id="totalMints">--</div><div class="stat-lbl">MINTS</div></div>
+      <div class="stat"><div class="stat-val" id="totalBurns">--</div><div class="stat-lbl">BURNS</div></div>
+      <div class="stat"><div class="stat-val" id="totalDeposits">--</div><div class="stat-lbl">VAULT DEPOSITS</div></div>
+      <div class="stat"><div class="stat-val" id="totalTransfers">--</div><div class="stat-lbl">TOTAL EVENTS</div></div>
+    </div>
+  </div>
+  <div class="panel"><div class="panel-title">DAILY iUSD MINTS / BURNS</div><div id="c1" class="chart"></div></div>
+  <div class="panel"><div class="panel-title">DAILY siUSD VAULT FLOWS</div><div id="c2" class="chart"></div></div>
+  <div class="panel"><div class="panel-title">CUMULATIVE iUSD NET FLOW (MINTS - BURNS)</div><div id="c3" class="chart"></div></div>
+  <div class="panel"><div class="panel-title">TOP iUSD RECIPIENTS (MINT BENEFICIARIES)</div><div id="c4" class="chart"></div></div>
+  <div class="footer">
+    <span>Built with ai-pipes + SQD Pipes SDK | github.com/karelxfi | x.com/karelxfi</span>
+    <span>ETHEREUM MAINNET | iUSD: 0x48f9...3d89c | siUSD: 0xDBDC...9bCB</span>
+  </div>
+</div>
+<script>
+var CH='http://localhost:8123/?user=default&password=password&database=infinifi';
+var PALETTE=['#1E3A5F','#2B4F7E','#1A3050','#3D6494','#4A7AB5','#2E5480','#5A8ABF','#1F4470','#3B6A9E','#274D73'];
+var MINT_COLOR='#3D7A6B';
+var BURN_COLOR='#8B3A3A';
+var DEPOSIT_COLOR='#2B4F7E';
+var WITHDRAW_COLOR='#8B3A3A';
+
+function terminalOpts(t){return{backgroundColor:'transparent',title:{text:t.toUpperCase(),show:false},textStyle:{color:'#666',fontFamily:'Consolas, SF Mono, monospace'},tooltip:{backgroundColor:'#1a1a1a',borderColor:'#333',textStyle:{color:'#ccc',fontSize:10,fontFamily:'Consolas, monospace'},padding:[4,8]},grid:{left:56,right:12,top:16,bottom:28},animation:false}}
+function axisDefaults(){return{axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas, monospace'},splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}}}}
+
+async function q(sql){var r=await fetch(CH,{method:'POST',body:sql+' FORMAT JSON'});var j=await r.json();return j.data||[]}
+
+function fmt(n){if(n>=1e9)return(n/1e9).toFixed(1)+'B';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return String(n)}
+function shortAddr(a){return a.substring(0,6)+'..'+a.substring(a.length-4)}
+
+async function load(){
+  var [mintBurn,vault,cumul,topRecip,stats,period]=await Promise.all([
+    q("SELECT toDate(timestamp) as d, transfer_type, count() as cnt FROM iusd_transfers WHERE transfer_type IN ('mint','burn') GROUP BY d, transfer_type ORDER BY d"),
+    q("SELECT toDate(timestamp) as d, event_type, count() as cnt FROM siusd_vault GROUP BY d, event_type ORDER BY d"),
+    q("SELECT toDate(timestamp) as d, sumIf(1, transfer_type='mint') - sumIf(1, transfer_type='burn') as net FROM iusd_transfers WHERE transfer_type IN ('mint','burn') GROUP BY d ORDER BY d"),
+    q("SELECT to_addr, count() as cnt FROM iusd_transfers WHERE transfer_type='mint' GROUP BY to_addr ORDER BY cnt DESC LIMIT 10"),
+    q("SELECT countIf(transfer_type='mint') as mints, countIf(transfer_type='burn') as burns, count() as total FROM iusd_transfers"),
+    q("SELECT min(timestamp) as mn, max(timestamp) as mx FROM iusd_transfers")
+  ]);
+
+  var vaultStats=await q("SELECT countIf(event_type='deposit') as deps FROM siusd_vault");
+
+  document.getElementById('totalMints').textContent=fmt(+stats[0].mints);
+  document.getElementById('totalBurns').textContent=fmt(+stats[0].burns);
+  document.getElementById('totalDeposits').textContent=fmt(+vaultStats[0].deps);
+  document.getElementById('totalTransfers').textContent=fmt(+stats[0].total);
+  if(period.length)document.getElementById('period').textContent=period[0].mn.split('T')[0]+' \u2192 '+period[0].mx.split('T')[0];
+
+  // C1: Daily mints/burns bar chart
+  var dates1=Array.from(new Set(mintBurn.map(function(r){return r.d.split('T')[0]}))).sort();
+  var mintMap={},burnMap={};
+  mintBurn.forEach(function(r){var d=r.d.split('T')[0];if(r.transfer_type==='mint')mintMap[d]=+r.cnt;else burnMap[d]=+r.cnt});
+  var ch1=echarts.init(document.getElementById('c1'));
+  var o1=terminalOpts('');
+  o1.xAxis={type:'category',data:dates1,...axisDefaults()};
+  o1.yAxis={type:'value',...axisDefaults()};
+  o1.legend={show:true,top:2,right:8,textStyle:{color:'#666',fontSize:9,fontFamily:'Consolas, monospace'},itemWidth:10,itemHeight:8};
+  o1.series=[
+    {name:'MINTS',type:'bar',data:dates1.map(function(d){return mintMap[d]||0}),itemStyle:{color:MINT_COLOR},barMaxWidth:8,stack:'mb'},
+    {name:'BURNS',type:'bar',data:dates1.map(function(d){return-(burnMap[d]||0)}),itemStyle:{color:BURN_COLOR},barMaxWidth:8,stack:'mb'}
+  ];
+  o1.tooltip.formatter=function(p){if(!Array.isArray(p))p=[p];var s=p[0].axisValue;p.forEach(function(i){s+='<br/>'+i.marker+i.seriesName+': '+Math.abs(i.value)});return s};
+  ch1.setOption(o1);
+
+  // C2: Daily vault flows
+  var dates2=Array.from(new Set(vault.map(function(r){return r.d.split('T')[0]}))).sort();
+  var depMap={},witMap={};
+  vault.forEach(function(r){var d=r.d.split('T')[0];if(r.event_type==='deposit')depMap[d]=+r.cnt;else witMap[d]=+r.cnt});
+  var ch2=echarts.init(document.getElementById('c2'));
+  var o2=terminalOpts('');
+  o2.xAxis={type:'category',data:dates2,...axisDefaults()};
+  o2.yAxis={type:'value',...axisDefaults()};
+  o2.legend={show:true,top:2,right:8,textStyle:{color:'#666',fontSize:9,fontFamily:'Consolas, monospace'},itemWidth:10,itemHeight:8};
+  o2.series=[
+    {name:'DEPOSITS',type:'bar',data:dates2.map(function(d){return depMap[d]||0}),itemStyle:{color:DEPOSIT_COLOR},barMaxWidth:8,stack:'vf'},
+    {name:'WITHDRAWALS',type:'bar',data:dates2.map(function(d){return-(witMap[d]||0)}),itemStyle:{color:WITHDRAW_COLOR},barMaxWidth:8,stack:'vf'}
+  ];
+  o2.tooltip.formatter=function(p){if(!Array.isArray(p))p=[p];var s=p[0].axisValue;p.forEach(function(i){s+='<br/>'+i.marker+i.seriesName+': '+Math.abs(i.value)});return s};
+  ch2.setOption(o2);
+
+  // C3: Cumulative net flow
+  var dates3=cumul.map(function(r){return r.d.split('T')[0]});
+  var running=0;
+  var cumulData=cumul.map(function(r){running+=+r.net;return running});
+  var ch3=echarts.init(document.getElementById('c3'));
+  var o3=terminalOpts('');
+  o3.xAxis={type:'category',data:dates3,...axisDefaults()};
+  o3.yAxis={type:'value',...axisDefaults()};
+  o3.series=[{type:'line',data:cumulData,lineStyle:{width:1.5,color:'#4A7AB5'},showSymbol:false,areaStyle:{opacity:0.08,color:'#4A7AB5'}}];
+  ch3.setOption(o3);
+
+  // C4: Top mint recipients (horizontal bar)
+  var labels4=topRecip.map(function(r){return shortAddr(r.to_addr)}).reverse();
+  var vals4=topRecip.map(function(r){return+r.cnt}).reverse();
+  var ch4=echarts.init(document.getElementById('c4'));
+  var o4=terminalOpts('');
+  o4.grid={left:80,right:48,top:16,bottom:28};
+  o4.xAxis={type:'value',...axisDefaults()};
+  o4.yAxis={type:'category',data:labels4,...axisDefaults(),axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas, monospace'}};
+  o4.series=[{type:'bar',data:vals4,itemStyle:{color:'#2B4F7E'},barMaxWidth:12,label:{show:true,position:'right',color:'#ccc',fontSize:9,fontFamily:'Consolas, monospace'}}];
+  ch4.setOption(o4);
+
+  window.__DASHBOARD_READY__=true;
+}
+load();
+</script>
+</body>
+</html>

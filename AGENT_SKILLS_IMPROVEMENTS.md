@@ -110,6 +110,11 @@ Tracked improvements for `subsquid-labs/agent-skills`, gathered from real indexe
 - **Source:** evm/041-etherfi-borrowing-market
 - **Issue:** Some protocols (e.g., ether.fi Cash) use a centralized EventEmitter proxy that aggregates events from multiple user contracts. The scaffold skill should detect this pattern: when the ABI shows only `Upgraded`, check for the implementation address in recent Upgraded events. Additionally, after ABI generation, verify which events actually fire on-chain by querying Portal with topic0 hashes before writing indexer code — some ABI events never fire on the emitter contract.
 
+### portal-query-evm-logs: Stream API silently truncates large block ranges
+- **Source:** evm/056-infinifi
+- **Issue:** When querying the Portal Stream API with block ranges >5k blocks containing many events, the response silently truncates (returns fewer logs than exist). A 10k block range returned 184 logs when ClickHouse had 381. Chunking at 2k blocks gave exact match (174 = 174). The validate.ts cross-reference pattern must chunk large ranges into 2k-block segments.
+- **Fix:** Document in portal-query-evm-logs that direct `fetch()` calls to the Stream API should chunk at <=2000 blocks per request for accurate counts.
+
 ### portal-query-evm-logs: Portal count API path not documented
 - **Source:** evm/041-etherfi-borrowing-market
 - **Issue:** The validate.ts cross-reference pattern tries to use `/datasets/{dataset}/logs/count?address=...&topic0=...` but this endpoint returns 404. The correct way to count events via Portal is either through the MCP summary format or the Stream API. Document the available count/summary endpoints for direct fetch-based verification.

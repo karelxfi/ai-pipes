@@ -871,9 +871,9 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": null,
-      "directory": "evm/042-infinifi",
-      "status": "pending"
+      "angle": "Reserve Pulse — iUSD mints/burns + siUSD vault deposits/withdrawals",
+      "directory": "evm/056-infinifi",
+      "status": "done"
     },
     {
       "name": "Liquity V1",
