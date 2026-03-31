@@ -100,3 +100,8 @@ Tracked improvements for `subsquid-labs/agent-skills`, gathered from real indexe
 ### Add `feePayer` field to Transaction
 - **Source:** solana/001-kamino-lend
 - **Issue:** `accountKeys[0]` works but an explicit `feePayer` field would be cleaner and avoid needing the full `accountKeys` array.
+
+### portal-query-evm-logs: Stream API requires `type` field
+- **Source:** evm/053-cooler-loans
+- **Issue:** Portal Stream API (`/datasets/{dataset}/stream`) POST body requires a `"type": "evm"` field. Without it, queries fail with `missing field 'type'`. The MCP tools handle this automatically, but the validate.ts cross-reference pattern using direct `fetch()` calls needs to include it.
+- **Fix:** Document in portal-query-evm-logs skill that direct Stream API calls need `{"type": "evm", "fromBlock": ..., "toBlock": ..., "logs": [...]}`.

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>Cooler Loans V2 — Lending Book</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Consolas', 'SF Mono', 'Source Code Pro', 'JetBrains Mono', monospace;
+  font-size: 11px; line-height: 1.3; background: #000; color: #ccc;
+  width: 1200px; height: 675px; overflow: hidden;
+}
+.header {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 8px 10px 6px; border-bottom: 1px solid #1a1a1a;
+}
+.header h1 {
+  font-size: 13px; font-weight: 600; color: #4A7AB5;
+  letter-spacing: 0.5px; text-transform: uppercase;
+}
+.header .meta { font-size: 9px; color: #666; text-transform: uppercase; letter-spacing: 0.8px; }
+.stats-bar {
+  display: flex; gap: 0; border-bottom: 1px solid #1a1a1a;
+}
+.stat {
+  flex: 1; padding: 6px 10px; border-right: 1px solid #1a1a1a;
+}
+.stat:last-child { border-right: none; }
+.stat-label { font-size: 9px; color: #666; text-transform: uppercase; letter-spacing: 0.8px; }
+.stat-value { font-size: 16px; color: #fff; font-feature-settings: 'tnum'; margin-top: 2px; }
+.stat-value.accent { color: #4A7AB5; }
+.grid {
+  display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+  height: calc(675px - 72px - 20px); gap: 0;
+}
+.panel {
+  border: 1px solid #1a1a1a; border-radius: 0; padding: 0;
+  background: #0a0a0a; position: relative; overflow: hidden;
+}
+.panel-title {
+  font-size: 10px; color: #666; text-transform: uppercase;
+  letter-spacing: 0.8px; padding: 6px 8px 0;
+}
+.chart { width: 100%; height: calc(100% - 20px); }
+.footer {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 10px; font-size: 9px; color: #444; height: 20px;
+  border-top: 1px solid #1a1a1a;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Cooler Loans V2 — Treasury Lending Book</h1>
+  <div class="meta">MonoCooler | gOHM → USDS | 0.5% APR | Ethereum</div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><div class="stat-label">Total Events</div><div class="stat-value accent" id="s-total">—</div></div>
+  <div class="stat"><div class="stat-label">Borrows</div><div class="stat-value" id="s-borrows">—</div></div>
+  <div class="stat"><div class="stat-label">Repayments</div><div class="stat-value" id="s-repays">—</div></div>
+  <div class="stat"><div class="stat-label">Collateral Adds</div><div class="stat-value" id="s-adds">—</div></div>
+  <div class="stat"><div class="stat-label">Collateral Withdrawals</div><div class="stat-value" id="s-withdraws">—</div></div>
+  <div class="stat"><div class="stat-label">Liquidations</div><div class="stat-value" id="s-liqs">—</div></div>
+  <div class="stat"><div class="stat-label">Period</div><div class="stat-value" id="s-period" style="font-size:11px">—</div></div>
+</div>
+
+<div class="grid">
+  <div class="panel">
+    <div class="panel-title">Daily Loan Activity</div>
+    <div class="chart" id="c-daily"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Cumulative Borrow Volume (USDS)</div>
+    <div class="chart" id="c-cumulative"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Top Borrowers by Event Count</div>
+    <div class="chart" id="c-top-borrowers"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Event Type Breakdown</div>
+    <div class="chart" id="c-breakdown"></div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>Built with ai-pipes + SQD Pipes SDK | github.com/karelxfi | x.com/karelxfi</span>
+  <span>Cooler Loans V2 by Olympus DAO</span>
+</div>
+
+<script>
+var CH = 'http://localhost:8123/?user=default&password=password&database=cooler_loans&default_format=JSON';
+var PALETTE = ['#1E3A5F','#2B4F7E','#1A3050','#3D6494','#4A7AB5','#2E5480','#5A8ABF','#1F4470','#3B6A9E','#274D73'];
+
+function q(sql) {
+  return fetch(CH, { method: 'POST', body: sql })
+    .then(function(r) { return r.json(); })
+    .then(function(j) { return j.data; });
+}
+
+function terminalOpts(title) {
+  return {
+    backgroundColor: 'transparent',
+    textStyle: { color: '#666', fontFamily: 'Consolas, SF Mono, Source Code Pro, monospace' },
+    tooltip: {
+      backgroundColor: '#1a1a1a', borderColor: '#333',
+      textStyle: { color: '#ccc', fontSize: 10, fontFamily: 'Consolas, monospace' },
+      padding: [4, 8]
+    },
+    grid: { left: 48, right: 8, top: 12, bottom: 24 },
+    animation: false
+  };
+}
+
+function fmtNum(n) { return Number(n).toLocaleString('en-US'); }
+
+// Stats
+Promise.all([
+  q("SELECT event_type, count() as cnt FROM loan_events GROUP BY event_type"),
+  q("SELECT min(timestamp) as mn, max(timestamp) as mx FROM loan_events"),
+  q("SELECT count() as cnt FROM liquidations")
+]).then(function(res) {
+  var counts = {}; var total = 0;
+  res[0].forEach(function(r) { counts[r.event_type] = Number(r.cnt); total += Number(r.cnt); });
+  total += Number(res[2][0].cnt);
+  document.getElementById('s-total').textContent = fmtNum(total);
+  document.getElementById('s-borrows').textContent = fmtNum(counts.Borrow || 0);
+  document.getElementById('s-repays').textContent = fmtNum(counts.Repay || 0);
+  document.getElementById('s-adds').textContent = fmtNum(counts.CollateralAdded || 0);
+  document.getElementById('s-withdraws').textContent = fmtNum(counts.CollateralWithdrawn || 0);
+  document.getElementById('s-liqs').textContent = fmtNum(Number(res[2][0].cnt));
+  var mn = res[1][0].mn.slice(0, 10); var mx = res[1][0].mx.slice(0, 10);
+  document.getElementById('s-period').textContent = mn + ' → ' + mx;
+});
+
+// Daily activity stacked bar
+q("SELECT toDate(timestamp) as d, event_type, count() as cnt FROM loan_events GROUP BY d, event_type ORDER BY d").then(function(rows) {
+  var dates = []; var series = {};
+  var types = ['Borrow', 'Repay', 'CollateralAdded', 'CollateralWithdrawn'];
+  var colors = { Borrow: '#2B4F7E', Repay: '#3D7A6B', CollateralAdded: '#4A7AB5', CollateralWithdrawn: '#8B3A3A' };
+  types.forEach(function(t) { series[t] = {}; });
+  rows.forEach(function(r) {
+    if (dates.indexOf(r.d) === -1) dates.push(r.d);
+    series[r.event_type][r.d] = Number(r.cnt);
+  });
+  var chart = echarts.init(document.getElementById('c-daily'));
+  var opts = terminalOpts();
+  opts.xAxis = {
+    type: 'category', data: dates,
+    axisLine: { show: false }, axisTick: { show: false },
+    axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace', rotate: 0,
+      formatter: function(v) { return v.slice(5); } }
+  };
+  opts.yAxis = {
+    type: 'value', axisLine: { show: false }, axisTick: { show: false },
+    axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' },
+    splitLine: { lineStyle: { color: '#1a1a1a', type: 'dashed' } }
+  };
+  opts.legend = {
+    data: types, top: 0, right: 8,
+    textStyle: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' },
+    itemWidth: 10, itemHeight: 8
+  };
+  opts.grid.top = 16;
+  opts.series = types.map(function(t) {
+    return {
+      name: t, type: 'bar', stack: 'all',
+      itemStyle: { color: colors[t] }, barMaxWidth: 8,
+      data: dates.map(function(d) { return series[t][d] || 0; })
+    };
+  });
+  opts.tooltip.trigger = 'axis';
+  chart.setOption(opts);
+});
+
+// Cumulative borrow volume
+q("SELECT toDate(timestamp) as d, sum(toFloat64(amount) / 1e18) as vol FROM loan_events WHERE event_type = 'Borrow' GROUP BY d ORDER BY d").then(function(rows) {
+  var dates = []; var cumVol = []; var running = 0;
+  rows.forEach(function(r) {
+    dates.push(r.d);
+    running += Number(r.vol);
+    cumVol.push(Math.round(running));
+  });
+  var chart = echarts.init(document.getElementById('c-cumulative'));
+  var opts = terminalOpts();
+  opts.xAxis = {
+    type: 'category', data: dates,
+    axisLine: { show: false }, axisTick: { show: false },
+    axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace',
+      formatter: function(v) { return v.slice(5); } }
+  };
+  opts.yAxis = {
+    type: 'value', axisLine: { show: false }, axisTick: { show: false },
+    axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace',
+      formatter: function(v) { return (v / 1e6).toFixed(1) + 'M'; } },
+    splitLine: { lineStyle: { color: '#1a1a1a', type: 'dashed' } }
+  };
+  opts.series = [{
+    type: 'line', data: cumVol, lineStyle: { width: 1.5, color: '#4A7AB5' },
+    showSymbol: false, areaStyle: { opacity: 0.08, color: '#4A7AB5' },
+    itemStyle: { color: '#4A7AB5' }
+  }];
+  opts.tooltip.trigger = 'axis';
+  opts.tooltip.formatter = function(p) {
+    return p[0].axisValue + '<br/>Cumulative: ' + fmtNum(p[0].value) + ' USDS';
+  };
+  chart.setOption(opts);
+});
+
+// Top borrowers
+q("SELECT account, count() as cnt FROM loan_events WHERE event_type = 'Borrow' GROUP BY account ORDER BY cnt DESC LIMIT 10").then(function(rows) {
+  rows.reverse();
+  var chart = echarts.init(document.getElementById('c-top-borrowers'));
+  var opts = terminalOpts();
+  opts.grid = { left: 100, right: 48, top: 8, bottom: 8 };
+  opts.yAxis = {
+    type: 'category',
+    data: rows.map(function(r) { return '0x' + r.account.slice(2, 6) + '…' + r.account.slice(-4); }),
+    axisLine: { show: false }, axisTick: { show: false },
+    axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' }
+  };
+  opts.xAxis = {
+    type: 'value', axisLine: { show: false }, axisTick: { show: false },
+    axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' },
+    splitLine: { lineStyle: { color: '#1a1a1a', type: 'dashed' } }
+  };
+  opts.series = [{
+    type: 'bar', data: rows.map(function(r) { return Number(r.cnt); }),
+    itemStyle: { color: '#2B4F7E' }, barMaxWidth: 12,
+    label: { show: true, position: 'right', color: '#999', fontSize: 9, fontFamily: 'Consolas, monospace' }
+  }];
+  chart.setOption(opts);
+});
+
+// Event type breakdown (treemap)
+q("SELECT event_type, count() as cnt FROM loan_events GROUP BY event_type ORDER BY cnt DESC").then(function(rows) {
+  var colors = { Borrow: '#2B4F7E', Repay: '#3D7A6B', CollateralAdded: '#4A7AB5', CollateralWithdrawn: '#8B3A3A' };
+  var chart = echarts.init(document.getElementById('c-breakdown'));
+  chart.setOption({
+    backgroundColor: 'transparent', animation: false,
+    tooltip: {
+      backgroundColor: '#1a1a1a', borderColor: '#333',
+      textStyle: { color: '#ccc', fontSize: 10, fontFamily: 'Consolas, monospace' },
+      padding: [4, 8],
+      formatter: function(p) { return p.name + ': ' + fmtNum(p.value); }
+    },
+    series: [{
+      type: 'treemap', width: '96%', height: '90%', left: '2%', top: '2%',
+      breadcrumb: { show: false },
+      label: {
+        show: true, color: '#ccc', fontSize: 11, fontFamily: 'Consolas, SF Mono, monospace',
+        formatter: function(p) { return p.name + '\n' + fmtNum(p.value); }
+      },
+      itemStyle: { borderColor: '#000', borderWidth: 2 },
+      data: rows.map(function(r) {
+        return { name: r.event_type, value: Number(r.cnt), itemStyle: { color: colors[r.event_type] || '#2B4F7E' } };
+      })
+    }]
+  });
+
+  // Signal dashboard ready
+  window.__DASHBOARD_READY__ = true;
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "date": "2026-03-31",
+  "pipes_sdk_version": "1.0.0-alpha.1",
+  "agent_skills_version": "latest",
+  "claude_model": "claude-opus-4-6",
+  "angle": "Treasury-backed lending book — tracking loan originations, repayments, collateral flows, and rare liquidations in Olympus DAO's no price-based liquidation lending system",
+  "runtime_status": "working",
+  "validation_status": "passed",
+  "chain": "ethereum",
+  "contract": "0xdb591Ea2e5Db886dA872654D58f6cc584b68e7cC",
+  "events_indexed": ["Borrow", "Repay", "CollateralAdded", "CollateralWithdrawn", "Liquidated"],
+  "total_rows": 12883,
+  "deployment_block": 22425730
+}

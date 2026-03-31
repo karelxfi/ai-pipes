@@ -831,9 +831,10 @@
         "Starknet",
         "Ethereum"
       ],
-      "angle": null,
+      "angle": "Skipped — primary chain Starknet not supported by Portal, Ethereum StarkEx shut down (~$246K residual TVL)",
       "directory": "evm/039-extended",
-      "status": "pending"
+      "status": "skipped",
+      "skip_reason": "Primary chain Starknet not supported by Portal. Ethereum StarkEx deployment shut down after migration to Starknet (Aug 2025). Only ~$246K residual TVL on Ethereum."
     },
     {
       "name": "Cooler Loans",
@@ -844,9 +845,9 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": null,
-      "directory": "evm/040-cooler-loans",
-      "status": "pending"
+      "angle": "Treasury-backed lending book — tracking loan originations, repayments, collateral flows, and rare liquidations in Olympus DAO's no price-based liquidation system",
+      "directory": "evm/053-cooler-loans",
+      "status": "done"
     },
     {
       "name": "EtherFi Borrowing Market",

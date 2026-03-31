@@ -1,0 +1,18 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "monoCooler": { "address": "0xdb591Ea2e5Db886dA872654D58f6cc584b68e7cC", "deploymentBlock": 22425730, "verified": true },
+        "ltvOracle": { "address": "0x9ee9f0c2e91E4f6B195B988a9e6e19efcf91e8dc", "deploymentBlock": null, "verified": true },
+        "treasuryBorrower": { "address": "0xD58d7406E9CE34c90cf849Fc3eed3764EB3779B0", "deploymentBlock": null, "verified": true },
+        "dlgte": { "address": "0xD3204Ae00d6599Ba6e182c6D640A79d76CdAad74", "deploymentBlock": null, "verified": true },
+        "coolerV2Composites": { "address": "0x6593768feBF9C95aC857Fb7Ef244D5738D1C57Fd", "deploymentBlock": null, "verified": true },
+        "coolerV2Migrator": { "address": "0xe045bd0a0d85e980aa152064c06eae6b6ae358d2", "deploymentBlock": null, "verified": true },
+        "clearinghouseV1": { "address": "0xE6343ad0675C9b8D3f32679ae6aDbA0766A2ab4c", "deploymentBlock": null, "verified": true },
+        "clearinghouseV1b": { "address": "0xd6a6e8d9e82534bd65821142fccd91ec9cf31880", "deploymentBlock": null, "verified": true }
+      },
+      "source": "olympus-docs",
+      "sourceUrl": "https://docs.olympusdao.finance/main/overview/cooler-loans/"
+    }
+  }
+}
