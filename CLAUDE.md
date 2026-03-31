@@ -34,6 +34,35 @@ Use the `/generate-indexer` command or follow this workflow manually:
 6. For multi-chain EVM protocols, default to Ethereum mainnet unless primarily deployed elsewhere
 7. **After validation passes**, update contracts-registry with verified addresses (see below)
 
+### Dynamic Time Ranges (MANDATORY for new indexers)
+
+**All new indexers MUST use dynamic Date-based ranges, NOT hardcoded block numbers.** The SDK resolves `Date` objects to block numbers at runtime via Portal.
+
+```typescript
+// At the top of src/index.ts — dynamic 7-day lookback
+const LOOKBACK_DAYS = 7
+const startDate = new Date(Date.now() - LOOKBACK_DAYS * 86_400_000)
+
+// EVM
+evmDecoder({ range: { from: startDate }, contracts: [...], events: {...} })
+
+// Solana
+solanaQuery().addRange({ from: startDate }).addInstruction({ range: { from: startDate }, ... })
+
+// Hyperliquid
+hyperliquidFillsQuery().addRange({ from: startDate }).addFill({ range: { from: startDate }, ... })
+```
+
+**Adjust `LOOKBACK_DAYS` based on event frequency:**
+- High-frequency (DEX swaps, transfers): 3-5 days
+- Normal (deposits, borrows, liquidations): 7 days (default)
+- Rare events (governance, parameter changes): 30-90 days
+
+**Do NOT:**
+- Hardcode block numbers (e.g., `range: { from: '18908900' }`)
+- Research deployment blocks just to set a start range
+- Use the `shared/dynamic-range.ts` utility (removed — SDK handles this natively)
+
 ## Per-Example Checklist
 
 Every generated example MUST include:
@@ -61,13 +90,14 @@ Every generated example MUST include:
 Before marking an example as done:
 
 1. `docker compose up -d` — start ClickHouse
-2. `npm install && npm start` — run the indexer, **let it sync for years of data, not months**. The dashboard should show long-term trends. For daily events aim for 500+ rows; for rare events (liquidations) let it cover the full history.
+2. `npm install && npm start` — run the indexer with default 7-day lookback. For daily events aim for 500+ rows; for rare events increase `LOOKBACK_DAYS` (30-90) to get enough data. Sync should complete in under 5 minutes.
 3. `npx tsx validate.ts` — all assertions must pass (structural + truth checks)
 4. Open `dashboard/index.html` in browser — verify charts render with REAL data (not empty)
 5. Capture `dashboard/screenshot.png` — must show populated charts, not empty panels
 6. Visually confirm the screenshot looks good enough to share on X
 7. Update META.json: `runtime_status: "working"`, `validation_status: "passed"`
 8. Update `protocols.json` status to "done"
+9. Commit and push: `git add <example-dir> && git commit -m "feat(<chain>): <description>" && git push`
 
 **How to check for data during sync:**
 ```bash
@@ -509,6 +539,7 @@ Where to find addresses:
 - Follow agent-skills CLAUDE.md (Rule 0: always read project docs before implementation)
 - Record installed agent-skills commit SHA in META.json
 - Pipes SDK version pinning is the primary reproducibility mechanism
-- Each example is a self-contained commit
+- Each example is a self-contained commit — **push to git immediately after validation passes**
+- **No Co-Authored-By lines in commits** — do not add any co-author attribution
 - Use `npm` as package manager (not bun — for wider compatibility)
 - Use dedicated ClickHouse database per indexer (avoid sync table conflicts)

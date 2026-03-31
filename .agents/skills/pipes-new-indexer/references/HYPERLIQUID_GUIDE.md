@@ -92,8 +92,12 @@ const env = z
   })
   .parse(process.env)
 
+// Dynamic 7-day lookback — resolved to block number at runtime by Portal
+const LOOKBACK_DAYS = 7
+const startDate = new Date(Date.now() - LOOKBACK_DAYS * 86_400_000)
+
 const query = hyperliquidFillsQuery()
-  .addRange({ from: 920000000 })
+  .addRange({ from: startDate })
   .addFields({
     block: { number: true, timestamp: true },
     fill: {
@@ -110,7 +114,7 @@ const query = hyperliquidFillsQuery()
       startPosition: true,
     },
   })
-  .addFill({ range: { from: 920000000 }, request: { coin: ['BTC', 'ETH', 'SOL'] } })
+  .addFill({ range: { from: startDate }, request: { coin: ['BTC', 'ETH', 'SOL'] } })
 
 export async function main() {
   await hyperliquidFillsPortalStream({

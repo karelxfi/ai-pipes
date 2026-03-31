@@ -28,6 +28,13 @@ If no protocol is specified above, read `protocols.json` and pick the next proto
 - Use `npm` as package manager (not bun)
 - Pin the Pipes SDK version in `package.json`
 - Use a **dedicated ClickHouse database** named after the protocol slug
+- **Use dynamic 7-day lookback ranges** (NOT hardcoded block numbers):
+  ```typescript
+  const LOOKBACK_DAYS = 7
+  const startDate = new Date(Date.now() - LOOKBACK_DAYS * 86_400_000)
+  // Then use: range: { from: startDate }
+  ```
+  The SDK resolves `Date` objects to block numbers at runtime via Portal. Adjust `LOOKBACK_DAYS` based on event frequency (3-5 for high-frequency, 30-90 for rare events).
 
 ### 2b. Fix Proxy ABI (if applicable)
 

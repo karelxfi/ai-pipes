@@ -262,8 +262,12 @@ import { hyperliquidFillsPortalStream, hyperliquidFillsQuery } from '@subsquid/p
 
 **Query builder pattern:**
 ```typescript
+// Dynamic 7-day lookback (preferred for new indexers)
+const LOOKBACK_DAYS = 7
+const startDate = new Date(Date.now() - LOOKBACK_DAYS * 86_400_000)
+
 const query = hyperliquidFillsQuery()
-  .addRange({ from: 920000000 })
+  .addRange({ from: startDate })
   .addFields({
     block: { number: true, timestamp: true },
     fill: {
@@ -272,12 +276,12 @@ const query = hyperliquidFillsQuery()
       fee: true, feeToken: true, crossed: true, startPosition: true,
     },
   })
-  .addFill({ range: { from: 920000000 }, request: { coin: ['BTC', 'ETH', 'SOL'] } })
+  .addFill({ range: { from: startDate }, request: { coin: ['BTC', 'ETH', 'SOL'] } })
 ```
 
 **CRITICAL**: `.addFill()` requires a `range` parameter — passing only `{ request: {...} }` will crash with `Cannot read properties of undefined (reading 'from')`.
 
-**Choosing a start block:** Blocks increment at ~1/second. Use `current_block - (days × 86400)` to estimate. For a 7-day window, subtract ~604,800 from the current head block. A 7-day BTC/ETH/SOL sync yields ~6M fills in ~2-3 minutes.
+**Choosing a start block:** Use dynamic `Date`-based ranges (see "Dynamic 7-Day Lookback" section above). The SDK resolves dates to blocks at runtime via Portal. For reference, Hyperliquid blocks increment at ~1/second. A 7-day BTC/ETH/SOL sync yields ~6M fills in ~2-3 minutes.
 
 **Source (SDK 1.0+):**
 ```typescript
@@ -410,6 +414,49 @@ evmDecoder({ range: { from: 'latest' }, ... })  // only for `from`
 ```
 
 **Validation:** Inverted ranges (`from` > `to`) and unresolvable timestamps throw `BlockRangeConfigurationError` (E0002).
+
+### Dynamic 7-Day Lookback (Default for New Indexers)
+
+**All new indexers MUST use dynamic time-based ranges instead of hardcoded block numbers.** This ensures fast sync times (~5 min) and makes indexers portable across chains without manual block number research.
+
+**Pattern — compute start date at runtime:**
+```typescript
+// Dynamic 7-day lookback — resolved to block number at runtime by Portal
+const LOOKBACK_DAYS = 7
+const startDate = new Date(Date.now() - LOOKBACK_DAYS * 86_400_000)
+```
+
+**EVM usage:**
+```typescript
+const decoder = evmDecoder({
+  range: { from: startDate },
+  contracts: [CONTRACT_ADDRESS],
+  events: { ... },
+}).pipe(enrichEvents)
+```
+
+**Solana usage:**
+```typescript
+const query = solanaQuery()
+  .addRange({ from: startDate })
+  .addFields({ ... })
+  .addInstruction({ range: { from: startDate }, request: { ... } })
+```
+
+**Hyperliquid usage:**
+```typescript
+const query = hyperliquidFillsQuery()
+  .addRange({ from: startDate })
+  .addFields({ ... })
+  .addFill({ range: { from: startDate }, request: { ... } })
+```
+
+**Why this works:** The SDK's `parsePortalRange()` accepts `Date` objects and resolves them to block numbers via Portal at runtime. No manual block calculation needed.
+
+**When to adjust `LOOKBACK_DAYS`:**
+- For very high-frequency events (DEX swaps): use 3-5 days to keep sync under 5 min
+- For rare events (liquidations, governance): use 30-90 days to get enough data
+- Default of 7 is good for most protocols (deposits, borrows, transfers)
 
 ### `defineAbi` — Use JSON ABIs Without Codegen
 
