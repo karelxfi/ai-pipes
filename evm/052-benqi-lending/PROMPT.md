@@ -1,0 +1,1 @@
+Generate a DeFi indexer for Benqi Lending (EVM Lending) on Avalanche using Pipes SDK. Benqi is a Compound-style lending protocol with 12 qiToken markets. Index Mint, Redeem, Borrow, RepayBorrow, and LiquidateBorrow events from all active markets. Build a Bloomberg Terminal-style dashboard.

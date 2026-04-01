@@ -1,0 +1,15 @@
+{
+  "date": "2026-04-01",
+  "pipes_sdk_version": "1.0.0-alpha.1",
+  "agent_skills_version": "356334d66830572480347f02f08077d2def651db",
+  "claude_model": "claude-opus-4-6",
+  "angle": "Multi-market Compound-style lending — Mint, Redeem, Borrow, RepayBorrow, LiquidateBorrow across 12 qiToken markets on Avalanche",
+  "runtime_status": "working",
+  "validation_status": "passed",
+  "chain": "avalanche-mainnet",
+  "contracts": ["13 qiToken markets (see src/index.ts MARKETS map)"],
+  "events": ["Mint", "Redeem", "Borrow", "RepayBorrow", "LiquidateBorrow"],
+  "rows_indexed": 8123,
+  "validation_checks": "15/15 passed",
+  "portal_cross_ref": "0.0% diff (exact match)"
+}

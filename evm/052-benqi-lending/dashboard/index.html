@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>Benqi Lending — Avalanche Lending Pulse</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #000; color: #ccc; font-family: 'Consolas','SF Mono','Source Code Pro','JetBrains Mono',monospace; font-size: 11px; line-height: 1.3; width: 1200px; min-height: 675px; }
+.header { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid #1a1a1a; background: #0a0a0a; }
+.header-left { display: flex; align-items: baseline; gap: 12px; }
+.header-title { font-size: 12px; color: #4A7AB5; letter-spacing: 0.8px; text-transform: uppercase; font-weight: normal; }
+.header-sub { font-size: 9px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+.stats { display: flex; gap: 20px; padding: 6px 10px; border-bottom: 1px solid #1a1a1a; background: #0a0a0a; }
+.stat { display: flex; flex-direction: column; }
+.stat-value { font-size: 16px; color: #fff; font-feature-settings: 'tnum'; }
+.stat-label { font-size: 9px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 0; height: calc(675px - 74px); }
+.panel { border: 1px solid #1a1a1a; padding: 0; background: #0a0a0a; position: relative; }
+.chart { width: 100%; height: 100%; }
+.footer { padding: 4px 10px; font-size: 9px; color: #444; text-align: center; border-top: 1px solid #1a1a1a; }
+.footer a { color: #4A7AB5; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-left">
+    <span class="header-title">Benqi Lending — Avalanche Lending Pulse</span>
+    <span class="header-sub">Avalanche · 12 qiToken Markets</span>
+  </div>
+  <div class="header-sub" id="period"></div>
+</div>
+<div class="stats">
+  <div class="stat"><span class="stat-value" id="total-ops">—</span><span class="stat-label">Total Ops</span></div>
+  <div class="stat"><span class="stat-value" id="mints">—</span><span class="stat-label">Mints (Supply)</span></div>
+  <div class="stat"><span class="stat-value" id="borrows">—</span><span class="stat-label">Borrows</span></div>
+  <div class="stat"><span class="stat-value" id="liquidations">—</span><span class="stat-label">Liquidations</span></div>
+  <div class="stat"><span class="stat-value" id="unique-users">—</span><span class="stat-label">Unique Users</span></div>
+</div>
+<div class="grid">
+  <div class="panel"><div class="chart" id="chart-daily"></div></div>
+  <div class="panel"><div class="chart" id="chart-markets"></div></div>
+  <div class="panel"><div class="chart" id="chart-types"></div></div>
+  <div class="panel"><div class="chart" id="chart-top"></div></div>
+</div>
+<div class="footer">Built with ai-pipes + SQD Pipes SDK | <a href="https://github.com/karelxfi">github.com/karelxfi</a> | <a href="https://x.com/karelxfi">x.com/karelxfi</a></div>
+<script>
+var CH = 'http://localhost:8123/?user=default&password=password&database=benqi_lending';
+var PALETTE = ['#1E3A5F','#2B4F7E','#1A3050','#3D6494','#4A7AB5','#2E5480','#5A8ABF','#1F4470','#3B6A9E','#274D73'];
+function query(sql) { return fetch(CH, { method: 'POST', body: sql + ' FORMAT JSON' }).then(function(r){return r.json();}).then(function(d){return d.data;}); }
+function termOpts(title) { return { backgroundColor: 'transparent', title: { text: title.toUpperCase(), textStyle: { color: '#666', fontSize: 10, fontWeight: 'normal', fontFamily: 'Consolas, SF Mono, monospace' }, left: 8, top: 4 }, textStyle: { color: '#666', fontFamily: 'Consolas, SF Mono, Source Code Pro, monospace' }, tooltip: { backgroundColor: '#1a1a1a', borderColor: '#333', textStyle: { color: '#ccc', fontSize: 10, fontFamily: 'Consolas, monospace' }, padding: [4, 8] }, grid: { left: 48, right: 8, top: 28, bottom: 24 }, animation: false }; }
+function fmtNum(n) { return Number(n).toLocaleString('en-US'); }
+
+Promise.all([
+  query("SELECT count() c FROM lending_events"),
+  query("SELECT count() c FROM lending_events WHERE event_type='mint'"),
+  query("SELECT count() c FROM lending_events WHERE event_type='borrow'"),
+  query("SELECT count() c FROM lending_events WHERE event_type='liquidation'"),
+  query("SELECT count(distinct user_addr) c FROM lending_events WHERE user_addr != ''"),
+  query("SELECT min(timestamp) mn, max(timestamp) mx FROM lending_events"),
+]).then(function(r) {
+  document.getElementById('total-ops').textContent = fmtNum(r[0][0].c);
+  document.getElementById('mints').textContent = fmtNum(r[1][0].c);
+  document.getElementById('borrows').textContent = fmtNum(r[2][0].c);
+  document.getElementById('liquidations').textContent = fmtNum(r[3][0].c);
+  document.getElementById('unique-users').textContent = fmtNum(r[4][0].c);
+  document.getElementById('period').textContent = r[5][0].mn.substring(0,10) + ' \u2192 ' + r[5][0].mx.substring(0,10);
+});
+
+query("SELECT toDate(timestamp) d, countIf(event_type='mint') m, countIf(event_type='redeem') r, countIf(event_type='borrow') b, countIf(event_type='repay') p, countIf(event_type='liquidation') l FROM lending_events GROUP BY d ORDER BY d").then(function(data) {
+  var ch = echarts.init(document.getElementById('chart-daily'));
+  var opts = termOpts('daily lending activity');
+  opts.xAxis = { type: 'category', data: data.map(function(r){return r.d;}), axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'}, splitLine:{show:false} };
+  opts.yAxis = { type: 'value', axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'}, splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}} };
+  opts.legend = { show: true, top: 4, right: 8, textStyle: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' }, itemWidth: 10, itemHeight: 8 };
+  opts.series = [
+    { name: 'Mint', type: 'bar', stack: 'a', data: data.map(function(r){return Number(r.m);}), itemStyle: { color: '#2B4F7E' }, barMaxWidth: 20 },
+    { name: 'Redeem', type: 'bar', stack: 'a', data: data.map(function(r){return Number(r.r);}), itemStyle: { color: '#4A7AB5' }, barMaxWidth: 20 },
+    { name: 'Borrow', type: 'bar', stack: 'a', data: data.map(function(r){return Number(r.b);}), itemStyle: { color: '#3D6494' }, barMaxWidth: 20 },
+    { name: 'Repay', type: 'bar', stack: 'a', data: data.map(function(r){return Number(r.p);}), itemStyle: { color: '#1E3A5F' }, barMaxWidth: 20 },
+    { name: 'Liq', type: 'bar', stack: 'a', data: data.map(function(r){return Number(r.l);}), itemStyle: { color: '#8B3A3A' }, barMaxWidth: 20 },
+  ];
+  opts.tooltip.trigger = 'axis';
+  ch.setOption(opts);
+});
+
+query("SELECT market, count() c FROM lending_events GROUP BY market ORDER BY c DESC LIMIT 10").then(function(data) {
+  var ch = echarts.init(document.getElementById('chart-markets'));
+  var opts = termOpts('operations by market');
+  opts.grid = { left: 70, right: 48, top: 28, bottom: 8 };
+  opts.yAxis = { type: 'category', data: data.map(function(r){return r.market;}).reverse(), axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'}, splitLine:{show:false} };
+  opts.xAxis = { type: 'value', axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'}, splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}} };
+  opts.series = [{ type: 'bar', data: data.map(function(r){return Number(r.c);}).reverse(), itemStyle: { color: function(p){ return PALETTE[p.dataIndex % PALETTE.length]; } }, barMaxWidth: 14, label: { show: true, position: 'right', color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace', formatter: function(p){ return fmtNum(p.value); } } }];
+  ch.setOption(opts);
+});
+
+query("SELECT event_type, count() c FROM lending_events GROUP BY event_type ORDER BY c DESC").then(function(data) {
+  var ch = echarts.init(document.getElementById('chart-types'));
+  var opts = termOpts('event type breakdown');
+  opts.grid = undefined;
+  var total = data.reduce(function(a,r){return a+Number(r.c);},0);
+  opts.series = [{ type: 'treemap', data: data.map(function(r,i){ return { name: r.event_type + ' (' + (100*Number(r.c)/total).toFixed(1) + '%)', value: Number(r.c), itemStyle: { color: PALETTE[i % PALETTE.length] } }; }), label: { color: '#ccc', fontSize: 10, fontFamily: 'Consolas, monospace', fontWeight: 'normal' }, breadcrumb: { show: false }, itemStyle: { borderColor: '#000', borderWidth: 1, gapWidth: 1 }, left: 8, right: 8, top: 28, bottom: 8, roam: false }];
+  ch.setOption(opts);
+});
+
+query("SELECT user_addr, count() c FROM lending_events WHERE user_addr != '' GROUP BY user_addr ORDER BY c DESC LIMIT 8").then(function(data) {
+  var ch = echarts.init(document.getElementById('chart-top'));
+  var opts = termOpts('top users');
+  opts.grid = { left: 100, right: 48, top: 28, bottom: 8 };
+  opts.yAxis = { type: 'category', data: data.map(function(r){return '0x'+r.user_addr.substring(2,6)+'..'+r.user_addr.substring(38);}).reverse(), axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'}, splitLine:{show:false} };
+  opts.xAxis = { type: 'value', axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'}, splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}} };
+  opts.series = [{ type: 'bar', data: data.map(function(r){return Number(r.c);}).reverse(), itemStyle: { color: function(p){ return PALETTE[p.dataIndex % PALETTE.length]; } }, barMaxWidth: 14, label: { show: true, position: 'right', color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace', formatter: function(p){ return fmtNum(p.value); } } }];
+  ch.setOption(opts);
+});
+
+setTimeout(function() { window.__DASHBOARD_READY__ = true; }, 3000);
+</script>
+</body>
+</html>

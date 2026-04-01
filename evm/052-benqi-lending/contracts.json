@@ -1,0 +1,24 @@
+{
+  "deployments": {
+    "avalanche": {
+      "contracts": {
+        "comptroller": { "address": "0x486Af39519B4Dc9a7fCcd318217352830E8AD9b4", "deploymentBlock": null, "verified": true },
+        "qiAVAX": { "address": "0x5C0401e81Bc07Ca70fAD469b451682c0d747Ef1c", "deploymentBlock": null, "verified": true },
+        "qisAVAX": { "address": "0xF362feA9659cf036792c9cb02f8ff8198E21B4cB", "deploymentBlock": null, "verified": true },
+        "qiBTC_b": { "address": "0x89a415b3D20098E6A6C8f7a59001C67BD3129821", "deploymentBlock": null, "verified": true },
+        "qiBTC": { "address": "0xe194c4c5aC32a3C9ffDb358d9Bfd523a0B6d1568", "deploymentBlock": null, "verified": true },
+        "qiETH": { "address": "0x334AD834Cd4481BB02d09615E7c11a00579A7909", "deploymentBlock": null, "verified": true },
+        "qiLINK": { "address": "0x4e9f683A27a6BdAD3FC2764003759277e93696e6", "deploymentBlock": null, "verified": true },
+        "qiUSDT": { "address": "0xc9e5999b8e75C3fEB117F6f73E664b9f3C8ca65C", "deploymentBlock": null, "verified": true },
+        "qiUSDC": { "address": "0xBEb5d47A3f720Ec0a390d04b4d41ED7d9688bC7F", "deploymentBlock": null, "verified": true },
+        "qiUSDTn": { "address": "0xd8fcDa6ec4Bdc547C0827B8804e89aCd817d56EF", "deploymentBlock": null, "verified": true },
+        "qiUSDCn": { "address": "0xB715808a78F6041E46d61Cb123C9B4A27056AE9C", "deploymentBlock": null, "verified": true },
+        "qiDAI": { "address": "0x835866d37AFB8CB8F8334dCCdaf66cf01832Ff5D", "deploymentBlock": null, "verified": true },
+        "qiBUSD": { "address": "0x872670CcAe8C19557cC9443Eff587D7086b8043A", "deploymentBlock": null, "verified": true },
+        "qiQI": { "address": "0x35Bd6aedA81a7E5FC7A7832490e71F757b0cD9Ce", "deploymentBlock": null, "verified": true }
+      },
+      "source": "benqi-docs",
+      "sourceUrl": "https://docs.benqi.fi/resources/contracts/core-markets"
+    }
+  }
+}

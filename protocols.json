@@ -1056,9 +1056,9 @@
       "chains": [
         "Avalanche"
       ],
-      "angle": null,
+      "angle": "Multi-market Compound-style lending — Mint, Redeem, Borrow, RepayBorrow, LiquidateBorrow across 12 qiToken markets on Avalanche",
       "directory": "evm/052-benqi-lending",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Compound V2",
