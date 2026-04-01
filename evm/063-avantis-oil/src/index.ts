@@ -17,8 +17,8 @@ const COMMODITY_PAIRS: Record<number, string> = {
 }
 const COMMODITY_PAIR_IDS = new Set(Object.keys(COMMODITY_PAIRS).map(Number))
 
-// 30-day lookback — commodity trading is less frequent than crypto pairs
-const LOOKBACK_DAYS = 30
+// 7-day lookback per board request
+const LOOKBACK_DAYS = 7
 const startDate = new Date(Date.now() - LOOKBACK_DAYS * 86_400_000)
 
 const env = {
