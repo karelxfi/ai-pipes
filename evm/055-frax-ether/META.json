@@ -1,0 +1,15 @@
+{
+  "date": "2026-04-01",
+  "pipes_sdk_version": "1.0.0-alpha.1",
+  "agent_skills_version": "356334d66830572480347f02f08077d2def651db",
+  "claude_model": "claude-opus-4-6",
+  "angle": "Dual-token liquid staking lifecycle — frxETH DeFi flows + sfrxETH stake/unstake on Ethereum",
+  "runtime_status": "working",
+  "validation_status": "passed",
+  "chain": "ethereum-mainnet",
+  "contracts": ["0x5e8422345238f34275888049021821e8e08caa1f", "0xac3E018457B222d93114458476f3E3416Abbe38F"],
+  "events": ["Transfer"],
+  "rows_indexed": 74010,
+  "validation_checks": "16/16 passed",
+  "portal_cross_ref": "0.0% diff (exact match)"
+}

@@ -1,0 +1,1 @@
+Generate a DeFi indexer for Frax Ether (EVM Liquid Staking) on Ethereum using Pipes SDK. Track frxETH and sfrxETH token Transfer events to visualize the liquid staking lifecycle — minting, staking into sfrxETH vault, transfers through DeFi, and unstaking. Build a Bloomberg Terminal-style dashboard.

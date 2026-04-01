@@ -1098,9 +1098,9 @@
         "Ethereum",
         "Fraxtal"
       ],
-      "angle": null,
+      "angle": "Dual-token liquid staking lifecycle — frxETH DeFi flows + sfrxETH stake/unstake on Ethereum",
       "directory": "evm/055-frax-ether",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Phantom SOL",
