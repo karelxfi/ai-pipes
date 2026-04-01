@@ -1,0 +1,1 @@
+Generate a DeFi indexer for Aura (EVM Yield) on Ethereum using Pipes SDK. Aura is a yield booster built on Balancer. Track AURA and auraBAL token Transfer events plus Booster Deposited/Withdrawn events. Build a Bloomberg Terminal-style dashboard.

@@ -1111,9 +1111,9 @@
       "chains": [
         "Solana"
       ],
-      "angle": null,
+      "angle": "Blocked — uses native Solana Stake Pool program, not indexable via events",
       "directory": "solana/013-phantom-sol",
-      "status": "pending"
+      "status": "blocked"
     },
     {
       "name": "Tectonic",
@@ -1145,9 +1145,9 @@
         "Polygon zkEVM",
         "Avalanche"
       ],
-      "angle": null,
+      "angle": "Yield booster lifecycle — AURA + auraBAL tokens + Booster deposit/withdraw on Ethereum",
       "directory": "evm/057-aura",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "The Vault Liquid Staking",

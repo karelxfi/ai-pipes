@@ -1,0 +1,15 @@
+{
+  "date": "2026-04-01",
+  "pipes_sdk_version": "1.0.0-alpha.1",
+  "agent_skills_version": "356334d66830572480347f02f08077d2def651db",
+  "claude_model": "claude-opus-4-6",
+  "angle": "Yield booster lifecycle — AURA + auraBAL tokens + Booster deposit/withdraw on Ethereum",
+  "runtime_status": "working",
+  "validation_status": "passed",
+  "chain": "ethereum-mainnet",
+  "contracts": ["0xc0c293ce456ff0ed870add98a0828dd4d2903dbf", "0x616e8bfa43f920657b3497dbf40d6b1a02d4608d", "0xa57b8d98dae62b26ec3bcc4a365338157060b234"],
+  "events": ["Transfer", "Deposited", "Withdrawn"],
+  "rows_indexed": 17088,
+  "validation_checks": "16/16 passed",
+  "portal_cross_ref": "0.0% diff (exact match)"
+}
