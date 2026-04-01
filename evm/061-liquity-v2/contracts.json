@@ -1,0 +1,13 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "BOLD_token_new": { "address": "0x6440f144b7e50D6a8439336510312d2F54beB01D", "deploymentBlock": null, "verified": true },
+        "BOLD_token_old": { "address": "0xb01dd87B29d187F3E3a4Bf6cdAebfb97F3D9aB98", "deploymentBlock": null, "verified": true },
+        "collateralRegistry_old": { "address": "0xd99de73b95236f69a559117ecd6f519af780f3f7", "deploymentBlock": null, "verified": true }
+      },
+      "source": "etherscan-docs",
+      "sourceUrl": "https://docs.liquity.org/v2-documentation/technical-resources"
+    }
+  }
+}

@@ -1,0 +1,1 @@
+Generate a DeFi indexer for Liquity V2 (EVM CDP) on Ethereum using Pipes SDK. Track BOLD stablecoin Transfer events classifying as borrow (mint from zero), repay (burn to zero), or transfer to visualize the CDP stablecoin lifecycle.

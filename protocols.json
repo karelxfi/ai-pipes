@@ -1242,9 +1242,9 @@
       "chains": [
         "Solana"
       ],
-      "angle": null,
+      "angle": "Blocked — Solana yield aggregator, needs instruction-level indexing research",
       "directory": "solana/017-lulo",
-      "status": "pending"
+      "status": "blocked"
     },
     {
       "name": "Liquity V2",
@@ -1255,9 +1255,9 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": null,
+      "angle": "BOLD stablecoin lifecycle — borrow (mint) vs repay (burn) vs transfer on Ethereum",
       "directory": "evm/061-liquity-v2",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "BlazeStake",
@@ -1268,9 +1268,9 @@
       "chains": [
         "Solana"
       ],
-      "angle": null,
+      "angle": "Blocked — uses native Solana Stake Pool program, not indexable via events",
       "directory": "solana/018-blazestake",
-      "status": "pending"
+      "status": "blocked"
     },
     {
       "name": "Derive V2",
