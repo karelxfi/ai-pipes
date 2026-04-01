@@ -1,0 +1,15 @@
+{
+  "date": "2026-04-01",
+  "pipes_sdk_version": "1.0.0-alpha.1",
+  "agent_skills_version": "356334d66830572480347f02f08077d2def651db",
+  "claude_model": "claude-opus-4-6",
+  "angle": "Protocol wind-down visualization — zero mints/borrows, only redeems, repays, and liquidations across 17 cToken markets",
+  "runtime_status": "working",
+  "validation_status": "passed",
+  "chain": "ethereum-mainnet",
+  "contracts": ["17 cToken markets (see src/index.ts MARKETS map)"],
+  "events": ["Mint", "Redeem", "Borrow", "RepayBorrow", "LiquidateBorrow"],
+  "rows_indexed": 8206,
+  "validation_checks": "15/15 passed",
+  "portal_cross_ref": "0.0% diff (exact match)"
+}

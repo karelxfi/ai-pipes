@@ -1,0 +1,1 @@
+Generate a DeFi indexer for Compound V2 (EVM Lending) on Ethereum using Pipes SDK. Compound V2 is the original Compound lending protocol with 17 cToken markets, now in wind-down mode. Index Mint, Redeem, Borrow, RepayBorrow, and LiquidateBorrow events across all markets to visualize the protocol sunset — zero new supply/borrows, only withdrawals and liquidations.

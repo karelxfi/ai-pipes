@@ -1,0 +1,28 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "comptroller": { "address": "0x3d9819210a31b4961b30ef54be2aed79b9c9cd3b", "deploymentBlock": null, "verified": true },
+        "cETH": { "address": "0x4ddc2d193948926d02f9b1fe9e1daa0718270ed5", "deploymentBlock": null, "verified": true },
+        "cDAI": { "address": "0x5d3a536e4d6dbd6114cc1ead35777bab948e3643", "deploymentBlock": null, "verified": true },
+        "cUSDC": { "address": "0x39aa39c021dfbae8fac545936693ac917d5e7563", "deploymentBlock": null, "verified": true },
+        "cUSDT": { "address": "0xf650c3d88d12db855b8bf7d11be6c55a4e07dcc9", "deploymentBlock": null, "verified": true },
+        "cWBTC": { "address": "0xccf4429db6322d5c611ee964527d42e5d685dd6a", "deploymentBlock": null, "verified": true },
+        "cBAT": { "address": "0x6c8c6b02e7b2be14d4fa6022dfd6d75921d90e4e", "deploymentBlock": null, "verified": true },
+        "cZRX": { "address": "0xb3319f5d18bc0d84dd1b4825dcde5d5f7266d407", "deploymentBlock": null, "verified": true },
+        "cUNI": { "address": "0x35a18000230da775cac24873d00ff85bccded550", "deploymentBlock": null, "verified": true },
+        "cCOMP": { "address": "0x70e36f6bf80a52b3b46b3af8e106cc0ed743e8e4", "deploymentBlock": null, "verified": true },
+        "cLINK": { "address": "0xface851a4921ce59e912d19329929ce6da6eb0c7", "deploymentBlock": null, "verified": true },
+        "cMKR": { "address": "0x95b4ef2869ebd94beb4eee400a99824bf5dc325b", "deploymentBlock": null, "verified": true },
+        "cYFI": { "address": "0x80a2ae356fc9ef4305676f7a3e2ed04e12c33946", "deploymentBlock": null, "verified": true },
+        "cTUSD": { "address": "0x12392f67bdf24fae0af363c24ac620a2f67dad86", "deploymentBlock": null, "verified": true },
+        "cUSDP": { "address": "0x041171993284df560249b57358f931d9eb7b925d", "deploymentBlock": null, "verified": true },
+        "cFEI": { "address": "0x7713dd9ca933848f6819f38b8352d9a15ea73f67", "deploymentBlock": null, "verified": true },
+        "cREP": { "address": "0x158079ee67fce2f58472a96584a73c7ab9ac95c1", "deploymentBlock": null, "verified": true },
+        "COMP_token": { "address": "0xc00e94cb662c3520282e6f5717214004a7f26888", "deploymentBlock": null, "verified": true }
+      },
+      "source": "compound-docs-etherscan",
+      "sourceUrl": "https://docs.compound.finance/v2/"
+    }
+  }
+}

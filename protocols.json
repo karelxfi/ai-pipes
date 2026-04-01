@@ -1069,9 +1069,9 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": null,
+      "angle": "Protocol wind-down visualization — zero mints/borrows, only redeems, repays, and liquidations across 17 cToken markets",
       "directory": "evm/053-compound-v2",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Aave V2",
