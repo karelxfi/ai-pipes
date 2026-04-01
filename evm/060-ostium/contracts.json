@@ -1,0 +1,13 @@
+{
+  "deployments": {
+    "arbitrum": {
+      "contracts": {
+        "OstiumTrading_proxy": { "address": "0x6D0bA1f9996DBD8885827e1b2e8f6593e7702411", "deploymentBlock": null, "verified": true },
+        "OstiumTrading_impl": { "address": "0xde48b32e5326856feba9a26977303936cfa679cc", "deploymentBlock": null, "verified": true },
+        "OstiumTradingStorage_proxy": { "address": "0xcCd5891083A8acD2074690F65d3024E7D13d66E7", "deploymentBlock": null, "verified": true }
+      },
+      "source": "arbiscan",
+      "sourceUrl": "https://arbiscan.io/address/0x6D0bA1f9996DBD8885827e1b2e8f6593e7702411"
+    }
+  }
+}

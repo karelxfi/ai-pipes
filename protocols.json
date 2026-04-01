@@ -1158,9 +1158,9 @@
       "chains": [
         "Solana"
       ],
-      "angle": null,
+      "angle": "Blocked — uses native Solana Stake Pool program, not indexable via events",
       "directory": "solana/014-the-vault-liquid-staking",
-      "status": "pending"
+      "status": "blocked"
     },
     {
       "name": "JPool",
@@ -1171,9 +1171,9 @@
       "chains": [
         "Solana"
       ],
-      "angle": null,
+      "angle": "Blocked — uses native Solana Stake Pool program, not indexable via events",
       "directory": "solana/015-jpool",
-      "status": "pending"
+      "status": "blocked"
     },
     {
       "name": "Bybit Staked SOL",
@@ -1184,9 +1184,9 @@
       "chains": [
         "Solana"
       ],
-      "angle": null,
+      "angle": "Blocked — uses native Solana Stake Pool program, not indexable via events",
       "directory": "solana/016-bybit-staked-sol",
-      "status": "pending"
+      "status": "blocked"
     },
     {
       "name": "Homora V2",
@@ -1201,9 +1201,9 @@
         "Fantom",
         "Optimism"
       ],
-      "angle": null,
+      "angle": "Blocked — zero on-chain activity, protocol dormant (stale TVL from locked positions)",
       "directory": "evm/058-homora-v2",
-      "status": "pending"
+      "status": "blocked"
     },
     {
       "name": "Capyfi",
@@ -1216,9 +1216,9 @@
         "LaChain Network",
         "World Chain"
       ],
-      "angle": null,
+      "angle": "Blocked — zero Ethereum activity, TVL primarily on LaChain (not supported by Portal)",
       "directory": "evm/059-capyfi",
-      "status": "pending"
+      "status": "blocked"
     },
     {
       "name": "Ostium",
@@ -1229,9 +1229,9 @@
       "chains": [
         "Arbitrum"
       ],
-      "angle": null,
+      "angle": "RWA perpetuals trading — market open/close, limit orders, automation across 55 pairs on Arbitrum",
       "directory": "evm/060-ostium",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "Lulo",

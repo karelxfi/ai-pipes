@@ -1,0 +1,1 @@
+Generate a DeFi indexer for Ostium (EVM Derivatives) on Arbitrum using Pipes SDK. Ostium is an RWA perpetuals DEX for trading stocks, FX, commodities, and indices on-chain. Index MarketOpen, MarketClose, LimitPlaced, LimitCanceled, AutomationOpen/Close, and DelegateAdded events.

@@ -1,0 +1,15 @@
+{
+  "date": "2026-04-01",
+  "pipes_sdk_version": "1.0.0-alpha.1",
+  "agent_skills_version": "356334d66830572480347f02f08077d2def651db",
+  "claude_model": "claude-opus-4-6",
+  "angle": "RWA perpetuals trading — market open/close, limit orders, automation across 55 pairs on Arbitrum",
+  "runtime_status": "working",
+  "validation_status": "passed",
+  "chain": "arbitrum-one",
+  "contracts": ["0x6D0bA1f9996DBD8885827e1b2e8f6593e7702411"],
+  "events": ["MarketOpenOrderInitiated", "MarketCloseOrderInitiatedV2", "OpenLimitPlacedV2", "OpenLimitCanceled", "OpenLimitUpdated", "AutomationOpenOrderInitiated", "AutomationCloseOrderInitiated", "DelegateAdded"],
+  "rows_indexed": 15329,
+  "validation_checks": "14/14 passed",
+  "portal_cross_ref": "0.0% diff (exact match)"
+}

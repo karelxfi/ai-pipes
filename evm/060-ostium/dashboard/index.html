@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>Ostium — RWA Perpetuals Pulse</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #000; color: #ccc; font-family: 'Consolas','SF Mono','Source Code Pro','JetBrains Mono',monospace; font-size: 11px; line-height: 1.3; width: 1200px; min-height: 675px; }
+.header { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid #1a1a1a; background: #0a0a0a; }
+.header-left { display: flex; align-items: baseline; gap: 12px; }
+.header-title { font-size: 12px; color: #4A7AB5; letter-spacing: 0.8px; text-transform: uppercase; font-weight: normal; }
+.header-sub { font-size: 9px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+.stats { display: flex; gap: 20px; padding: 6px 10px; border-bottom: 1px solid #1a1a1a; background: #0a0a0a; }
+.stat { display: flex; flex-direction: column; }
+.stat-value { font-size: 16px; color: #fff; font-feature-settings: 'tnum'; }
+.stat-label { font-size: 9px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 0; height: calc(675px - 74px); }
+.panel { border: 1px solid #1a1a1a; padding: 0; background: #0a0a0a; position: relative; }
+.chart { width: 100%; height: 100%; }
+.footer { padding: 4px 10px; font-size: 9px; color: #444; text-align: center; border-top: 1px solid #1a1a1a; }
+.footer a { color: #4A7AB5; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-left">
+    <span class="header-title">Ostium — RWA Perpetuals Pulse</span>
+    <span class="header-sub">Arbitrum · Stocks, FX, Commodities Perps</span>
+  </div>
+  <div class="header-sub" id="period"></div>
+</div>
+<div class="stats">
+  <div class="stat"><span class="stat-value" id="total-events">—</span><span class="stat-label">Total Events</span></div>
+  <div class="stat"><span class="stat-value" id="opens">—</span><span class="stat-label">Market Opens</span></div>
+  <div class="stat"><span class="stat-value" id="closes">—</span><span class="stat-label">Market Closes</span></div>
+  <div class="stat"><span class="stat-value" id="pairs">—</span><span class="stat-label">Pairs Traded</span></div>
+  <div class="stat"><span class="stat-value" id="traders">—</span><span class="stat-label">Unique Traders</span></div>
+</div>
+<div class="grid">
+  <div class="panel"><div class="chart" id="chart-daily"></div></div>
+  <div class="panel"><div class="chart" id="chart-types"></div></div>
+  <div class="panel"><div class="chart" id="chart-pairs"></div></div>
+  <div class="panel"><div class="chart" id="chart-top"></div></div>
+</div>
+<div class="footer">Built with ai-pipes + SQD Pipes SDK | <a href="https://github.com/karelxfi">github.com/karelxfi</a> | <a href="https://x.com/karelxfi">x.com/karelxfi</a></div>
+<script>
+var CH = 'http://localhost:8123/?user=default&password=password&database=ostium';
+var PALETTE = ['#1E3A5F','#2B4F7E','#1A3050','#3D6494','#4A7AB5','#2E5480','#5A8ABF','#1F4470','#3B6A9E','#274D73'];
+function query(sql) { return fetch(CH, { method: 'POST', body: sql + ' FORMAT JSON' }).then(function(r){return r.json();}).then(function(d){return d.data;}); }
+function termOpts(title) { return { backgroundColor: 'transparent', title: { text: title.toUpperCase(), textStyle: { color: '#666', fontSize: 10, fontWeight: 'normal', fontFamily: 'Consolas, SF Mono, monospace' }, left: 8, top: 4 }, textStyle: { color: '#666', fontFamily: 'Consolas, SF Mono, Source Code Pro, monospace' }, tooltip: { backgroundColor: '#1a1a1a', borderColor: '#333', textStyle: { color: '#ccc', fontSize: 10, fontFamily: 'Consolas, monospace' }, padding: [4, 8] }, grid: { left: 48, right: 8, top: 28, bottom: 24 }, animation: false }; }
+function fmtNum(n) { return Number(n).toLocaleString('en-US'); }
+
+Promise.all([
+  query("SELECT count() c FROM trading_events"),
+  query("SELECT count() c FROM trading_events WHERE event_type='market_open'"),
+  query("SELECT count() c FROM trading_events WHERE event_type='market_close'"),
+  query("SELECT count(distinct pair_index) c FROM trading_events"),
+  query("SELECT count(distinct trader) c FROM trading_events WHERE event_type IN ('market_open','market_close','limit_placed')"),
+  query("SELECT min(timestamp) mn, max(timestamp) mx FROM trading_events"),
+]).then(function(r) {
+  document.getElementById('total-events').textContent = fmtNum(r[0][0].c);
+  document.getElementById('opens').textContent = fmtNum(r[1][0].c);
+  document.getElementById('closes').textContent = fmtNum(r[2][0].c);
+  document.getElementById('pairs').textContent = fmtNum(r[3][0].c);
+  document.getElementById('traders').textContent = fmtNum(r[4][0].c);
+  document.getElementById('period').textContent = r[5][0].mn.substring(0,10) + ' \u2192 ' + r[5][0].mx.substring(0,10);
+});
+
+query("SELECT toDate(timestamp) d, countIf(event_type='market_open') o, countIf(event_type='market_close') c, countIf(event_type IN ('limit_placed','limit_updated','limit_canceled')) l, countIf(event_type IN ('auto_open','auto_close')) a FROM trading_events GROUP BY d ORDER BY d").then(function(data) {
+  var ch = echarts.init(document.getElementById('chart-daily'));
+  var opts = termOpts('daily trading activity');
+  opts.xAxis = { type: 'category', data: data.map(function(r){return r.d;}), axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'}, splitLine:{show:false} };
+  opts.yAxis = { type: 'value', axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'}, splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}} };
+  opts.legend = { show: true, top: 4, right: 8, textStyle: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' }, itemWidth: 10, itemHeight: 8 };
+  opts.series = [
+    { name: 'Open', type: 'bar', stack: 'a', data: data.map(function(r){return Number(r.o);}), itemStyle: { color: '#3D7A6B' }, barMaxWidth: 20 },
+    { name: 'Close', type: 'bar', stack: 'a', data: data.map(function(r){return Number(r.c);}), itemStyle: { color: '#8B3A3A' }, barMaxWidth: 20 },
+    { name: 'Limit', type: 'bar', stack: 'a', data: data.map(function(r){return Number(r.l);}), itemStyle: { color: '#2B4F7E' }, barMaxWidth: 20 },
+    { name: 'Auto', type: 'bar', stack: 'a', data: data.map(function(r){return Number(r.a);}), itemStyle: { color: '#4A7AB5' }, barMaxWidth: 20 },
+  ];
+  opts.tooltip.trigger = 'axis';
+  ch.setOption(opts);
+});
+
+query("SELECT event_type, count() c FROM trading_events GROUP BY event_type ORDER BY c DESC").then(function(data) {
+  var ch = echarts.init(document.getElementById('chart-types'));
+  var opts = termOpts('event breakdown');
+  opts.grid = undefined;
+  var total = data.reduce(function(a,r){return a+Number(r.c);},0);
+  opts.series = [{ type: 'treemap', data: data.map(function(r,i){ return { name: r.event_type + ' (' + (100*Number(r.c)/total).toFixed(1) + '%)', value: Number(r.c), itemStyle: { color: PALETTE[i % PALETTE.length] } }; }), label: { color: '#ccc', fontSize: 9, fontFamily: 'Consolas, monospace', fontWeight: 'normal' }, breadcrumb: { show: false }, itemStyle: { borderColor: '#000', borderWidth: 1, gapWidth: 1 }, left: 8, right: 8, top: 28, bottom: 8, roam: false }];
+  ch.setOption(opts);
+});
+
+query("SELECT pair_index, count() c FROM trading_events WHERE event_type IN ('market_open','market_close') GROUP BY pair_index ORDER BY c DESC LIMIT 10").then(function(data) {
+  var ch = echarts.init(document.getElementById('chart-pairs'));
+  var opts = termOpts('top pairs by trades');
+  opts.grid = { left: 60, right: 48, top: 28, bottom: 8 };
+  opts.yAxis = { type: 'category', data: data.map(function(r){return 'Pair #'+r.pair_index;}).reverse(), axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'}, splitLine:{show:false} };
+  opts.xAxis = { type: 'value', axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'}, splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}} };
+  opts.series = [{ type: 'bar', data: data.map(function(r){return Number(r.c);}).reverse(), itemStyle: { color: function(p){ return PALETTE[p.dataIndex % PALETTE.length]; } }, barMaxWidth: 14, label: { show: true, position: 'right', color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace', formatter: function(p){ return fmtNum(p.value); } } }];
+  ch.setOption(opts);
+});
+
+query("SELECT trader, count() c FROM trading_events WHERE event_type IN ('market_open','market_close','limit_placed') GROUP BY trader ORDER BY c DESC LIMIT 8").then(function(data) {
+  var ch = echarts.init(document.getElementById('chart-top'));
+  var opts = termOpts('top traders');
+  opts.grid = { left: 100, right: 48, top: 28, bottom: 8 };
+  opts.yAxis = { type: 'category', data: data.map(function(r){return '0x'+r.trader.substring(2,6)+'..'+r.trader.substring(38);}).reverse(), axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'}, splitLine:{show:false} };
+  opts.xAxis = { type: 'value', axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas,monospace'}, splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}} };
+  opts.series = [{ type: 'bar', data: data.map(function(r){return Number(r.c);}).reverse(), itemStyle: { color: function(p){ return PALETTE[p.dataIndex % PALETTE.length]; } }, barMaxWidth: 14, label: { show: true, position: 'right', color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace', formatter: function(p){ return fmtNum(p.value); } } }];
+  ch.setOption(opts);
+});
+
+setTimeout(function() { window.__DASHBOARD_READY__ = true; }, 3000);
+</script>
+</body>
+</html>
