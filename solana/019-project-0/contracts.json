@@ -1,0 +1,20 @@
+{
+  "deployments": {
+    "solana": {
+      "contracts": {
+        "marginfi_v2_program": {
+          "address": "MFv2hWf31Z9kbCa1snEPYctwafyhdvnV7FZnsebVacA",
+          "deploymentBlock": null,
+          "verified": true
+        },
+        "marginfi_group": {
+          "address": "4qp6Fx6tnZkY5Wropq9wUYgtFxXKwE6viZxFHg3rdAG8",
+          "deploymentBlock": null,
+          "verified": true
+        }
+      },
+      "source": "portal-verification",
+      "sourceUrl": "https://docs.marginfi.com/mfi-v2"
+    }
+  }
+}

@@ -1300,9 +1300,9 @@
       "chains": [
         "Solana"
       ],
-      "angle": null,
+      "angle": "Prime Broker Pulse \u2014 tracking deposits, borrows, repays, withdrawals, and liquidations across Solana's first multi-venue DeFi prime broker",
       "directory": "solana/019-project-0",
-      "status": "pending"
+      "status": "done"
     },
     {
       "name": "sDAI",

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>Project 0 — Prime Broker Pulse</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#ccc;font-family:'Consolas','SF Mono','Source Code Pro','JetBrains Mono',monospace;font-size:11px;line-height:1.3;width:1200px;height:675px;overflow:hidden}
+.header{display:flex;align-items:baseline;justify-content:space-between;padding:6px 10px 4px;border-bottom:1px solid #1a1a1a}
+.title{color:#4A7AB5;font-size:12px;letter-spacing:1px;text-transform:uppercase;font-weight:normal}
+.subtitle{color:#666;font-size:9px;text-transform:uppercase;letter-spacing:0.5px}
+.stats{display:flex;gap:20px}
+.stat-value{color:#fff;font-size:16px;font-feature-settings:'tnum'}
+.stat-label{color:#666;font-size:9px;text-transform:uppercase;letter-spacing:0.8px}
+.grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;height:calc(100% - 48px);gap:0}
+.panel{border:1px solid #1a1a1a;padding:8px;background:#0a0a0a;position:relative;overflow:hidden}
+.panel-title{color:#666;font-size:10px;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px}
+.chart{width:100%;height:calc(100% - 16px)}
+.footer{position:absolute;bottom:0;left:0;right:0;text-align:center;color:#333;font-size:8px;padding:2px;background:#000;border-top:1px solid #1a1a1a}
+.loading{color:#666;text-align:center;padding-top:40px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <span class="title">Project 0 — Prime Broker Pulse</span>
+    <span class="subtitle" style="margin-left:10px">marginfi v2 · solana</span>
+  </div>
+  <div class="stats">
+    <div><div class="stat-value" id="totalActions">—</div><div class="stat-label">Total Actions</div></div>
+    <div><div class="stat-value" id="uniqueUsers">—</div><div class="stat-label">Unique Users</div></div>
+    <div><div class="stat-value" id="liquidations">—</div><div class="stat-label">Liquidations</div></div>
+    <div><div class="stat-value" id="timeRange">—</div><div class="stat-label">Period</div></div>
+  </div>
+</div>
+<div class="grid">
+  <div class="panel"><div class="panel-title">Daily Lending Activity</div><div class="chart" id="chart1"></div></div>
+  <div class="panel"><div class="panel-title">Action Breakdown</div><div class="chart" id="chart2"></div></div>
+  <div class="panel"><div class="panel-title">Top Asset Pools (Bank Accounts)</div><div class="chart" id="chart3"></div></div>
+  <div class="panel"><div class="panel-title">Hourly Activity Pattern</div><div class="chart" id="chart4"></div></div>
+</div>
+<div class="footer">Built with ai-pipes + SQD Pipes SDK | github.com/karelxfi | x.com/karelxfi</div>
+<script>
+var CH = 'http://localhost:8123/?user=default&password=password&database=project0_lending';
+var PALETTE = ['#1E3A5F','#2B4F7E','#1A3050','#3D6494','#4A7AB5','#2E5480','#5A8ABF','#1F4470','#3B6A9E','#274D73'];
+var ACTION_COLORS = {deposit:'#3D7A6B',withdraw:'#8B3A3A',borrow:'#2B4F7E',repay:'#4A7AB5',liquidate:'#C0392B'};
+
+function q(sql){return fetch(CH,{method:'POST',body:sql+' FORMAT JSONEachRow'}).then(r=>r.text()).then(t=>{if(!t.trim())return[];return t.trim().split('\n').map(l=>JSON.parse(l))})}
+function terminalOpts(title){return{backgroundColor:'transparent',title:{text:title.toUpperCase(),textStyle:{color:'#666',fontSize:10,fontWeight:'normal',fontFamily:'Consolas, SF Mono, monospace'},left:8,top:4},textStyle:{color:'#666',fontFamily:'Consolas, SF Mono, Source Code Pro, monospace'},tooltip:{backgroundColor:'#1a1a1a',borderColor:'#333',textStyle:{color:'#ccc',fontSize:10,fontFamily:'Consolas, monospace'},padding:[4,8]},grid:{left:48,right:8,top:24,bottom:24},animation:false}}
+function shortAddr(a){return a?a.slice(0,4)+'..'+a.slice(-4):''}
+function fmtNum(n){if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return n.toString()}
+
+async function render(){
+  // Header stats
+  var totals=await q("SELECT count() as cnt, count(DISTINCT fee_payer) as users FROM project0_actions");
+  var liqCount=await q("SELECT count() as cnt FROM project0_actions WHERE action='liquidate'");
+  var timeR=await q("SELECT formatDateTime(min(timestamp),'%Y-%m-%d') as mn, formatDateTime(max(timestamp),'%Y-%m-%d') as mx FROM project0_actions");
+  if(totals[0]){document.getElementById('totalActions').textContent=fmtNum(Number(totals[0].cnt))}
+  if(totals[0]){document.getElementById('uniqueUsers').textContent=fmtNum(Number(totals[0].users))}
+  if(liqCount[0]){document.getElementById('liquidations').textContent=liqCount[0].cnt}
+  if(timeR[0]){document.getElementById('timeRange').textContent=timeR[0].mn+' → '+timeR[0].mx}
+
+  // Chart 1: Daily stacked bar
+  var daily=await q("SELECT toDate(timestamp) as day, action, count() as cnt FROM project0_actions GROUP BY day, action ORDER BY day, action");
+  var days=[...new Set(daily.map(r=>r.day))].sort();
+  var acts=['deposit','borrow','repay','withdraw','liquidate'];
+  var series1=acts.map(function(a){return{name:a,type:'bar',stack:'total',data:days.map(function(d){var row=daily.find(function(r){return r.day===d&&r.action===a});return row?Number(row.cnt):0}),itemStyle:{color:ACTION_COLORS[a]},barMaxWidth:20}});
+  var c1=echarts.init(document.getElementById('chart1'));
+  c1.setOption(Object.assign(terminalOpts(''),{xAxis:{type:'category',data:days.map(function(d){return d.slice(5)}),axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas, monospace'},splitLine:{show:false}},yAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas, monospace',formatter:function(v){return fmtNum(v)}},splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}}},legend:{show:true,top:2,right:8,textStyle:{color:'#666',fontSize:9,fontFamily:'Consolas, monospace'},itemWidth:10,itemHeight:8},series:series1}));
+
+  // Chart 2: Action breakdown horizontal bar
+  var breakdown=await q("SELECT action, count() as cnt FROM project0_actions GROUP BY action ORDER BY cnt DESC");
+  var c2=echarts.init(document.getElementById('chart2'));
+  c2.setOption(Object.assign(terminalOpts(''),{grid:{left:60,right:50,top:24,bottom:24},xAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas, monospace',formatter:function(v){return fmtNum(v)}},splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}}},yAxis:{type:'category',data:breakdown.map(function(r){return r.action}).reverse(),axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#ccc',fontSize:10,fontFamily:'Consolas, monospace'}},series:[{type:'bar',data:breakdown.map(function(r){return{value:Number(r.cnt),itemStyle:{color:ACTION_COLORS[r.action]||'#2B4F7E'}}}).reverse(),barMaxWidth:14,label:{show:true,position:'right',color:'#ccc',fontSize:9,fontFamily:'Consolas, monospace',formatter:function(p){return fmtNum(p.value)}}}]}));
+
+  // Chart 3: Top banks horizontal bar
+  var banks=await q("SELECT bank, count() as cnt FROM project0_actions GROUP BY bank ORDER BY cnt DESC LIMIT 10");
+  var c3=echarts.init(document.getElementById('chart3'));
+  c3.setOption(Object.assign(terminalOpts(''),{grid:{left:72,right:50,top:24,bottom:24},xAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas, monospace',formatter:function(v){return fmtNum(v)}},splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}}},yAxis:{type:'category',data:banks.map(function(r){return shortAddr(r.bank)}).reverse(),axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#ccc',fontSize:9,fontFamily:'Consolas, monospace'}},series:[{type:'bar',data:banks.map(function(r,i){return{value:Number(r.cnt),itemStyle:{color:PALETTE[i%PALETTE.length]}}}).reverse(),barMaxWidth:12,label:{show:true,position:'right',color:'#ccc',fontSize:9,fontFamily:'Consolas, monospace',formatter:function(p){return fmtNum(p.value)}}}]}));
+
+  // Chart 4: Hourly pattern line
+  var hourly=await q("SELECT toHour(timestamp) as hr, count() as cnt FROM project0_actions GROUP BY hr ORDER BY hr");
+  var c4=echarts.init(document.getElementById('chart4'));
+  var hrs=Array.from({length:24},function(_,i){return i});
+  var hrData=hrs.map(function(h){var row=hourly.find(function(r){return Number(r.hr)===h});return row?Number(row.cnt):0});
+  c4.setOption(Object.assign(terminalOpts(''),{xAxis:{type:'category',data:hrs.map(function(h){return String(h).padStart(2,'0')+':00'}),axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas, monospace',interval:3},splitLine:{show:false}},yAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas, monospace',formatter:function(v){return fmtNum(v)}},splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}}},series:[{type:'line',data:hrData,lineStyle:{width:1.5,color:'#2B4F7E'},showSymbol:false,areaStyle:{opacity:0.08,color:'#2B4F7E'}}]}));
+
+  window.__DASHBOARD_READY__=true;
+}
+render().catch(function(e){console.error(e)});
+</script>
+</body>
+</html>

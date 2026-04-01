@@ -1,0 +1,14 @@
+{
+  "date": "2026-04-01",
+  "pipes_sdk_version": "1.0.0-alpha.1",
+  "agent_skills_version": "N/A",
+  "claude_model": "claude-opus-4-6",
+  "angle": "Prime Broker Pulse — tracking deposits, borrows, repays, withdrawals, and liquidations across Project 0 (marginfi v2), Solana's first multi-venue DeFi prime broker",
+  "runtime_status": "working",
+  "validation_status": "passed",
+  "total_rows": 663887,
+  "sync_period": "2026-03-27 to 2026-04-01",
+  "lookback_days": 5,
+  "unique_users": 18938,
+  "unique_banks": 68
+}
