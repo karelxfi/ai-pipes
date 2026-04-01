@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>AVANTIS OIL & COMMODITIES PULSE</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#ccc;font-family:'Consolas','SF Mono','Source Code Pro','JetBrains Mono',monospace;font-size:11px;line-height:1.3}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:auto auto auto auto;gap:0;width:1200px;margin:0 auto}
+.header{grid-column:1/-1;border-bottom:1px solid #1a1a1a;padding:8px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:13px;color:#4A7AB5;letter-spacing:1.2px;font-weight:normal}
+.header .meta{color:#666;font-size:9px;text-transform:uppercase;letter-spacing:0.8px}
+.stats{grid-column:1/-1;display:flex;border-bottom:1px solid #1a1a1a}
+.stat{flex:1;padding:8px;border-right:1px solid #1a1a1a}
+.stat:last-child{border-right:none}
+.stat .label{font-size:9px;color:#666;text-transform:uppercase;letter-spacing:0.8px}
+.stat .value{font-size:16px;color:#fff;font-feature-settings:'tnum';margin-top:2px}
+.stat .sub{font-size:9px;color:#666;margin-top:1px}
+.panel{border:1px solid #1a1a1a;border-top:none;border-left:none;padding:0;background:#0a0a0a;min-height:180px}
+.panel:nth-child(3n+3){border-right:1px solid #1a1a1a}
+.panel .title{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:0.8px;padding:6px 8px 0}
+.chart{width:100%;height:170px}
+.footer{grid-column:1/-1;padding:4px 8px;border-top:1px solid #1a1a1a;color:#666;font-size:9px;display:flex;justify-content:space-between}
+</style>
+</head>
+<body>
+<div class="grid">
+  <div class="header">
+    <h1>AVANTIS OIL & COMMODITIES PULSE</h1>
+    <div class="meta">BASE MAINNET &middot; <span id="hRange"></span></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="label">TOTAL ORDERS</div><div class="value" id="sTotal">-</div><div class="sub" id="sTotalSub"></div></div>
+    <div class="stat"><div class="label">WTI CRUDE OIL</div><div class="value" id="sOil">-</div><div class="sub">PAIR 65</div></div>
+    <div class="stat"><div class="label">GOLD XAU</div><div class="value" id="sGold">-</div><div class="sub">PAIR 21</div></div>
+    <div class="stat"><div class="label">SILVER XAG</div><div class="value" id="sSilver">-</div><div class="sub">PAIR 20</div></div>
+    <div class="stat"><div class="label">UNIQUE TRADERS</div><div class="value" id="sTraders">-</div></div>
+    <div class="stat"><div class="label">BUY / SELL</div><div class="value" id="sBuySell">-</div></div>
+  </div>
+
+  <div class="panel" style="grid-column:1/3"><div class="title">COMMODITY ORDERS PER DAY</div><div class="chart" id="cDaily"></div></div>
+  <div class="panel"><div class="title">COMMODITY VOLUME SPLIT</div><div class="chart" id="cSplit"></div></div>
+
+  <div class="panel"><div class="title">LEVERAGE DISTRIBUTION</div><div class="chart" id="cLev"></div></div>
+  <div class="panel"><div class="title">TOP COMMODITY TRADERS</div><div class="chart" id="cTraders"></div></div>
+  <div class="panel"><div class="title">BUY/SELL BY COMMODITY</div><div class="chart" id="cBuySell"></div></div>
+
+  <div class="panel" style="grid-column:1/3"><div class="title">HOURLY ACTIVITY HEATMAP</div><div class="chart" id="cHeatmap"></div></div>
+  <div class="panel"><div class="title">POSITION SIZE DISTRIBUTION</div><div class="chart" id="cPosSize"></div></div>
+
+  <div class="footer">
+    <span>Built with ai-pipes + SQD Pipes SDK | github.com/karelxfi | x.com/karelxfi</span>
+    <span id="fUpdated"></span>
+  </div>
+</div>
+<script>
+var CH = 'http://localhost:8123/?user=default&password=password&database=avantis_oil&default_format=JSONEachRow';
+var PALETTE = ['#1E3A5F','#2B4F7E','#1A3050','#3D6494','#4A7AB5','#2E5480','#5A8ABF','#1F4470','#3B6A9E','#274D73'];
+var COMMODITY_COLORS = { 'WTI/USD': '#2B4F7E', 'XAU/USD': '#8B7D3C', 'XAG/USD': '#6B6B6B' };
+
+function q(sql) {
+  return fetch(CH, { method: 'POST', body: sql }).then(function(r) { return r.text(); }).then(function(t) {
+    return t.trim().split('\n').filter(Boolean).map(function(l) { return JSON.parse(l); });
+  });
+}
+
+function termOpts(title) {
+  return {
+    backgroundColor: 'transparent',
+    title: { text: title.toUpperCase(), textStyle: { color: '#666', fontSize: 10, fontWeight: 'normal', fontFamily: 'Consolas, SF Mono, monospace' }, left: 8, top: 4 },
+    textStyle: { color: '#666', fontFamily: 'Consolas, SF Mono, Source Code Pro, monospace' },
+    tooltip: { backgroundColor: '#1a1a1a', borderColor: '#333', textStyle: { color: '#ccc', fontSize: 10, fontFamily: 'Consolas, monospace' }, padding: [4, 8] },
+    grid: { left: 48, right: 8, top: 24, bottom: 24 },
+    animation: false
+  };
+}
+
+var axDef = { axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' }, splitLine: { show: false } };
+var yDef = { axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' }, splitLine: { lineStyle: { color: '#1a1a1a', type: 'dashed' } } };
+
+async function init() {
+  // Stats
+  var total = await q("SELECT count() as cnt FROM commodity_orders WHERE order_type = 'market'");
+  document.getElementById('sTotal').textContent = Number(total[0].cnt).toLocaleString();
+
+  var byCommodity = await q("SELECT commodity, count() as cnt FROM commodity_orders WHERE order_type = 'market' GROUP BY commodity ORDER BY cnt DESC");
+  var commodityMap = {};
+  byCommodity.forEach(function(r) { commodityMap[r.commodity] = Number(r.cnt); });
+  document.getElementById('sOil').textContent = (commodityMap['WTI/USD'] || 0).toLocaleString();
+  document.getElementById('sGold').textContent = (commodityMap['XAU/USD'] || 0).toLocaleString();
+  document.getElementById('sSilver').textContent = (commodityMap['XAG/USD'] || 0).toLocaleString();
+
+  var traders = await q("SELECT uniq(trader) as cnt FROM commodity_orders WHERE order_type = 'market'");
+  document.getElementById('sTraders').textContent = Number(traders[0].cnt).toLocaleString();
+
+  var buySell = await q("SELECT countIf(is_buy = 1) as buys, countIf(is_buy = 0) as sells FROM commodity_orders WHERE order_type = 'market' AND is_open = 1");
+  document.getElementById('sBuySell').textContent = Number(buySell[0].buys).toLocaleString() + ' / ' + Number(buySell[0].sells).toLocaleString();
+
+  var dateRange = await q("SELECT min(timestamp) as mn, max(timestamp) as mx FROM commodity_orders");
+  document.getElementById('hRange').textContent = dateRange[0].mn.slice(0, 10) + ' \u2192 ' + dateRange[0].mx.slice(0, 10);
+  document.getElementById('sTotalSub').textContent = 'MARKET ORDERS';
+
+  // Daily orders by commodity (stacked)
+  var daily = await q("SELECT toDate(timestamp) as d, commodity, count() as cnt FROM commodity_orders WHERE order_type = 'market' GROUP BY d, commodity ORDER BY d");
+  var dates = [...new Set(daily.map(function(r) { return r.d; }))];
+  var commodities = ['WTI/USD', 'XAU/USD', 'XAG/USD'];
+  var dailyData = {};
+  commodities.forEach(function(c) { dailyData[c] = new Array(dates.length).fill(0); });
+  daily.forEach(function(r) {
+    var idx = dates.indexOf(r.d);
+    if (idx >= 0 && dailyData[r.commodity]) dailyData[r.commodity][idx] = Number(r.cnt);
+  });
+
+  var cDaily = echarts.init(document.getElementById('cDaily'));
+  var dailyOpts = termOpts('');
+  dailyOpts.grid = { left: 48, right: 8, top: 12, bottom: 24 };
+  dailyOpts.xAxis = Object.assign({}, axDef, { type: 'category', data: dates.map(function(d) { return d.slice(5); }) });
+  dailyOpts.yAxis = Object.assign({}, yDef, { type: 'value' });
+  dailyOpts.legend = { show: true, data: commodities, top: 0, right: 8, textStyle: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' }, itemWidth: 10, itemHeight: 8 };
+  dailyOpts.series = commodities.map(function(c) {
+    return { name: c, type: 'bar', stack: 'total', data: dailyData[c], itemStyle: { color: COMMODITY_COLORS[c] }, barMaxWidth: 12 };
+  });
+  cDaily.setOption(dailyOpts);
+
+  // Commodity volume treemap
+  var cSplit = echarts.init(document.getElementById('cSplit'));
+  var splitOpts = termOpts('');
+  splitOpts.series = [{
+    type: 'treemap', width: '96%', height: '82%', left: '2%', top: '8%',
+    breadcrumb: { show: false },
+    label: { color: '#ccc', fontSize: 11, fontFamily: 'Consolas, monospace', formatter: function(p) { return p.name + '\n' + p.value; } },
+    itemStyle: { borderColor: '#000', borderWidth: 2 },
+    data: byCommodity.map(function(r, i) { return { name: r.commodity, value: Number(r.cnt), itemStyle: { color: COMMODITY_COLORS[r.commodity] || PALETTE[i] } }; })
+  }];
+  cSplit.setOption(splitOpts);
+
+  // Leverage distribution
+  var lev = await q("SELECT floor(leverage / 1e10) as lev_x, count() as cnt FROM commodity_orders WHERE order_type = 'market' AND is_open = 1 AND leverage > 0 GROUP BY lev_x ORDER BY lev_x");
+  var cLev = echarts.init(document.getElementById('cLev'));
+  var levOpts = termOpts('');
+  levOpts.grid = { left: 48, right: 8, top: 12, bottom: 24 };
+  levOpts.xAxis = Object.assign({}, axDef, { type: 'category', data: lev.map(function(r) { return r.lev_x + 'x'; }) });
+  levOpts.yAxis = Object.assign({}, yDef, { type: 'value' });
+  levOpts.series = [{ type: 'bar', data: lev.map(function(r) { return Number(r.cnt); }), itemStyle: { color: '#2B4F7E' }, barMaxWidth: 14 }];
+  cLev.setOption(levOpts);
+
+  // Top traders
+  var topTraders = await q("SELECT trader, count() as cnt FROM commodity_orders WHERE order_type = 'market' GROUP BY trader ORDER BY cnt DESC LIMIT 8");
+  var cTraders = echarts.init(document.getElementById('cTraders'));
+  var trOpts = termOpts('');
+  trOpts.grid = { left: 80, right: 40, top: 12, bottom: 8 };
+  trOpts.yAxis = Object.assign({}, axDef, { type: 'category', data: topTraders.map(function(r) { return '0x' + r.trader.slice(2, 6) + '..'; }).reverse(), inverse: false });
+  trOpts.xAxis = Object.assign({}, yDef, { type: 'value' });
+  trOpts.series = [{ type: 'bar', data: topTraders.map(function(r) { return Number(r.cnt); }).reverse(), itemStyle: { color: '#2B4F7E' }, barMaxWidth: 10,
+    label: { show: true, position: 'right', color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' } }];
+  cTraders.setOption(trOpts);
+
+  // Buy/sell by commodity
+  var bs = await q("SELECT commodity, countIf(is_buy = 1) as buys, countIf(is_buy = 0) as sells FROM commodity_orders WHERE order_type = 'market' AND is_open = 1 GROUP BY commodity ORDER BY commodity");
+  var cBuySell = echarts.init(document.getElementById('cBuySell'));
+  var bsOpts = termOpts('');
+  bsOpts.grid = { left: 60, right: 8, top: 12, bottom: 24 };
+  bsOpts.yAxis = Object.assign({}, axDef, { type: 'category', data: bs.map(function(r) { return r.commodity; }).reverse() });
+  bsOpts.xAxis = Object.assign({}, yDef, { type: 'value' });
+  bsOpts.legend = { show: true, data: ['BUY', 'SELL'], top: 0, right: 8, textStyle: { color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' }, itemWidth: 10, itemHeight: 8 };
+  bsOpts.series = [
+    { name: 'BUY', type: 'bar', stack: 'bs', data: bs.map(function(r) { return Number(r.buys); }).reverse(), itemStyle: { color: '#3D7A6B' }, barMaxWidth: 14 },
+    { name: 'SELL', type: 'bar', stack: 'bs', data: bs.map(function(r) { return Number(r.sells); }).reverse(), itemStyle: { color: '#8B3A3A' }, barMaxWidth: 14 }
+  ];
+  cBuySell.setOption(bsOpts);
+
+  // Hourly heatmap
+  var heatmap = await q("SELECT toDayOfWeek(timestamp) as dow, toHour(timestamp) as hr, count() as cnt FROM commodity_orders WHERE order_type = 'market' GROUP BY dow, hr ORDER BY dow, hr");
+  var dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  var hours = [];
+  for (var i = 0; i < 24; i++) hours.push(i + 'h');
+  var heatData = [];
+  var maxVal = 0;
+  heatmap.forEach(function(r) {
+    var v = Number(r.cnt);
+    if (v > maxVal) maxVal = v;
+    heatData.push([Number(r.hr), Number(r.dow) - 1, v]);
+  });
+
+  var cHeatmap = echarts.init(document.getElementById('cHeatmap'));
+  var hmOpts = termOpts('');
+  hmOpts.grid = { left: 40, right: 8, top: 12, bottom: 24 };
+  hmOpts.xAxis = Object.assign({}, axDef, { type: 'category', data: hours });
+  hmOpts.yAxis = Object.assign({}, axDef, { type: 'category', data: dayNames, splitArea: { show: false } });
+  hmOpts.visualMap = { show: false, min: 0, max: maxVal || 1, inRange: { color: ['#0a0a0a', '#1A3050', '#2B4F7E', '#4A7AB5'] } };
+  hmOpts.series = [{ type: 'heatmap', data: heatData, label: { show: false }, itemStyle: { borderColor: '#000', borderWidth: 1 } }];
+  cHeatmap.setOption(hmOpts);
+
+  // Position size distribution (by initial_pos_token buckets in USDC, divided by 1e6)
+  var pos = await q("SELECT multiIf(toFloat64(initial_pos_token) / 1e6 < 100, '<100', toFloat64(initial_pos_token) / 1e6 < 500, '100-500', toFloat64(initial_pos_token) / 1e6 < 1000, '500-1K', toFloat64(initial_pos_token) / 1e6 < 5000, '1K-5K', '5K+') as bucket, count() as cnt FROM commodity_orders WHERE order_type = 'market' AND is_open = 1 AND initial_pos_token != '0' GROUP BY bucket ORDER BY cnt DESC");
+  var cPosSize = echarts.init(document.getElementById('cPosSize'));
+  var psOpts = termOpts('');
+  psOpts.grid = { left: 60, right: 40, top: 12, bottom: 8 };
+  psOpts.yAxis = Object.assign({}, axDef, { type: 'category', data: pos.map(function(r) { return r.bucket; }).reverse() });
+  psOpts.xAxis = Object.assign({}, yDef, { type: 'value' });
+  psOpts.series = [{ type: 'bar', data: pos.map(function(r) { return Number(r.cnt); }).reverse(), itemStyle: { color: '#2B4F7E' }, barMaxWidth: 12,
+    label: { show: true, position: 'right', color: '#666', fontSize: 9, fontFamily: 'Consolas, monospace' } }];
+  cPosSize.setOption(psOpts);
+
+  document.getElementById('fUpdated').textContent = 'Updated: ' + new Date().toISOString().slice(0, 16);
+  window.__DASHBOARD_READY__ = true;
+}
+
+init().catch(function(e) { console.error(e); });
+</script>
+</body>
+</html>
