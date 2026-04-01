@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>AVANTIS PERPS PULSE</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#ccc;font-family:'Consolas','SF Mono','Source Code Pro','JetBrains Mono',monospace;font-size:11px;line-height:1.3}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:auto auto auto;gap:0;width:1200px;margin:0 auto}
+.header{grid-column:1/-1;border-bottom:1px solid #1a1a1a;padding:8px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:13px;color:#4A7AB5;letter-spacing:1.2px;font-weight:normal}
+.header .meta{color:#666;font-size:9px;text-transform:uppercase;letter-spacing:0.8px}
+.stats{grid-column:1/-1;display:flex;border-bottom:1px solid #1a1a1a}
+.stat{flex:1;padding:8px;border-right:1px solid #1a1a1a}
+.stat:last-child{border-right:none}
+.stat .label{font-size:9px;color:#666;text-transform:uppercase;letter-spacing:0.8px}
+.stat .value{font-size:16px;color:#fff;font-feature-settings:'tnum';margin-top:2px}
+.stat .sub{font-size:9px;color:#666;margin-top:1px}
+.panel{border:1px solid #1a1a1a;border-top:none;border-left:none;padding:0;background:#0a0a0a;min-height:180px}
+.panel:nth-child(3n+1){border-left:none}
+.panel .title{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:0.8px;padding:6px 8px 0}
+.chart{width:100%;height:170px}
+.footer{grid-column:1/-1;padding:4px 8px;border-top:1px solid #1a1a1a;color:#666;font-size:9px;display:flex;justify-content:space-between}
+</style>
+</head>
+<body>
+<div class="grid">
+  <div class="header">
+    <h1>AVANTIS PERPS PULSE</h1>
+    <div class="meta">BASE MAINNET &middot; <span id="hRange"></span></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="label">MARKET ORDERS</div><div class="value" id="sMarket">-</div><div class="sub" id="sMarketSub"></div></div>
+    <div class="stat"><div class="label">LIMIT ORDERS</div><div class="value" id="sLimit">-</div></div>
+    <div class="stat"><div class="label">TP/SL UPDATES</div><div class="value" id="sTpSl">-</div></div>
+    <div class="stat"><div class="label">UNIQUE TRADERS</div><div class="value" id="sTraders">-</div></div>
+    <div class="stat"><div class="label">AVG LEVERAGE</div><div class="value" id="sLev">-</div><div class="sub">OPEN ORDERS</div></div>
+    <div class="stat"><div class="label">BUY / SELL</div><div class="value" id="sBuySell">-</div></div>
+  </div>
+
+  <div class="panel" style="grid-column:1/3"><div class="title">MARKET ORDERS PER DAY</div><div class="chart" id="cDaily"></div></div>
+  <div class="panel"><div class="title">PAIR DISTRIBUTION (OPENS)</div><div class="chart" id="cPairs"></div></div>
+
+  <div class="panel"><div class="title">LEVERAGE DISTRIBUTION (OPENS)</div><div class="chart" id="cLev"></div></div>
+  <div class="panel"><div class="title">TOP TRADERS BY ORDERS</div><div class="chart" id="cTraders"></div></div>
+  <div class="panel"><div class="title">ORDER TYPE BREAKDOWN</div><div class="chart" id="cTypes"></div></div>
+
+  <div class="footer">
+    <span>Built with ai-pipes + SQD Pipes SDK | github.com/karelxfi | x.com/karelxfi</span>
+    <span>AVANTIS V1.5 &middot; 0x44914408...1105e11d4e</span>
+  </div>
+</div>
+<script>
+var PAIR_MAP = {
+  0:'BTC/USD',1:'ETH/USD',2:'LINK/USD',3:'DOGE/USD',4:'MATIC/USD',5:'ADA/USD',
+  6:'SUSHI/USD',7:'AAVE/USD',8:'ALGO/USD',9:'BAT/USD',10:'COMP/USD',11:'DOT/USD',
+  12:'EOS/USD',13:'LTC/USD',14:'MANA/USD',15:'OMG/USD',16:'SNX/USD',17:'UNI/USD',
+  18:'XLM/USD',19:'XRP/USD',20:'ZEC/USD',21:'EUR/USD',22:'USD/JPY',23:'GBP/USD',
+  24:'USD/CHF',25:'AUD/USD',26:'USD/CAD',27:'NZD/USD',28:'EUR/CHF',29:'EUR/JPY',
+  30:'EUR/GBP',50:'XAU/USD',59:'SOL/USD',61:'AVAX/USD',62:'NEAR/USD',88:'WIF/USD',
+  96:'TRUMP/USD',97:'VIRTUAL/USD'
+};
+var PALETTE=['#1E3A5F','#2B4F7E','#1A3050','#3D6494','#4A7AB5','#2E5480','#5A8ABF','#1F4470','#3B6A9E','#274D73'];
+var CH='http://localhost:8123/?user=default&password=password&database=avantis';
+
+function q(sql){return fetch(CH,{method:'POST',body:sql+' FORMAT JSON'}).then(r=>r.json()).then(r=>r.data)}
+function pairName(idx){return PAIR_MAP[idx]||('PAIR-'+idx)}
+function fmtK(n){return n>=1000?(n/1000).toFixed(1)+'K':String(n)}
+
+function termOpts(title){
+  return{backgroundColor:'transparent',
+    title:{text:title.toUpperCase(),textStyle:{color:'#666',fontSize:10,fontWeight:'normal',fontFamily:'Consolas, SF Mono, monospace'},left:8,top:4},
+    textStyle:{color:'#666',fontFamily:'Consolas, SF Mono, Source Code Pro, monospace'},
+    tooltip:{backgroundColor:'#1a1a1a',borderColor:'#333',textStyle:{color:'#ccc',fontSize:10,fontFamily:'Consolas, monospace'},padding:[4,8]},
+    grid:{left:48,right:8,top:24,bottom:24},animation:false}
+}
+
+async function init(){
+  var [daily,pairs,levData,traders,counts,range,tpsl,buySellData]=await Promise.all([
+    q("SELECT toDate(timestamp) as d, sum(is_open) as opens, count()-sum(is_open) as closes FROM market_orders GROUP BY d ORDER BY d"),
+    q("SELECT pair_index, count() as cnt FROM market_orders WHERE is_open=1 GROUP BY pair_index ORDER BY cnt DESC LIMIT 10"),
+    q("SELECT multiIf(leverage/1e10<25,'1-25',leverage/1e10<50,'25-50',leverage/1e10<100,'50-100',leverage/1e10<200,'100-200',leverage/1e10<500,'200-500','500+') as lev_bucket, count() as cnt FROM market_orders WHERE is_open=1 GROUP BY lev_bucket ORDER BY min(leverage)"),
+    q("SELECT trader, count() as cnt FROM market_orders GROUP BY trader ORDER BY cnt DESC LIMIT 8"),
+    q("SELECT count() as total, sum(is_open) as opens, count(DISTINCT trader) as traders FROM market_orders"),
+    q("SELECT min(timestamp) as mn, max(timestamp) as mx FROM market_orders"),
+    q("SELECT (SELECT count() FROM tp_updates)+(SELECT count() FROM sl_updates) as total, (SELECT count() FROM limit_orders) as limits"),
+    q("SELECT sum(is_buy) as buys, count()-sum(is_buy) as sells, avg(leverage)/1e10 as avg_lev FROM market_orders WHERE is_open=1")
+  ]);
+
+  var c=counts[0];var bs=buySellData[0];
+  document.getElementById('sMarket').textContent=fmtK(Number(c.total));
+  var openN=Number(c.opens),closeN=Number(c.total)-openN;
+  document.getElementById('sMarketSub').textContent=openN+' open / '+closeN+' close';
+  document.getElementById('sLimit').textContent=fmtK(Number(tpsl[0].limits));
+  document.getElementById('sTpSl').textContent=fmtK(Number(tpsl[0].total));
+  document.getElementById('sTraders').textContent=c.traders;
+  document.getElementById('sLev').textContent=Number(bs.avg_lev).toFixed(0)+'x';
+  var buys=Number(bs.buys),sells=Number(bs.sells);
+  document.getElementById('sBuySell').textContent=fmtK(buys)+' / '+fmtK(sells);
+
+  var mn=range[0].mn.slice(0,10),mx=range[0].mx.slice(0,10);
+  document.getElementById('hRange').textContent=mn+' \u2192 '+mx;
+
+  // Daily chart
+  var dc=echarts.init(document.getElementById('cDaily'));
+  dc.setOption(Object.assign(termOpts(''),{
+    tooltip:{trigger:'axis',backgroundColor:'#1a1a1a',borderColor:'#333',textStyle:{color:'#ccc',fontSize:10,fontFamily:'Consolas, monospace'},padding:[4,8]},
+    legend:{show:true,top:2,right:8,textStyle:{color:'#666',fontSize:9,fontFamily:'Consolas, monospace'},itemWidth:10,itemHeight:8},
+    xAxis:{type:'category',data:daily.map(r=>r.d),axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas, monospace'},splitLine:{show:false}},
+    yAxis:{axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas, monospace'},splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}}},
+    series:[
+      {name:'Opens',type:'bar',stack:'t',data:daily.map(r=>Number(r.opens)),itemStyle:{color:'#2B4F7E'},barMaxWidth:14},
+      {name:'Closes',type:'bar',stack:'t',data:daily.map(r=>Number(r.closes)),itemStyle:{color:'#1A3050'},barMaxWidth:14}
+    ]
+  }));
+
+  // Pairs horizontal bar
+  var pc=echarts.init(document.getElementById('cPairs'));
+  var pData=pairs.slice().reverse();
+  pc.setOption(Object.assign(termOpts(''),{
+    grid:{left:72,right:36,top:8,bottom:16},
+    xAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9},splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}}},
+    yAxis:{type:'category',data:pData.map(r=>pairName(Number(r.pair_index))),axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#ccc',fontSize:9,fontFamily:'Consolas, monospace'}},
+    series:[{type:'bar',data:pData.map((r,i)=>({value:Number(r.cnt),itemStyle:{color:PALETTE[i%PALETTE.length]}})),barMaxWidth:10,label:{show:true,position:'right',color:'#666',fontSize:9,fontFamily:'Consolas, monospace'}}]
+  }));
+
+  // Leverage distribution
+  var lc=echarts.init(document.getElementById('cLev'));
+  lc.setOption(Object.assign(termOpts(''),{
+    grid:{left:40,right:8,top:8,bottom:24},
+    xAxis:{type:'category',data:levData.map(r=>r.lev_bucket+'x'),axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9,fontFamily:'Consolas, monospace'},splitLine:{show:false}},
+    yAxis:{axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9},splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}}},
+    series:[{type:'bar',data:levData.map(r=>Number(r.cnt)),itemStyle:{color:'#2B4F7E'},barMaxWidth:14,label:{show:true,position:'top',color:'#666',fontSize:9,fontFamily:'Consolas, monospace'}}]
+  }));
+
+  // Top traders
+  var tc=echarts.init(document.getElementById('cTraders'));
+  var tData=traders.slice().reverse();
+  tc.setOption(Object.assign(termOpts(''),{
+    grid:{left:90,right:36,top:8,bottom:16},
+    xAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#666',fontSize:9},splitLine:{lineStyle:{color:'#1a1a1a',type:'dashed'}}},
+    yAxis:{type:'category',data:tData.map(r=>'0x'+r.trader.slice(2,6)+'..'+r.trader.slice(-4)),axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#ccc',fontSize:9,fontFamily:'Consolas, monospace'}},
+    series:[{type:'bar',data:tData.map((r,i)=>({value:Number(r.cnt),itemStyle:{color:PALETTE[i%PALETTE.length]}})),barMaxWidth:10,label:{show:true,position:'right',color:'#666',fontSize:9,fontFamily:'Consolas, monospace'}}]
+  }));
+
+  // Order type breakdown (treemap)
+  var otc=echarts.init(document.getElementById('cTypes'));
+  var treeData=[
+    {name:'MARKET\nOPEN',value:openN,itemStyle:{color:'#2B4F7E'}},
+    {name:'MARKET\nCLOSE',value:closeN,itemStyle:{color:'#1A3050'}},
+    {name:'LIMIT',value:Number(tpsl[0].limits),itemStyle:{color:'#3D6494'}},
+    {name:'TP UPD',value:Number(tpsl[0].total)-Number(tpsl[0].limits),itemStyle:{color:'#1E3A5F'}}
+  ];
+  otc.setOption({backgroundColor:'transparent',animation:false,
+    series:[{type:'treemap',data:treeData,width:'96%',height:'88%',left:'2%',top:'6%',
+      breadcrumb:{show:false},
+      label:{color:'#ccc',fontSize:10,fontFamily:'Consolas, monospace',fontWeight:'normal'},
+      upperLabel:{show:false},
+      itemStyle:{borderColor:'#000',borderWidth:1,gapWidth:1},
+      levels:[{itemStyle:{borderColor:'#000',borderWidth:1,gapWidth:1}}]
+    }]
+  });
+
+  window.__DASHBOARD_READY__=true;
+}
+init().catch(console.error);
+</script>
+</body>
+</html>

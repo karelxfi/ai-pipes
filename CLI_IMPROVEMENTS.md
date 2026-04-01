@@ -72,3 +72,7 @@ Tracked improvements for the Pipes CLI (`@iankressin/pipes-cli`), gathered from 
 - **Source:** evm/057-fluid-lite
 - **Issue:** When indexing multiple contracts deployed at very different times (e.g., iETHv2 at block 17M, fLiteUSD at block 24.7M), each decoder needs a different `range.from`. The SDK handles this correctly but the CLI init doesn't support multi-contract scaffolds with different ranges.
 - **Fix:** Allow specifying per-contract deployment blocks in `init` config, or at minimum document the multi-decoder pattern in generated comments.
+
+### Base chain proxy resolution works same as Ethereum
+- **Source:** evm/062-avantis
+- **Issue:** No new issue — confirming that proxy detection/resolution on Base (chain-id 8453) works identically to Ethereum with `evm-typegen`. The `--chain-id 8453` flag correctly fetches ABIs from BaseScan.

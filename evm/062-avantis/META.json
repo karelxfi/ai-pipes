@@ -1,0 +1,19 @@
+{
+  "date": "2026-04-01",
+  "pipes_sdk_version": "1.0.0-alpha.1",
+  "agent_skills_version": "latest",
+  "claude_model": "claude-opus-4-6",
+  "angle": "Perpetuals trading pulse — market/limit orders, leverage distribution, pair popularity, buy vs sell pressure on Base's largest perps DEX",
+  "runtime_status": "working",
+  "validation_status": "passed",
+  "chain": "base-mainnet",
+  "contract": "0x44914408af82bc9983bbb330e3578e1105e11d4e",
+  "events_indexed": [
+    "MarketOrderInitiated",
+    "LimitOrderInitiated",
+    "OpenLimitPlaced",
+    "MarginUpdated",
+    "TpUpdated",
+    "SlUpdated"
+  ]
+}

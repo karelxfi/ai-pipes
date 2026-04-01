@@ -831,7 +831,7 @@
         "Starknet",
         "Ethereum"
       ],
-      "angle": "Skipped — primary chain Starknet not supported by Portal, Ethereum StarkEx shut down (~$246K residual TVL)",
+      "angle": "Skipped \u2014 primary chain Starknet not supported by Portal, Ethereum StarkEx shut down (~$246K residual TVL)",
       "directory": "evm/039-extended",
       "status": "skipped",
       "skip_reason": "Primary chain Starknet not supported by Portal. Ethereum StarkEx deployment shut down after migration to Starknet (Aug 2025). Only ~$246K residual TVL on Ethereum."
@@ -845,7 +845,7 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": "Treasury-backed lending book — tracking loan originations, repayments, collateral flows, and rare liquidations in Olympus DAO's no price-based liquidation system",
+      "angle": "Treasury-backed lending book \u2014 tracking loan originations, repayments, collateral flows, and rare liquidations in Olympus DAO's no price-based liquidation system",
       "directory": "evm/053-cooler-loans",
       "status": "done"
     },
@@ -858,7 +858,7 @@
       "chains": [
         "Scroll"
       ],
-      "angle": "Credit Card on Chain — spending, cashback, debt management on Scroll",
+      "angle": "Credit Card on Chain \u2014 spending, cashback, debt management on Scroll",
       "directory": "evm/041-etherfi-borrowing-market",
       "status": "done"
     },
@@ -871,7 +871,7 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": "Reserve Pulse — iUSD mints/burns + siUSD vault deposits/withdrawals",
+      "angle": "Reserve Pulse \u2014 iUSD mints/burns + siUSD vault deposits/withdrawals",
       "directory": "evm/056-infinifi",
       "status": "done"
     },
@@ -897,7 +897,7 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": "Dual-vault yield pulse — exchange rate growth, capital flows & strategy rebalancing across iETHv2 and fLiteUSD",
+      "angle": "Dual-vault yield pulse \u2014 exchange rate growth, capital flows & strategy rebalancing across iETHv2 and fLiteUSD",
       "directory": "evm/057-fluid-lite",
       "status": "done"
     },
@@ -910,7 +910,7 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": "Leveraged BTC Liquidity Pulse — 2x leverage deposits, withdrawals, borrower fee distributions",
+      "angle": "Leveraged BTC Liquidity Pulse \u2014 2x leverage deposits, withdrawals, borrower fee distributions",
       "directory": "evm/045-yield-basis",
       "status": "done"
     },
@@ -923,7 +923,7 @@
       "chains": [
         "Binance"
       ],
-      "angle": "Unified liquidity hub operations — supply, borrow, withdraw, repay flows through Fluid Liquidity on BSC",
+      "angle": "Unified liquidity hub operations \u2014 supply, borrow, withdraw, repay flows through Fluid Liquidity on BSC",
       "directory": "evm/046-venus-flux",
       "status": "done"
     },
@@ -943,7 +943,7 @@
         "Mantle",
         "Arbitrum"
       ],
-      "angle": "Multi-PSM stablecoin flows — Mint, Redeem, Allocate, Withdraw across USDC/USDT/USD1 Peg Stability Modules",
+      "angle": "Multi-PSM stablecoin flows \u2014 Mint, Redeem, Allocate, Withdraw across USDC/USDT/USD1 Peg Stability Modules",
       "directory": "evm/047-reservoir-protocol",
       "status": "done"
     },
@@ -956,7 +956,7 @@
       "chains": [
         "Binance"
       ],
-      "angle": "asBNB liquid staking lifecycle — token transfers (mint/burn/transfer) plus minter events on BSC",
+      "angle": "asBNB liquid staking lifecycle \u2014 token transfers (mint/burn/transfer) plus minter events on BSC",
       "directory": "evm/048-aster-asbnb",
       "status": "done"
     },
@@ -991,7 +991,7 @@
         "Linea",
         "xDai"
       ],
-      "angle": "Governance token lifecycle — sdCRV + SDT transfers + veSDT lock/unlock/supply on Ethereum",
+      "angle": "Governance token lifecycle \u2014 sdCRV + SDT transfers + veSDT lock/unlock/supply on Ethereum",
       "directory": "evm/050-stake-dao",
       "status": "done"
     },
@@ -1043,7 +1043,7 @@
         "Polygon zkEVM",
         "MegaETH"
       ],
-      "angle": "Protocol-wide aggregate activity — 89 vault deposit/withdraw flows + BIFI governance token on Ethereum",
+      "angle": "Protocol-wide aggregate activity \u2014 89 vault deposit/withdraw flows + BIFI governance token on Ethereum",
       "directory": "evm/051-beefy",
       "status": "done"
     },
@@ -1056,7 +1056,7 @@
       "chains": [
         "Avalanche"
       ],
-      "angle": "Multi-market Compound-style lending — Mint, Redeem, Borrow, RepayBorrow, LiquidateBorrow across 12 qiToken markets on Avalanche",
+      "angle": "Multi-market Compound-style lending \u2014 Mint, Redeem, Borrow, RepayBorrow, LiquidateBorrow across 12 qiToken markets on Avalanche",
       "directory": "evm/052-benqi-lending",
       "status": "done"
     },
@@ -1069,7 +1069,7 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": "Protocol wind-down visualization — zero mints/borrows, only redeems, repays, and liquidations across 17 cToken markets",
+      "angle": "Protocol wind-down visualization \u2014 zero mints/borrows, only redeems, repays, and liquidations across 17 cToken markets",
       "directory": "evm/053-compound-v2",
       "status": "done"
     },
@@ -1098,7 +1098,7 @@
         "Ethereum",
         "Fraxtal"
       ],
-      "angle": "Dual-token liquid staking lifecycle — frxETH DeFi flows + sfrxETH stake/unstake on Ethereum",
+      "angle": "Dual-token liquid staking lifecycle \u2014 frxETH DeFi flows + sfrxETH stake/unstake on Ethereum",
       "directory": "evm/055-frax-ether",
       "status": "done"
     },
@@ -1111,7 +1111,7 @@
       "chains": [
         "Solana"
       ],
-      "angle": "Blocked — uses native Solana Stake Pool program, not indexable via events",
+      "angle": "Blocked \u2014 uses native Solana Stake Pool program, not indexable via events",
       "directory": "solana/013-phantom-sol",
       "status": "blocked"
     },
@@ -1145,7 +1145,7 @@
         "Polygon zkEVM",
         "Avalanche"
       ],
-      "angle": "Yield booster lifecycle — AURA + auraBAL tokens + Booster deposit/withdraw on Ethereum",
+      "angle": "Yield booster lifecycle \u2014 AURA + auraBAL tokens + Booster deposit/withdraw on Ethereum",
       "directory": "evm/057-aura",
       "status": "done"
     },
@@ -1158,7 +1158,7 @@
       "chains": [
         "Solana"
       ],
-      "angle": "Blocked — uses native Solana Stake Pool program, not indexable via events",
+      "angle": "Blocked \u2014 uses native Solana Stake Pool program, not indexable via events",
       "directory": "solana/014-the-vault-liquid-staking",
       "status": "blocked"
     },
@@ -1171,7 +1171,7 @@
       "chains": [
         "Solana"
       ],
-      "angle": "Blocked — uses native Solana Stake Pool program, not indexable via events",
+      "angle": "Blocked \u2014 uses native Solana Stake Pool program, not indexable via events",
       "directory": "solana/015-jpool",
       "status": "blocked"
     },
@@ -1184,7 +1184,7 @@
       "chains": [
         "Solana"
       ],
-      "angle": "Blocked — uses native Solana Stake Pool program, not indexable via events",
+      "angle": "Blocked \u2014 uses native Solana Stake Pool program, not indexable via events",
       "directory": "solana/016-bybit-staked-sol",
       "status": "blocked"
     },
@@ -1201,7 +1201,7 @@
         "Fantom",
         "Optimism"
       ],
-      "angle": "Blocked — zero on-chain activity, protocol dormant (stale TVL from locked positions)",
+      "angle": "Blocked \u2014 zero on-chain activity, protocol dormant (stale TVL from locked positions)",
       "directory": "evm/058-homora-v2",
       "status": "blocked"
     },
@@ -1216,7 +1216,7 @@
         "LaChain Network",
         "World Chain"
       ],
-      "angle": "Blocked — zero Ethereum activity, TVL primarily on LaChain (not supported by Portal)",
+      "angle": "Blocked \u2014 zero Ethereum activity, TVL primarily on LaChain (not supported by Portal)",
       "directory": "evm/059-capyfi",
       "status": "blocked"
     },
@@ -1229,7 +1229,7 @@
       "chains": [
         "Arbitrum"
       ],
-      "angle": "RWA perpetuals trading — market open/close, limit orders, automation across 55 pairs on Arbitrum",
+      "angle": "RWA perpetuals trading \u2014 market open/close, limit orders, automation across 55 pairs on Arbitrum",
       "directory": "evm/060-ostium",
       "status": "done"
     },
@@ -1242,7 +1242,7 @@
       "chains": [
         "Solana"
       ],
-      "angle": "Blocked — Solana yield aggregator, needs instruction-level indexing research",
+      "angle": "Blocked \u2014 Solana yield aggregator, needs instruction-level indexing research",
       "directory": "solana/017-lulo",
       "status": "blocked"
     },
@@ -1255,7 +1255,7 @@
       "chains": [
         "Ethereum"
       ],
-      "angle": "BOLD stablecoin lifecycle — borrow (mint) vs repay (burn) vs transfer on Ethereum",
+      "angle": "BOLD stablecoin lifecycle \u2014 borrow (mint) vs repay (burn) vs transfer on Ethereum",
       "directory": "evm/061-liquity-v2",
       "status": "done"
     },
@@ -1268,7 +1268,7 @@
       "chains": [
         "Solana"
       ],
-      "angle": "Blocked — uses native Solana Stake Pool program, not indexable via events",
+      "angle": "Blocked \u2014 uses native Solana Stake Pool program, not indexable via events",
       "directory": "solana/018-blazestake",
       "status": "blocked"
     },
@@ -1328,7 +1328,8 @@
       ],
       "angle": null,
       "directory": "solana/020-loopscale",
-      "status": "pending"
+      "status": "blocked",
+      "blocked_reason": "Closed-source Solana program, no public program ID or IDL available"
     },
     {
       "name": "Infrared Finance",
@@ -1352,9 +1353,9 @@
       "chains": [
         "Base"
       ],
-      "angle": null,
-      "directory": "evm/065-avantis",
-      "status": "pending"
+      "angle": "Perpetuals trading pulse \u2014 market/limit orders, leverage distribution, pair popularity, buy vs sell pressure",
+      "directory": "evm/062-avantis",
+      "status": "done"
     },
     {
       "name": "Save",

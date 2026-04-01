@@ -128,3 +128,13 @@ Tracked improvements for `subsquid-labs/agent-skills`, gathered from real indexe
 - **Source:** evm/057-fluid-lite
 - **Issue:** When querying Portal for a contract deployed very recently (<7 days), broad block-range queries (e.g., `from_block: 20000000, to_block: 24777000`) return 0 logs even though events exist. The `get_contract_activity` tool with `7d` timeframe finds them correctly. This appears to be a Portal indexing lag or sparse-data optimization issue.
 - **Fix:** Document in portal-query-evm-logs that for recently deployed contracts, use `get_contract_activity` with short timeframes first to confirm activity, then use the exact block range returned.
+
+### portal-query-evm-logs: `get_contract_activity` severely undercounts high-activity contracts
+- **Source:** evm/062-avantis
+- **Issue:** `portal_get_contract_activity` with `7d` timeframe reported 1740 total events for Avantis Trading contract, but direct stream queries and the indexer found 40K+ events in the same period. The tool's internal limit caps the reported count. For validation, always use direct Portal Stream API queries on specific block ranges rather than trusting the activity summary for high-activity contracts.
+- **Fix:** Document this limitation in portal-query-evm-logs. Add warning: "For contracts with >2K events/week, use direct stream queries for accurate counts."
+
+### pipes-new-indexer: gTrade fork pattern recognition
+- **Source:** evm/062-avantis
+- **Issue:** Avantis is a gTrade/Gains Network fork with identical event signatures (MarketOrderInitiated, LimitOrderInitiated, TpUpdated, SlUpdated, etc.) and pair index mapping. The skill doesn't mention gTrade fork recognition. If a protocol is a gTrade fork, you can reuse the same event definitions and pair index mapping with a different proxy address.
+- **Fix:** Add "gTrade forks" to the common fork patterns section alongside Aave V3 forks, Uniswap forks, etc.
