@@ -46,6 +46,8 @@ interface StakingEvent {
   block_number: number
   timestamp: string
   tx_hash: string
+  tx_index: number
+  log_index: number
   event_type: string
   user_address: string
   amount: string
@@ -69,6 +71,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'deposit',
           user_address: d.event.dst,
           amount: d.event.wad.toString(),
@@ -82,6 +86,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'request_withdraw',
           user_address: d.event.user,
           amount: d.event.amount.toString(),
@@ -95,6 +101,8 @@ export async function main() {
           block_number: d.block.number,
           timestamp: toIso(d),
           tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex,
+          log_index: d.rawEvent.logIndex,
           event_type: 'claim_withdrawal',
           user_address: d.event.user,
           amount: d.event.amount.toString(),

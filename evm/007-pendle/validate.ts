@@ -30,7 +30,7 @@ async function main() {
 
   const cols = await query<{ name: string }>(`SELECT name FROM system.columns WHERE database = '${process.env.CLICKHOUSE_DATABASE ?? 'pendle'}' AND table = 'pendle_swaps'`)
   const colNames = cols.map(c => c.name)
-  const required = ['swap_type', 'caller', 'market', 'asset', 'receiver', 'block_number', 'tx_hash', 'timestamp']
+  const required = ['swap_type', 'caller', 'market', 'asset', 'receiver', 'block_number', 'tx_hash', 'tx_index', 'log_index', 'timestamp']
   const missing = required.filter(r => !colNames.includes(r))
   if (missing.length === 0) pass(`Schema OK: all ${required.length} required columns present`)
   else fail(`Missing columns: ${missing.join(', ')}`)

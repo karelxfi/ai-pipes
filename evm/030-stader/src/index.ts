@@ -50,6 +50,8 @@ interface StaderEvent {
   block_number: number
   timestamp: string
   tx_hash: string
+  tx_index: number
+  log_index: number
   event_type: string
   caller: string
   owner: string
@@ -76,6 +78,7 @@ export async function main() {
       for (const d of pool.deposited) {
         events.push({
           block_number: d.block.number, timestamp: toIso(d), tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex, log_index: d.rawEvent.logIndex,
           event_type: 'deposit', caller: d.event.caller, owner: d.event.owner,
           eth_amount: d.event.assets.toString(), ethx_shares: d.event.shares.toString(),
           pool_id: 0, referral_id: '', total_eth_balance: '0', total_ethx_supply: '0', sign: 1,
@@ -85,6 +88,7 @@ export async function main() {
       for (const d of pool.depositReferral) {
         events.push({
           block_number: d.block.number, timestamp: toIso(d), tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex, log_index: d.rawEvent.logIndex,
           event_type: 'deposit_referral', caller: d.event.caller, owner: d.event.owner,
           eth_amount: d.event.assets.toString(), ethx_shares: d.event.shares.toString(),
           pool_id: 0, referral_id: d.event.referralId, total_eth_balance: '0', total_ethx_supply: '0', sign: 1,
@@ -94,6 +98,7 @@ export async function main() {
       for (const d of pool.ethTransferred) {
         events.push({
           block_number: d.block.number, timestamp: toIso(d), tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex, log_index: d.rawEvent.logIndex,
           event_type: 'eth_to_pool', caller: '', owner: '',
           eth_amount: '0', ethx_shares: '0',
           pool_id: Number(d.event.poolId), referral_id: '',
@@ -104,6 +109,7 @@ export async function main() {
       for (const d of pool.transferredToWithdraw) {
         events.push({
           block_number: d.block.number, timestamp: toIso(d), tx_hash: d.rawEvent.transactionHash,
+          tx_index: d.rawEvent.transactionIndex, log_index: d.rawEvent.logIndex,
           event_type: 'eth_to_withdraw', caller: '', owner: '',
           eth_amount: d.event.amount.toString(), ethx_shares: '0',
           pool_id: 0, referral_id: '', total_eth_balance: '0', total_ethx_supply: '0', sign: 1,
