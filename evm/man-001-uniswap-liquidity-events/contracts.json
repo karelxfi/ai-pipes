@@ -1,0 +1,212 @@
+{
+  "deployments": {
+    "ethereum": {
+      "contracts": {
+        "globals": {
+          "address": "0x804a6F5F667170F545Bf14e5DDB48C70B788390C",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Maple Globals",
+          "type": "core"
+        },
+        "treasury": {
+          "address": "0xa9466EaBd096449d650D5AEB0dD3dA6F52FD0B19",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Maple Treasury",
+          "type": "core"
+        },
+        "syrupUSDCPool": {
+          "address": "0x80ac24aA929eaF5013f6436cdA2a7ba190f5Cc0b",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Syrup USDC Pool",
+          "type": "pool"
+        },
+        "syrupUSDTPool": {
+          "address": "0x356B8d89c1e1239Cbbb9dE4815c39A1474d5BA7D",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Syrup USDT Pool",
+          "type": "pool"
+        },
+        "securedLendingUSDCPool": {
+          "address": "0xC39a5A616F0ad1Ff45077FA2dE3f79ab8eb8b8B9",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Secured Lending USDC Pool",
+          "type": "pool"
+        },
+        "fixedTermLoanFactory": {
+          "address": "0x36a7350309B2Eb30F3B908aB0154851B5ED81db0",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Fixed Term Loan Factory",
+          "type": "factory"
+        },
+        "fixedTermLoanFactoryV2": {
+          "address": "0xeA067DB5B32CE036Ee5D8607DBB02f544768dBC6",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Fixed Term Loan Factory V2",
+          "type": "factory"
+        },
+        "fixedTermLoanManagerFactory": {
+          "address": "0x1551717AE4FdCB65ed028F7fB7abA39908f6A7A6",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Fixed Term Loan Manager Factory",
+          "type": "factory"
+        },
+        "poolManagerFactory": {
+          "address": "0xE463cD473EcC1d1A4ecF20b62624D84DD20a8339",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Pool Manager Factory",
+          "type": "factory"
+        },
+        "openTermLoanFactory": {
+          "address": "0x6Fad515Fc046DD17166453A79725f50b917b7cF6",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Open Term Loan Factory",
+          "type": "factory"
+        },
+        "openTermLoanManagerFactory": {
+          "address": "0x90b14505221a24039A2D11Ad5862339db97Cc160",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Open Term Loan Manager Factory",
+          "type": "factory"
+        },
+        "withdrawalManagerCyclicalFactory": {
+          "address": "0xb9e25B584dc4a7C9d47aEF577f111fBE5705773B",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Withdrawal Manager Cyclical Factory",
+          "type": "factory"
+        },
+        "withdrawalManagerQueueFactory": {
+          "address": "0xca33105902E8d232DDFb9f71Ff3D79C7E7f2C4e5",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Withdrawal Manager Queue Factory",
+          "type": "factory"
+        },
+        "liquidatorFactory": {
+          "address": "0xa2091116649b070D2a27Fc5C85c9820302114c63",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Liquidator Factory",
+          "type": "factory"
+        },
+        "feeManager": {
+          "address": "0xFeACa6A5703E6F9DE0ebE0975C93AE34c00523F2",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Fee Manager",
+          "type": "manager"
+        },
+        "poolPermissionManager": {
+          "address": "0xBe10aDcE8B6E3E02Db384E7FaDA5395DD113D8b3",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Pool Permission Manager",
+          "type": "manager"
+        },
+        "mplv1": {
+          "address": "0x33349B282065b0284d756F0577FB39c158F935e6",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "MPL Token (v1)",
+          "type": "token"
+        },
+        "xmpl": {
+          "address": "0x4937A209D4cDbD3ecD48857277cfd4dA4D82914c",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "xMPL (Staked MPL)",
+          "type": "token"
+        },
+        "syrupToken": {
+          "address": "0x643C4E15d7d62Ad0aBeC4a9BD4b001aA3Ef52d66",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Syrup Token (Proxy)",
+          "type": "token"
+        },
+        "stSyrup": {
+          "address": "0xc7E8b36E0766D9B04c93De68A9D47dD11f260B45",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "stSyrup (Staked Syrup)",
+          "type": "token"
+        }
+      },
+      "source": "maple-github",
+      "sourceUrl": "https://github.com/maple-labs/address-registry"
+    },
+    "base": {
+      "contracts": {
+        "globals": {
+          "address": "0x7f3C3636208A18c7941BF051807db56864061465",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Maple Globals",
+          "type": "core"
+        },
+        "treasury": {
+          "address": "0x3A5ab01B4E142F41f54a861c984D19C866Ec1736",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Maple Treasury",
+          "type": "core"
+        },
+        "cashUSDCPool": {
+          "address": "0xDd5Bb9aCF5E02089735A33344c6e3A8BB0d4075D",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Cash USDC Pool",
+          "type": "pool"
+        },
+        "poolManagerFactory": {
+          "address": "0xD4f0e224222e3F767AC389B2b1b7663990DFa6E9",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Pool Manager Factory",
+          "type": "factory"
+        },
+        "fixedTermLoanFactory": {
+          "address": "0x1915A8dE08A92b846dF7C845e140E4b0714820bd",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Fixed Term Loan Factory",
+          "type": "factory"
+        },
+        "openTermLoanFactory": {
+          "address": "0x8B487386E432F0f82Ca611F59dBE973761FBb1Ad",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Open Term Loan Factory",
+          "type": "factory"
+        },
+        "feeManager": {
+          "address": "0xc4D7807a5571887F7b50182d072f4fF4654099b0",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Fee Manager",
+          "type": "manager"
+        },
+        "poolPermissionManager": {
+          "address": "0xBe10aDcE8B6E3E02Db384E7FaDA5395DD113D8b3",
+          "deploymentBlock": null,
+          "verified": true,
+          "name": "Pool Permission Manager",
+          "type": "manager"
+        }
+      },
+      "source": "maple-github",
+      "sourceUrl": "https://github.com/maple-labs/address-registry"
+    }
+  }
+}

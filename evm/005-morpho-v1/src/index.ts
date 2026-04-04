@@ -1,11 +1,15 @@
+/* 
+  Indexes single contract, multiple events, events processed by common function, 3 target tables.
+*/
+
 import 'dotenv/config'
 import path from 'node:path'
 import { createClient } from '@clickhouse/client'
-import { evmDecoder, evmPortalStream } from '@subsquid/pipes/evm'
+import { DecodedEvent, evmDecoder, evmPortalStream } from '@subsquid/pipes/evm'
 import { clickhouseTarget } from '@subsquid/pipes/targets/clickhouse'
 import { z } from 'zod'
 import { events as morphoBlueEvents } from './contracts/0xBBBBBbbBBb9cc5e90e3b3Af64bDAF62C37EEFFCb.js'
-import { enrichEvents, serializeJsonWithBigInt, toSnakeKeysArray } from './utils/index.js'
+import { type SnakeTopKeys, serializeJsonWithBigInt, toSnakeKeysArray, transform } from './utils/index.js'
 
 const env = z
   .object({
@@ -30,7 +34,7 @@ const custom = evmDecoder({
     Borrow: morphoBlueEvents.Borrow,
     Liquidate: morphoBlueEvents.Liquidate,
   },
-}).pipe(enrichEvents)
+});
 
 export async function main() {
   await evmPortalStream({
@@ -63,17 +67,17 @@ export async function main() {
         onData: async ({ data, store }) => {
           await store.insert({
             table: 'morpho_blue_supply',
-            values: toSnakeKeysArray(data.custom.Supply),
+            values: transform(data.custom.Supply),
             format: 'JSONEachRow',
           })
           await store.insert({
             table: 'morpho_blue_borrow',
-            values: toSnakeKeysArray(data.custom.Borrow),
+            values: transform(data.custom.Borrow),
             format: 'JSONEachRow',
           })
           await store.insert({
             table: 'morpho_blue_liquidate',
-            values: toSnakeKeysArray(data.custom.Liquidate),
+            values: transform(data.custom.Liquidate),
             format: 'JSONEachRow',
           })
         },
