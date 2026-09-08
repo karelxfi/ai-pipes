@@ -442,37 +442,11 @@ function decodeBytes32(hex) {
 ### MakerDAO decimal conventions
 These appear in MakerDAO and forks: `wad` = 18 decimals, `ray` = 27 decimals, `rad` = 45 decimals. Divide accordingly.
 
-## Improvement Tracking (MANDATORY after every indexer)
+## Reusable improvements
 
-**You MUST do ALL of these after EVERY indexer. No exceptions.**
+When the requested indexer work reveals a reproducible CLI or skill defect, record the evidence in the example's `IMPROVEMENTS.md` and link an existing root improvement entry when relevant. Do not create empty maintenance records or perform unrelated skill changes after every indexer.
 
-### 1. Update root improvement files
-- **`CLI_IMPROVEMENTS.md`** — Append any new Pipes CLI issues (templates, init bugs, missing features). Add the source example reference. Don't duplicate existing entries — update with new source refs if same issue recurs.
-- **`AGENT_SKILLS_IMPROVEMENTS.md`** — Append any new agent-skills issues (skill docs, workflows, missing patterns). Same dedup rules.
-
-### 2. Patch agent-skills and create PR (MANDATORY)
-After every indexer, review what you learned and determine if any agent-skills files need updating. This includes:
-- **Portal query skills** (portal-query-evm-logs, portal-query-evm-traces, etc.) — wrong filter docs, missing warnings, verification workflows
-- **pipes-new-indexer** — proxy patterns, ABI issues, scaffold gaps
-- **pipes-deploy** — Docker, ClickHouse, CORS issues
-- **pipes-troubleshooting** — new error patterns and fixes
-
-If changes are needed, edit files under `.agents/skills/`, commit separately, and create a PR:
-```bash
-git add .agents/skills/
-git commit -m "fix(skills): <what and why>"
-SKILL_COMMIT=$(git rev-parse HEAD)
-bash scripts/pr-skill-patches.sh "$SKILL_COMMIT" "<description>"
-```
-
-The PR script syncs with upstream before patching — it will only submit actual changes, not formatting diffs. If nothing genuinely new was learned, skip the PR but still review.
-
-### 3. Check — did you skip anything?
-Before committing the indexer, verify:
-- [ ] `CLI_IMPROVEMENTS.md` — reviewed, updated if needed (even if "no new issues")
-- [ ] `AGENT_SKILLS_IMPROVEMENTS.md` — reviewed, updated if needed
-- [ ] Skills PR submitted if patches were made (or confirmed nothing new to patch)
-- [ ] `contracts.json` created and pushed to contracts-registry
+If the user's scope includes fixing the shared skill, make a separate focused commit and use `scripts/pr-skill-patches.sh` for its review workflow. Otherwise report the bounded follow-up. Finish the requested indexer and its data validation even when no shared-skill update is needed.
 
 ## Contracts Registry Integration
 
